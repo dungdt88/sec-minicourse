@@ -1,0 +1,2130 @@
+{
+  "schemaVersion": "1.0",
+  "contentVersion": "2026-10-25",
+  "locale": "vi",
+  "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
+  "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
+  "characters": [
+    {
+      "id": "soc",
+      "name": "Sóc Hạt Dẻ",
+      "trait": "Khéo tay, mê tết vòng",
+      "catchphrase": "Để tớ làm cho!",
+      "role": "Làm sản phẩm"
+    },
+    {
+      "id": "gau",
+      "name": "Gấu Mật",
+      "trait": "Giữ tiền, nhưng lúc nào cũng muốn tiêu hết vào mật ong",
+      "catchphrase": "Có tiền rồi, mua mật ong thôi!",
+      "role": "Giữ tiền, ghi sổ"
+    },
+    {
+      "id": "tho",
+      "name": "Thỏ Bông",
+      "trait": "Nói chuyện giỏi, thích đi bán hàng",
+      "catchphrase": "Để tớ đi hỏi các bạn!",
+      "role": "Bán hàng, quảng bá"
+    },
+    {
+      "id": "cu",
+      "name": "Cú Mèo",
+      "trait": "Hay lo xa, thích hỏi \"lỡ… thì sao\"",
+      "catchphrase": "Khoan đã, lỡ… thì sao?",
+      "role": "Trưởng nhóm, nhắc việc"
+    }
+  ],
+  "sdg": [
+    {
+      "number": 1,
+      "title": "Xóa nghèo",
+      "kidCaption": "Giúp mọi người không còn nghèo.",
+      "icon": "assets/sdg/vi/sdg-01.png"
+    },
+    {
+      "number": 2,
+      "title": "Không còn nạn đói",
+      "kidCaption": "Ai cũng có đủ cơm ăn.",
+      "icon": "assets/sdg/vi/sdg-02.png"
+    },
+    {
+      "number": 3,
+      "title": "Sức khỏe và có cuộc sống tốt",
+      "kidCaption": "Ai cũng khỏe mạnh và vui vẻ.",
+      "icon": "assets/sdg/vi/sdg-03.png"
+    },
+    {
+      "number": 4,
+      "title": "Giáo dục có chất lượng",
+      "kidCaption": "Ai cũng được đi học tốt.",
+      "icon": "assets/sdg/vi/sdg-04.png"
+    },
+    {
+      "number": 5,
+      "title": "Bình đẳng giới",
+      "kidCaption": "Bạn trai và bạn gái được đối xử như nhau.",
+      "icon": "assets/sdg/vi/sdg-05.png"
+    },
+    {
+      "number": 6,
+      "title": "Nước sạch và vệ sinh",
+      "kidCaption": "Ai cũng có nước sạch và nhà vệ sinh sạch.",
+      "icon": "assets/sdg/vi/sdg-06.png"
+    },
+    {
+      "number": 7,
+      "title": "Năng lượng sạch với giá thành hợp lý",
+      "kidCaption": "Điện sạch, không làm bẩn không khí.",
+      "icon": "assets/sdg/vi/sdg-07.png"
+    },
+    {
+      "number": 8,
+      "title": "Công việc tốt và tăng trưởng kinh tế",
+      "kidCaption": "Ai cũng có việc làm tốt.",
+      "icon": "assets/sdg/vi/sdg-08.png"
+    },
+    {
+      "number": 9,
+      "title": "Công nghiệp, sáng tạo và phát triển hạ tầng",
+      "kidCaption": "Làm ra đường sá, nhà máy và ý tưởng mới.",
+      "icon": "assets/sdg/vi/sdg-09.png"
+    },
+    {
+      "number": 10,
+      "title": "Giảm bất bình đẳng",
+      "kidCaption": "Không ai bị bỏ lại hay coi thường.",
+      "icon": "assets/sdg/vi/sdg-10.png"
+    },
+    {
+      "number": 11,
+      "title": "Các thành phố và cộng đồng bền vững",
+      "kidCaption": "Thành phố sạch và an toàn cho mọi người.",
+      "icon": "assets/sdg/vi/sdg-11.png"
+    },
+    {
+      "number": 12,
+      "title": "Tiêu thụ và sản xuất có trách nhiệm",
+      "kidCaption": "Mua vừa đủ, dùng lại, ít rác.",
+      "icon": "assets/sdg/vi/sdg-12.png"
+    },
+    {
+      "number": 13,
+      "title": "Hành động về khí hậu",
+      "kidCaption": "Bảo vệ khí hậu, bớt nóng lên.",
+      "icon": "assets/sdg/vi/sdg-13.png"
+    },
+    {
+      "number": 14,
+      "title": "Tài nguyên và môi trường biển",
+      "kidCaption": "Giữ biển và cá sạch.",
+      "icon": "assets/sdg/vi/sdg-14.png"
+    },
+    {
+      "number": 15,
+      "title": "Tài nguyên và môi trường trên đất liền",
+      "kidCaption": "Giữ rừng và các con vật trên cạn.",
+      "icon": "assets/sdg/vi/sdg-15.png"
+    },
+    {
+      "number": 16,
+      "title": "Hòa bình, công lý và các thể chế mạnh mẽ",
+      "kidCaption": "Hòa bình, công bằng, không bắt nạt.",
+      "icon": "assets/sdg/vi/sdg-16.png"
+    },
+    {
+      "number": 17,
+      "title": "Quan hệ đối tác vì các mục tiêu",
+      "kidCaption": "Mọi người cùng chung tay.",
+      "icon": "assets/sdg/vi/sdg-17.png"
+    }
+  ],
+  "ui": {
+    "next": "Tiếp",
+    "back": "Quay lại",
+    "start": "Bắt đầu",
+    "continue": "Chơi tiếp",
+    "replay": "Chơi lại",
+    "correct": "Đúng rồi!",
+    "wrong": "Chưa đúng. Xem này:",
+    "explanation": "Giải thích",
+    "dontKnow": "Chưa biết",
+    "other": "Khác",
+    "submit": "Nộp phiếu",
+    "saved": "Đã lưu",
+    "yourTurn": "Đến lượt đội con",
+    "cards": "Thẻ khái niệm",
+    "quiz": "Câu đố",
+    "parentReads": "Bố mẹ đọc thẻ cho con nghe nhé",
+    "parentTypes": "Con nói, bố mẹ gõ cũng được",
+    "levelDone": "Xong Màn {n}! Hẹn mai nhé.",
+    "homeworkReminder": "Nhớ Bài về nhà nhé",
+    "objectives": "Mục tiêu (cho bố mẹ)",
+    "locked": "Mai mở",
+    "chooseProfile": "Con là ai?",
+    "enterCode": "Nhập mã của con",
+    "total": "Tổng",
+    "mustEqual": "Cộng lại phải đúng {total}",
+    "pickN": "Chọn đúng {n} câu",
+    "addOwn": "Thêm của con"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "order": 1,
+      "title": "Màn 1 – Kinh doanh là gì?",
+      "name": "Kinh doanh là gì?",
+      "objectives": [
+        "Nói được kinh doanh là làm ra thứ người khác cần hoặc thích, rồi bán cho họ.",
+        "Kể được vấn đề mà đội muốn giải quyết bằng một chuyện con đã thấy tận mắt, và nói được trò chơi giúp ai."
+      ],
+      "cards": [
+        {
+          "id": "L1C1",
+          "order": 1,
+          "title": "Kinh doanh (business) là gì?",
+          "body": "Bốn bạn Sóc, Gấu, Thỏ và Cú Mèo mở một tiệm nhỏ. Kinh doanh là làm ra thứ người khác cần hoặc thích, rồi bán cho họ. Người mua gọi là khách hàng (customer). Thứ mình bán có thể là một đồ vật (cái vòng) hoặc một dịch vụ (service), tức là một việc làm giúp người khác (gói quà)."
+        },
+        {
+          "id": "L1C2",
+          "order": 2,
+          "title": "Bắt đầu từ một vấn đề có thật.",
+          "body": "Thỏ Bông kể: \"Thứ Sáu tuần trước, tớ thấy 5 bạn hỏi mua đồ màu đội để cổ vũ Ngày hội, mà chẳng ai có.\" Đó là một vấn đề (problem): điều các bạn đang thiếu. Ý tưởng tốt bắt đầu từ chuyện mình thấy tận mắt, không phải chuyện mình đoán."
+        },
+        {
+          "id": "L1C3",
+          "order": 3,
+          "title": "Nguồn lực (resources): những gì đội đã có.",
+          "body": "Sóc tết vòng rất khéo (kỹ năng). Nhà Gấu có hộp len thừa (đồ dùng). Thỏ quen hết các lớp (người quen). Dùng thứ đã có thì tốn ít tiền hơn."
+        },
+        {
+          "id": "L1C4",
+          "order": 4,
+          "title": "Tiệm giúp ai?",
+          "body": "Cú Mèo hỏi ba câu theo thứ tự: Tiệm giải quyết chuyện gì? (Các bạn không có đồ màu đội.) Giúp ai? (Các bạn đi Ngày hội thấy mình thuộc về đội.) Thế giới có 17 Mục tiêu Toàn cầu (SDG); mục tiêu nào giống chuyện đó nhất? Chọn mục tiêu sau cùng, không chọn trước rồi mới nghĩ lý do. Tiệm cũng không làm hại ai: dùng len thừa thay vì đồ nhựa mới."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L1Q1",
+          "order": 1,
+          "prompt": "Việc nào là kinh doanh?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sóc tết vòng tặng bà nhân dịp sinh nhật.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Sóc tết vòng rồi bán cho các bạn trong trường.",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Sóc mua một chiếc vòng ở chợ để đeo.",
+              "correct": false
+            }
+          ],
+          "explanation": "Sóc làm ra vòng và bán cho khách, nên đó là kinh doanh. Tặng bà rất đẹp, nhưng không bán thì chưa phải kinh doanh. Mua vòng ở chợ thì Sóc đang là khách hàng.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L1Q2",
+          "order": 2,
+          "prompt": "Thỏ Bông nhận gói quà giúp các bạn, mỗi gói 2 nghìn. Thỏ đang bán gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Không bán gì cả",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Một đồ vật",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Một dịch vụ",
+              "correct": true
+            }
+          ],
+          "explanation": "Gói quà là một việc Thỏ làm giúp người khác, nên đó là dịch vụ. Khách vẫn trả tiền, nên Thỏ vẫn đang kinh doanh.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L1Q3",
+          "order": 3,
+          "prompt": "Thỏ nói: \"Chắc là các bạn thích vòng tay lắm.\" Cú Mèo nên hỏi lại câu nào?",
+          "options": [
+            {
+              "id": "a",
+              "text": "\"Cậu thấy tận mắt chưa, hay cậu đoán?\"",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "\"Màu gì đẹp nhất?\"",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "\"Mình mua mật ong trước nhé?\"",
+              "correct": false
+            }
+          ],
+          "explanation": "Vấn đề phải có thật. Thỏ cần kể một chuyện mình thấy: ai, hôm nào, thiếu gì. Đoán thì dễ sai, mà sai từ đầu thì cả tiệm sai theo.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L1Q4",
+          "order": 4,
+          "prompt": "Tiệm chọn Mục tiêu Toàn cầu thế nào?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Chọn hình đẹp nhất trong 17 hình.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Nói tiệm giúp ai chuyện gì, rồi chọn mục tiêu giống chuyện đó nhất.",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Chọn mục tiêu số 1 vì nó đứng đầu.",
+              "correct": false
+            }
+          ],
+          "explanation": "Mục tiêu phải đi sau câu chuyện. Chọn hình trước rồi bịa lý do thì giám khảo nhận ra ngay, và đội cũng không biết mình đang giúp ai.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": "Trả lời về trò chơi Magic của đội. Con nói, bố mẹ gõ cũng được.",
+        "questions": [
+          {
+            "id": "L1F1",
+            "prompt": "Kể trò chơi của đội trong 2 câu: chơi thế nào, ai thắng?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 400
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "nói hoặc viết"
+          },
+          {
+            "id": "L1F2",
+            "prompt": "Kể một lần con thấy tận mắt: giờ ra chơi, các bạn gặp chuyện gì? Hôm nào, ai, chuyện gì.",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 300
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "1 câu"
+          },
+          {
+            "id": "L1F3",
+            "prompt": "Từ chuyện đó: trò chơi của đội giúp các bạn chuyện gì nhất?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Có thêm bạn"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Bớt chán giờ ra chơi"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ]
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn 1"
+          },
+          {
+            "id": "L1F4",
+            "prompt": "Trong 17 hình Mục tiêu Toàn cầu, hình nào giống chuyện ở câu 3 nhất? Vì sao?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "sdg_picker",
+                "label": "Chọn một hình"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Vì sao?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn hình + 1 câu",
+            "note": "Each icon shows its number, the Vietnamese title and the one-line kid caption from content.sdg."
+          }
+        ],
+        "note": null
+      }
+    },
+    {
+      "id": "L2",
+      "order": 2,
+      "title": "Màn 2 – Ý tưởng có làm được không?",
+      "name": "Ý tưởng có làm được không?",
+      "objectives": [
+        "Kiểm tra một ý tưởng bằng bốn câu hỏi \"có hay không\", và biết chữ \"không\" nào phải sửa xong mới được làm.",
+        "Biết cả đội quyết định bằng bỏ phiếu."
+      ],
+      "cards": [
+        {
+          "id": "L2C1",
+          "order": 1,
+          "title": "Khả thi (feasible) là gì?",
+          "body": "Cú Mèo nói: \"Ý tưởng hay chưa đủ đâu, phải làm được thật nữa!\" Khả thi nghĩa là đội làm được thật, với thời gian, tiền và kỹ năng mình đang có."
+        },
+        {
+          "id": "L2C2",
+          "order": 2,
+          "title": "Bốn câu hỏi kiểm tra.",
+          "body": "Với mỗi ý tưởng, cả đội hỏi:",
+          "bullets": [
+            "Khách có muốn không?",
+            "Đội tự làm được không, và có đủ thời gian sau giờ học không?",
+            "Có đủ tiền mua đồ không, và bán có lời không?",
+            "Có an toàn không, và trường có cho bán không?"
+          ],
+          "footer": "Có chữ \"không\" quan trọng (không an toàn, bán bị lỗ, trường không cho) thì phải sửa xong mới làm, dù có bao nhiêu chữ \"có\" đi nữa."
+        },
+        {
+          "id": "L2C3",
+          "order": 3,
+          "title": "Gặp chữ \"không\" thì sao?",
+          "body": "Bánh mật ong để hai ngày là hỏng: không an toàn. Gặp \"không\", đừng vội bỏ: thử sửa ý tưởng trước (bán bánh làm trong ngày). Sửa mãi không được thì mới chọn ý tưởng khác."
+        },
+        {
+          "id": "L2C4",
+          "order": 4,
+          "title": "Cả đội cùng quyết định.",
+          "body": "Gấu Mật muốn bán bánh, Thỏ Bông muốn bán vòng. Mỗi bạn nói lý do, rồi cả đội bỏ phiếu (vote): mỗi bạn một phiếu, nhiều phiếu nhất thì chọn. Vòng tay thắng!"
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L2Q1",
+          "order": 1,
+          "prompt": "\"Ý tưởng khả thi\" nghĩa là gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ý tưởng nghe thật hay.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Ý tưởng chưa ai từng làm.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Ý tưởng đội làm được thật, với thời gian, tiền và kỹ năng đang có.",
+              "correct": true
+            }
+          ],
+          "explanation": "Một ý tưởng có thể nghe rất hay, nhưng nếu đội không làm được thì chưa khả thi.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L2Q2",
+          "order": 2,
+          "prompt": "Vòng tay được ba chữ \"có\", nhưng làm một chiếc hết 8 nghìn mà chỉ bán được 7 nghìn. Tiệm nên làm gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Cứ bán, vì đã có ba chữ \"có\".",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Sửa giá hoặc tìm len rẻ hơn, xong mới bán.",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Bỏ luôn ý tưởng vòng tay.",
+              "correct": false
+            }
+          ],
+          "explanation": "Bán bị lỗ là chữ \"không\" quan trọng: càng bán càng mất tiền, dù có bao nhiêu chữ \"có\". Nhưng sửa được thì sửa, chưa cần bỏ.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L2Q3",
+          "order": 3,
+          "prompt": "Gấu và Thỏ muốn hai ý tưởng khác nhau. Cách quyết định nào công bằng nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Mỗi bạn nói lý do, rồi cả đội bỏ phiếu.",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Bạn nào nói to hơn thì thắng.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Để Gấu quyết vì Gấu giữ tiền.",
+              "correct": false
+            }
+          ],
+          "explanation": "Tiệm là của cả đội, nên ai cũng được nói và được bỏ một phiếu. Nói to hay giữ tiền không có nghĩa là được quyết một mình.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L2F1",
+            "prompt": "Có đủ bạn muốn chơi trò của đội không? Con đã thấy gì để nghĩ vậy?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Có"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Chưa chắc"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Không"
+                  }
+                ]
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Con đã thấy gì để nghĩ vậy?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn + 1 câu"
+          },
+          {
+            "id": "L2F2",
+            "prompt": "Để làm trò chơi, con giỏi việc nào?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Vẽ"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Viết chữ đẹp"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Cắt dán"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nghĩ luật chơi"
+                  },
+                  {
+                    "id": "e",
+                    "text": "Nói trước các bạn"
+                  },
+                  {
+                    "id": "f",
+                    "text": "Tính tiền"
+                  }
+                ],
+                "min": 1
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều"
+          },
+          {
+            "id": "L2F3",
+            "prompt": "Khi làm và khi chơi, có gì cần cẩn thận? Trường có cho bán không?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Có gì cần cẩn thận?"
+              },
+              {
+                "id": "b",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Có"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Không"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Chưa biết, bố mẹ sẽ hỏi cô"
+                  }
+                ],
+                "label": "Trường có cho bán không?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "1 câu + chọn"
+          }
+        ],
+        "note": "Cần đồ gì và làm mất bao lâu thì con trả lời sau khi làm bản nháp (Bài về nhà, việc 1)."
+      }
+    },
+    {
+      "id": "L3",
+      "order": 3,
+      "title": "Màn 3 – Hiểu khách hàng và đối thủ",
+      "name": "Hiểu khách hàng và đối thủ",
+      "objectives": [
+        "Nói được ai chơi và ai trả tiền, hỏi và xem khách trước khi làm, và nhận ra câu hỏi gợi ý câu trả lời.",
+        "Kể được đối thủ là ai, và phân biệt chuyện đội đổi được và chuyện đến từ bên ngoài."
+      ],
+      "cards": [
+        {
+          "id": "L3C1",
+          "order": 1,
+          "title": "Ai chơi, ai trả tiền?",
+          "body": "Khách hàng mục tiêu (target customer) là nhóm dễ mua nhất: các bạn nhỏ đi Ngày hội Rừng Xanh. Nhưng người đeo vòng là các bạn, còn người trả tiền nhiều khi là bố mẹ. Tiệm phải làm cả hai thích: vòng đẹp cho bạn, giá vừa cho bố mẹ."
+        },
+        {
+          "id": "L3C2",
+          "order": 2,
+          "title": "Hỏi và xem trước khi làm.",
+          "body": "Thay vì đoán, Thỏ đi tìm hiểu (market research): hỏi nhiều bạn, và xem các bạn đang đeo gì. Thỏ hỏi \"Vòng của tụi mình đẹp đúng không?\" thì ai cũng gật vì ngại. Câu hỏi tốt không gợi ý câu trả lời: \"Bạn thích màu nào?\" Hỏi xong, tiệm đổi kế hoạch: 9 trong 12 bạn muốn vòng nhỏ có tên, nên tiệm làm vòng nhỏ."
+        },
+        {
+          "id": "L3C3",
+          "order": 3,
+          "title": "Đối thủ (competitor) và điểm đặc biệt.",
+          "body": "Đối thủ là những ai cho khách một thứ để dùng thay vòng của mình: tiệm văn phòng phẩm bán vòng nhựa, đồ trên mạng, một bạn tự tết ở nhà. Vòng nhựa rẻ nhưng chiếc nào cũng giống nhau. Tiệm Rừng Xanh tết đúng màu đội khách chọn: đó là lý do khách chọn mình."
+        },
+        {
+          "id": "L3C4",
+          "order": 4,
+          "title": "Bảng SWOT: đội tự đổi được không?",
+          "body": "Cú Mèo vẽ bảng bốn ô. Điểm mạnh và điểm yếu là chuyện của đội, đội tự đổi được: Sóc tết khéo; cả đội chưa biết tính tiền nhanh. Cơ hội và thách thức đến từ bên ngoài, đội không đổi được: sắp có Ngày hội; trời mưa thì sân trường vắng."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L3Q1",
+          "order": 1,
+          "prompt": "Tiệm muốn biết các bạn thích màu nào. Cách nào tốt nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Đoán thôi, ai chẳng thích màu đỏ.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Chỉ hỏi Gấu Mật.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Hỏi thật nhiều bạn, và xem các bạn đang đeo màu gì.",
+              "correct": true
+            }
+          ],
+          "explanation": "Đoán thì dễ sai. Hỏi một bạn thì chỉ biết ý một bạn. Hỏi nhiều bạn và nhìn thật mới biết đa số thích gì.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L3Q2",
+          "order": 2,
+          "prompt": "Câu hỏi nào giúp tiệm biết thêm nhiều nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "\"Vòng của tụi mình đẹp nhất trường, đúng không?\"",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "\"Bạn hay đeo gì khi đi cổ vũ?\"",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "\"Bạn sẽ mua vòng của tụi mình, nhé?\"",
+              "correct": false
+            }
+          ],
+          "explanation": "Câu A và C đã gợi ý sẵn câu trả lời, nên các bạn gật đầu vì ngại. Câu B để các bạn tự kể thật.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L3Q3",
+          "order": 3,
+          "prompt": "Thỏ hỏi 12 bạn, 9 bạn muốn vòng nhỏ có tên. Tiệm nên làm gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Đổi sang vòng nhỏ có tên, vì đa số khách muốn thế.",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Cứ làm vòng to như đã định, vì đội thích vòng to.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Hỏi lại đến khi các bạn chọn vòng to.",
+              "correct": false
+            }
+          ],
+          "explanation": "Hỏi khách là để sửa kế hoạch. Hỏi xong mà vẫn làm theo ý mình thì hỏi làm gì?",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L3Q4",
+          "order": 4,
+          "prompt": "\"Trời mưa nên Ngày hội có thể bị hoãn.\" Điều này thuộc ô nào trong bảng SWOT?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Điểm yếu, vì đội chưa chuẩn bị.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Điểm mạnh, vì mưa thì đội được nghỉ.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Thách thức, vì đội không đổi được thời tiết.",
+              "correct": true
+            }
+          ],
+          "explanation": "Hỏi \"đội tự đổi được không?\" Thời tiết thì không, nên nó ở bên ngoài, và nó làm tiệm bán ít đi, nên là thách thức.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L3F1",
+            "prompt": "Ai chơi trò của đội? Ai trả tiền?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Lớp 1–2"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Lớp 3–5"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Lớp 6–9"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Tất cả"
+                  }
+                ],
+                "label": "Ai chơi?"
+              },
+              {
+                "id": "b",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Các bạn tự trả"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Bố mẹ các bạn trả"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Cả hai"
+                  }
+                ],
+                "label": "Ai trả tiền?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn + chọn"
+          },
+          {
+            "id": "L3F2",
+            "prompt": "Câu nào KHÔNG gợi ý câu trả lời? Chọn 2 câu con sẽ dùng để hỏi bạn.",
+            "parts": [
+              {
+                "id": "a",
+                "type": "pick_n",
+                "n": 2,
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "\"Giờ ra chơi bạn thích làm gì?\"",
+                    "leading": false
+                  },
+                  {
+                    "id": "b",
+                    "text": "\"Trò của tụi mình hay đúng không?\"",
+                    "leading": true,
+                    "feedback": "Câu này gợi ý sẵn câu trả lời rồi. Bạn sẽ gật đầu vì ngại. Chọn câu khác nhé?"
+                  },
+                  {
+                    "id": "c",
+                    "text": "\"Bạn đã chơi board game nào chưa? Bạn thích gì ở trò đó?\"",
+                    "leading": false
+                  },
+                  {
+                    "id": "d",
+                    "text": "\"Bạn sẽ mua trò của tụi mình, nhé?\"",
+                    "leading": true,
+                    "feedback": "Câu này gợi ý sẵn câu trả lời rồi. Bạn sẽ gật đầu vì ngại. Chọn câu khác nhé?"
+                  },
+                  {
+                    "id": "e",
+                    "text": "\"Giờ ra chơi bạn hay chơi với ai?\"",
+                    "leading": false
+                  }
+                ]
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn 2",
+            "note": "The two chosen questions are shown again on the homework sheet (item 2). Feedback on a leading option is shown once, gently; the child may keep the choice."
+          },
+          {
+            "id": "L3F3",
+            "prompt": "Thay vì chơi trò của đội, các bạn có thể chơi gì khác? Kể 3 thứ: ở cửa hàng, trên điện thoại, hoặc ngoài sân.",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 120,
+                "label": "Thứ 1"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 120,
+                "label": "Thứ 2"
+              },
+              {
+                "id": "c",
+                "type": "text",
+                "maxLength": 120,
+                "label": "Thứ 3"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "viết ngắn"
+          },
+          {
+            "id": "L3F4",
+            "prompt": "Đội mình giỏi gì? Việc gì có thể khó với đội?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 200,
+                "label": "Đội mình giỏi gì?"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 200,
+                "label": "Việc gì có thể khó?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "2 câu ngắn"
+          }
+        ],
+        "note": "Hai câu con chọn ở câu 2 là hai câu để hỏi bạn trong Bài về nhà."
+      }
+    },
+    {
+      "id": "L4",
+      "order": 4,
+      "title": "Màn 4 – Bán hàng thế nào?",
+      "name": "Bán hàng thế nào?",
+      "objectives": [
+        "Kể được bốn việc cần quyết định khi bán hàng: Sản phẩm, Giá, Nơi bán, Quảng bá (4P), và biết giá phải cao hơn tiền làm ra.",
+        "Phân biệt bán một đồ vật (khách mua một lần) và bán một dịch vụ (khách quay lại nhiều lần)."
+      ],
+      "cards": [
+        {
+          "id": "L4C1",
+          "order": 1,
+          "title": "Bốn chữ P.",
+          "body": "Muốn bán được hàng, đội trả lời bốn câu: Sản phẩm (Product: bán cái gì, có gì hay?), Giá (Price: bao nhiêu tiền?), Nơi bán (Place: ở đâu, lúc nào?), Quảng bá (Promotion: làm sao để mọi người biết?)."
+        },
+        {
+          "id": "L4C2",
+          "order": 2,
+          "title": "Giá: không quá rẻ, không quá đắt.",
+          "body": "Làm một chiếc vòng hết 8 nghìn. Gấu muốn bán 100 nghìn: chẳng ai mua! Sóc muốn bán 3 nghìn: rẻ hơn cả tiền làm, càng bán càng mất tiền! Đặt giá thì nhìn ba thứ: tiền làm ra vòng (8), khách sẵn sàng trả bao nhiêu (khoảng 15), đối thủ bán bao nhiêu (vòng nhựa 10). Tiệm chọn 12 nghìn."
+        },
+        {
+          "id": "L4C3",
+          "order": 3,
+          "title": "Nơi bán và quảng bá.",
+          "body": "Nơi bán không chỉ là một cái bàn: tiệm bán ở cổng trường lúc tan học (có cả bố mẹ), và cho bạn đeo thử ở lớp. Quảng bá là làm sao cho mọi người biết: Thỏ vẽ poster, giới thiệu trong giờ sinh hoạt, tự đeo một chiếc thật đẹp. Khách vui sẽ kể cho bạn bè: quảng bá miễn phí tốt nhất. Khi bán: chào, hỏi khách thích gì, không ép mua."
+        },
+        {
+          "id": "L4C4",
+          "order": 4,
+          "title": "Bán đồ hay bán dịch vụ?",
+          "body": "Bán vòng thì mỗi bạn mua một chiếc rồi thôi. Tiệm mở thêm buổi dạy tết vòng, 5 nghìn một lần: các bạn quay lại mỗi tuần. Đồ vật bán một lần cho mỗi khách; dịch vụ bán được nhiều lần. Đội con chọn: bán bộ trò chơi, bán vé chơi, hay cả hai."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L4Q1",
+          "order": 1,
+          "prompt": "\"Bán ở cổng trường lúc tan học\" là chữ P nào?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Nơi bán",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Sản phẩm",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Quảng bá",
+              "correct": false
+            }
+          ],
+          "explanation": "Nơi bán là bán ở đâu và lúc nào. Cổng trường lúc tan học là chỗ đông khách nhất.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L4Q2",
+          "order": 2,
+          "prompt": "Làm một chiếc vòng hết 8 nghìn. Các bạn nói sẵn sàng trả khoảng 15 nghìn. Vòng nhựa bán 10 nghìn. Giá nào hợp lý?",
+          "options": [
+            {
+              "id": "a",
+              "text": "3 nghìn",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "12 nghìn",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "50 nghìn",
+              "correct": false
+            }
+          ],
+          "explanation": "3 nghìn rẻ hơn tiền làm, càng bán càng mất tiền. 50 nghìn đắt quá, không ai mua. 12 nghìn cao hơn 8, khách trả được, hơi cao hơn vòng nhựa vì tết theo ý khách. 15 nghìn cũng được, vì khách nói trả được; không có một giá duy nhất đúng.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L4Q3",
+          "order": 3,
+          "prompt": "Tiệm muốn khách quay lại nhiều lần. Cách nào hợp nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Bán mỗi bạn một chiếc vòng rồi thôi.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Tăng giá vòng lên gấp đôi.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Mở buổi tết vòng mỗi tuần, ai cũng được đến lại.",
+              "correct": true
+            }
+          ],
+          "explanation": "Một chiếc vòng thì mua một lần là đủ. Một buổi chơi thì tuần nào cũng đến được, nên tiệm bán được lâu dài.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L4Q4",
+          "order": 4,
+          "prompt": "Một bạn đứng xem vòng nhưng chưa muốn mua. Thỏ nên làm gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Nài nỉ đến khi bạn ấy mua.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Hỏi bạn ấy thích màu nào, kể vòng có gì hay, rồi để bạn ấy tự chọn.",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Quay đi chỗ khác.",
+              "correct": false
+            }
+          ],
+          "explanation": "Nài nỉ làm khách khó chịu, lần sau không dám ghé nữa. Quay đi thì mất khách. Hỏi han rồi để khách tự quyết định là bán hàng lịch sự.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L4F1",
+            "prompt": "Đội bán gì? Vì sao?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Bộ trò chơi để mang về"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Vé chơi tại chỗ"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Cả hai"
+                  }
+                ]
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Vì sao?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn + 1 câu"
+          },
+          {
+            "id": "L4F2",
+            "prompt": "Giá: nhìn ba thứ (tiền làm một bộ từ bản nháp, bạn trả được bao nhiêu, giá trò khác ở nhà sách), con nghĩ nên bán bao nhiêu? Vì sao?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "number",
+                "unit": "nghìn",
+                "min": 0,
+                "max": 100000,
+                "label": "Giá bán (nghìn đồng)"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Vì sao?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "số + 1 câu"
+          },
+          {
+            "id": "L4F3",
+            "prompt": "Nơi bán: ở đâu, lúc nào?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Ở lớp giờ ra chơi"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Ngày hội trường"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Cổng trường lúc tan học"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Nhờ bố mẹ bán cho bạn của bố mẹ"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ],
+                "min": 1
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều"
+          },
+          {
+            "id": "L4F4",
+            "prompt": "Quảng bá: làm sao cho các bạn biết và muốn mua?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Poster ở lớp"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Cho chơi thử ở lớp"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Kể cho bạn"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Bố mẹ kể cho bố mẹ khác"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ],
+                "min": 1
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều"
+          }
+        ],
+        "note": null
+      }
+    },
+    {
+      "id": "L5",
+      "order": 5,
+      "title": "Màn 5 – Tiền vào, tiền ra, tiền lời",
+      "name": "Tiền vào, tiền ra, tiền lời",
+      "objectives": [
+        "Tính được tiền lời = tiền bán được − chi phí, biết lời gộp khác lời ròng, và hiểu vì sao bán cao hơn chi phí là công bằng.",
+        "Biết khi bị lỗ thì có ba nút để vặn: giá, số lượng, chi phí."
+      ],
+      "cards": [
+        {
+          "id": "L5C1",
+          "order": 1,
+          "title": "Gấu Mật bán vòng.",
+          "body": "Sóc làm một chiếc vòng hết 8 nghìn tiền len, hạt và móc. Gấu bán nó được 8 nghìn và reo lên: \"Bán được rồi!\" Cú Mèo nhìn vào hộp tiền: \"Ủa… thế mình được gì đâu?\""
+        },
+        {
+          "id": "L5C2",
+          "order": 2,
+          "title": "Chi phí và doanh thu.",
+          "body": "Chi phí (cost) là tiền tiệm trả để làm ra vòng: 8 nghìn một chiếc. Giá bán là 12 nghìn. Bán 10 chiếc: 10 × 12 = 120 nghìn. Tất cả tiền khách đưa gọi là doanh thu (revenue). Nhưng khoan, doanh thu chưa phải tiền lời đâu!"
+        },
+        {
+          "id": "L5C3",
+          "order": 3,
+          "title": "Lời gộp và lời ròng.",
+          "body": "Tiền lời = doanh thu − chi phí. Làm 10 chiếc hết 80 nghìn, nên 120 − 80 = 40 nghìn: đó là lời gộp (gross profit). Nhưng tiệm còn tiêu 10 nghìn giấy vẽ poster, không nằm trong vòng nhưng để bán được hàng (chi phí gián tiếp, indirect cost). 40 − 10 = 30 nghìn là lời ròng (net profit), tiền lời thật. Nếu chi phí nhiều hơn doanh thu, tiệm bị lỗ (loss)."
+        },
+        {
+          "id": "L5C4",
+          "order": 4,
+          "title": "Bán cao hơn chi phí có phải ăn gian không?",
+          "body": "Không! Tiền lời trả cho công tết vòng, mua len cho lần sau, và làm việc tốt mà đội đã chọn; giá vẫn phải vừa với thứ khách nhận. Còn bị lỗ thì vặn một trong ba nút: tăng giá một chút, bán nhiều hơn, hoặc tìm len rẻ hơn."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L5Q1",
+          "order": 1,
+          "prompt": "Gấu Mật bán một chiếc vòng 12 nghìn. Len, hạt và móc hết 8 nghìn. Tiệm lời bao nhiêu?",
+          "options": [
+            {
+              "id": "a",
+              "text": "12 nghìn",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "4 nghìn",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "20 nghìn",
+              "correct": false
+            }
+          ],
+          "explanation": "Khoan đã Gấu ơi! 12 nghìn là tiền khách đưa, nhưng 8 nghìn phải dành trả tiền len rồi. 12 − 8 = 4 nghìn mới là tiền lời. Còn 20 là cộng hai số: chi phí phải trừ đi chứ.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L5Q2",
+          "order": 2,
+          "prompt": "Tiệm bán được 5 chiếc vòng, mỗi chiếc 12 nghìn. Doanh thu là bao nhiêu?",
+          "options": [
+            {
+              "id": "a",
+              "text": "17 nghìn",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "12 nghìn",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "60 nghìn",
+              "correct": true
+            }
+          ],
+          "explanation": "Doanh thu = số chiếc × giá mỗi chiếc = 5 × 12 = 60 nghìn. Phép nhân, không phải phép cộng.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L5Q3",
+          "order": 3,
+          "prompt": "Gấu nói: \"Doanh thu 60 nghìn, vậy tiệm lời 60 nghìn!\" Gấu nói đúng không?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sai, phải trừ chi phí trước đã.",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Đúng.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Sai, tiền lời luôn bằng một nửa doanh thu.",
+              "correct": false
+            }
+          ],
+          "explanation": "Doanh thu là tất cả tiền khách đưa. Tiền lời là phần còn lại sau khi trả hết chi phí, cả len lẫn poster. Không có con số cố định nào, phải tính.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L5Q4",
+          "order": 4,
+          "prompt": "Cô Hươu hỏi: \"Sao các cháu bán vòng đắt hơn tiền len?\" Câu trả lời nào đúng nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "\"Tại tụi cháu muốn giàu thật nhanh ạ.\"",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "\"Tụi cháu cũng không biết ạ.\"",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "\"Tiền lời trả cho công tết vòng và để mua len làm tiếp ạ.\"",
+              "correct": true
+            }
+          ],
+          "explanation": "Bán cao hơn chi phí là bình thường và công bằng, miễn là giá vừa với thứ khách nhận. Tiền lời trả cho công sức, giúp tiệm tiếp tục và làm việc tốt.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L5F1",
+            "prompt": "Làm một bộ hết bao nhiêu tiền?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "number",
+                "unit": "nghìn",
+                "min": 0,
+                "max": 100000,
+                "label": "Tiền làm một bộ (nghìn đồng)"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "số, từ bản nháp và bảng giá trong Bài về nhà; chưa có thì chọn \"Chưa biết\""
+          },
+          {
+            "id": "L5F2",
+            "prompt": "Bán một bộ (hoặc một vé chơi), đội lời bao nhiêu?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "number",
+                "unit": "nghìn",
+                "min": -100000,
+                "max": 100000,
+                "label": "Tiền lời một bộ (nghìn đồng)"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "số: giá bán − tiền làm, tính cùng bố mẹ",
+            "note": "Show the child's own earlier answers as context above the input: price from L4F2 and cost from L5F1."
+          },
+          {
+            "id": "L5F3",
+            "prompt": "Ngoài đồ để làm trò chơi, đội còn phải tiêu tiền cho gì để bán được?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "In tờ quảng cáo"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Hộp hoặc túi đựng"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Phần thưởng cho người thắng"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ],
+                "min": 1
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều"
+          }
+        ],
+        "note": null
+      }
+    },
+    {
+      "id": "L6",
+      "order": 6,
+      "title": "Màn 6 – Vốn và chia tiền lời",
+      "name": "Vốn và chia tiền lời",
+      "objectives": [
+        "Biết tiệm cần tiền trước khi bán (vốn), liệt kê đồ cần mua với giá thật, đoán số bán có lý do, và kể được cách tìm vốn.",
+        "Cùng đội quyết định cách dùng tiền lời theo luật cuộc thi, cộng lại vừa đúng."
+      ],
+      "cards": [
+        {
+          "id": "L6C1",
+          "order": 1,
+          "title": "Vốn khởi nghiệp (start-up capital).",
+          "body": "Trước khi bán chiếc đầu tiên, tiệm phải mua len, hạt và một cái kéo. Tiền cần có trước khi bán gọi là vốn. Kéo dùng được lâu là đồ dùng lâu (equipment): tính vào vốn, không tính vào tiền làm mỗi chiếc. Len và hạt dùng hết phải mua lại là đồ dùng hết (materials). Thứ nhà đã có thì không cần mua. Vốn không phải tiền lời: tiền mượn thì phải trả."
+        },
+        {
+          "id": "L6C2",
+          "order": 2,
+          "title": "Giá thì hỏi thật, số bán thì đoán có lý do.",
+          "body": "Gấu đoán: \"Len chắc 1 nghìn một cuộn.\" Cú Mèo ra tiệm hỏi: 12 nghìn! Giá thì phải hỏi ở cửa hàng hoặc nhờ bố mẹ xem trên mạng. Còn sẽ bán được bao nhiêu thì phải đoán, nhưng có lý do: 9 trong 12 bạn nói muốn mua, nhưng thường chỉ khoảng một nửa mua thật, và mỗi bạn chỉ mua một chiếc. Nên đội đoán bán được khoảng 4–5 chiếc trong tháng, không phải 9 chiếc mỗi tuần."
+        },
+        {
+          "id": "L6C3",
+          "order": 3,
+          "title": "Tìm vốn ở đâu?",
+          "body": "Nhận đặt hàng trước (khách trả trước, tiệm làm sau), xin len thừa của mọi người, cả đội góp tiền tiết kiệm, hoặc mượn bố mẹ. Mượn thì hẹn ngày trả, và trả xong mới chia tiền lời."
+        },
+        {
+          "id": "L6C4",
+          "order": 4,
+          "title": "Chia tiền lời.",
+          "body": "Luật cuộc thi: tiền lời dùng chủ yếu để làm tiếp, cho trường, hoặc cho việc tốt (từ thiện); không chia cho từng bạn mang về. Giả sử lời 100 nghìn: trả nợ trước nếu có, giữ lại một phần (khoảng 25 đến 50) để mua len làm tiếp, phần còn lại cả đội bỏ phiếu chọn việc tốt. Cộng lại phải vừa đúng 100."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L6Q1",
+          "order": 1,
+          "prompt": "Muốn biết giá len chính xác, tiệm nên làm gì?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Hỏi ở cửa hàng, hoặc nhờ bố mẹ xem giá trên mạng.",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Đoán một con số.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Chọn số nhỏ nhất cho đỡ lo.",
+              "correct": false
+            }
+          ],
+          "explanation": "Nhớ Gấu đoán 1 nghìn mà giá thật là 12 nghìn không? Chọn số nhỏ cho đỡ lo thì đến lúc mua sẽ thiếu tiền.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L6Q2",
+          "order": 2,
+          "prompt": "9 trong 12 bạn nói muốn mua vòng. Đội nên đoán bán được bao nhiêu?",
+          "options": [
+            {
+              "id": "a",
+              "text": "9 chiếc mỗi tuần, vì 9 bạn muốn.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "100 chiếc cho oai.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Khoảng 4–5 chiếc trong tháng, vì thường chỉ một nửa mua thật và mỗi bạn mua một lần.",
+              "correct": true
+            }
+          ],
+          "explanation": "Nói \"muốn\" không phải là mua. Và một chiếc vòng mua một lần là đủ, không phải tuần nào cũng mua. Đoán quá to thì mua thừa len.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L6Q3",
+          "order": 3,
+          "prompt": "Tiệm chưa có tiền mua len. Cách nào tốt để có vốn?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Chờ có lời rồi mới mua len.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Nhận đặt hàng trước: khách trả tiền trước, tiệm làm vòng sau.",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Lấy tiền trong ví bố mẹ mà không hỏi.",
+              "correct": false
+            }
+          ],
+          "explanation": "Chưa có len thì chưa làm được vòng, mà chưa có vòng thì chưa có lời để chờ. Lấy tiền không hỏi là không được; muốn mượn thì hỏi đàng hoàng và hẹn ngày trả.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L6Q4",
+          "order": 4,
+          "prompt": "Tiệm lời 100 nghìn và đang nợ bố mẹ Gấu 20 nghìn. Kế hoạch chia tiền nào đúng?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Tiêu hết 100 nghìn mua mật ong.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Giữ lại 40 nghìn, cho trường 40 nghìn, mua sách 40 nghìn.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Trả bố mẹ Gấu 20 nghìn, giữ 30 nghìn để làm tiếp, 50 nghìn cả đội bỏ phiếu chọn việc tốt.",
+              "correct": true
+            }
+          ],
+          "explanation": "Tiêu hết thì lần sau không còn tiền mua len, và cũng trái luật cuộc thi. Kế hoạch B cộng lại là 120 nghìn, nhiều hơn số tiền tiệm có! Kế hoạch C trả nợ trước, vừa đủ 100, và cả đội cùng quyết định.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L6F1",
+            "prompt": "Trong 2 tháng, con đoán đội bán được bao nhiêu bộ (hoặc vé chơi)? Lý do của con là gì: mấy bạn đã nói muốn mua, mấy bạn đã chơi thử?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "number",
+                "unit": "nghìn",
+                "min": 0,
+                "max": 10000,
+                "label": "Số bộ hoặc vé trong 2 tháng"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Lý do"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "số + 1 câu"
+          },
+          {
+            "id": "L6F2",
+            "prompt": "Để bắt đầu, đội cần mua gì? Ghi giá thật từ Bài về nhà.",
+            "parts": [
+              {
+                "id": "a",
+                "type": "item_list",
+                "groups": [
+                  {
+                    "id": "equipment",
+                    "label": "Đồ dùng lâu",
+                    "hint": "kéo, thước…"
+                  },
+                  {
+                    "id": "materials",
+                    "label": "Đồ dùng hết",
+                    "hint": "giấy, bìa…"
+                  },
+                  {
+                    "id": "owned",
+                    "label": "Nhà con có sẵn, cho đội mượn",
+                    "hint": "không cần mua"
+                  }
+                ],
+                "fields": [
+                  {
+                    "id": "name",
+                    "type": "text",
+                    "label": "Tên đồ",
+                    "maxLength": 80
+                  },
+                  {
+                    "id": "price",
+                    "type": "number",
+                    "label": "Giá (nghìn đồng)",
+                    "optional": true
+                  }
+                ],
+                "maxItemsPerGroup": 10
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "liệt kê, bố mẹ giúp"
+          },
+          {
+            "id": "L6F3",
+            "prompt": "Đội lấy tiền bắt đầu từ đâu? Vì sao?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Nhận đặt hàng trước"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Xin góp"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Cả đội góp tiền tiết kiệm"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Mượn bố mẹ rồi trả lại"
+                  },
+                  {
+                    "id": "e",
+                    "text": "Nhờ trường"
+                  }
+                ],
+                "min": 1,
+                "max": 2
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Vì sao?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn 1–2 + 1 câu"
+          },
+          {
+            "id": "L6F4",
+            "prompt": "Nếu đội lời 100 nghìn, chia thế nào? Cộng lại đúng 100.",
+            "parts": [
+              {
+                "id": "a",
+                "type": "sum_split",
+                "total": 100,
+                "unit": "nghìn",
+                "fields": [
+                  {
+                    "id": "reinvest",
+                    "label": "Giữ lại để làm tiếp"
+                  },
+                  {
+                    "id": "good",
+                    "label": "Cho trường hoặc việc tốt",
+                    "allowText": true,
+                    "textLabel": "Ghi tên việc"
+                  }
+                ]
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "điền số",
+            "note": "Validate that the fields sum to exactly 100 before the child can continue; show the running total."
+          }
+        ],
+        "note": null
+      }
+    },
+    {
+      "id": "L7",
+      "order": 7,
+      "title": "Màn 7 – Làm việc như một đội",
+      "name": "Làm việc như một đội",
+      "objectives": [
+        "Chia công việc của tiệm thành từng việc nhỏ: làm gì, mất bao lâu, bao lâu làm một lần, ai làm.",
+        "Biết chia việc công bằng và đổi vai, và nghĩ trước cách xử lý khi có chuyện không may."
+      ],
+      "cards": [
+        {
+          "id": "L7C1",
+          "order": 1,
+          "title": "Tiệm cần làm những việc gì?",
+          "body": "Tết vòng, mua len, vẽ poster, bán hàng, đếm tiền, ghi sổ. Với mỗi việc (task), cả đội trả lời bốn câu: làm gì, mất bao lâu, bao lâu làm một lần, và ai làm."
+        },
+        {
+          "id": "L7C2",
+          "order": 2,
+          "title": "Vai trò (role) và đổi vai.",
+          "body": "Sóc lo làm sản phẩm. Thỏ lo bán hàng và quảng bá. Gấu lo giữ tiền và ghi sổ. Cú Mèo làm trưởng nhóm, nhắc việc. Vẽ các vai thành hình thì có sơ đồ đội (organogram). Cứ vài tuần cả đội đổi vai: ai cũng học được nhiều việc, không ai làm hết việc nặng, và một bạn ốm thì bạn khác làm thay được."
+        },
+        {
+          "id": "L7C3",
+          "order": 3,
+          "title": "Rủi ro (risk): lỡ… thì sao?",
+          "body": "Cú Mèo luôn hỏi ba câu. Chuyện gì có thể xảy ra? (Hết len giữa chừng.) Làm gì để tránh? (Mua dư một ít.) Nếu vẫn xảy ra thì làm gì? (Báo khách chờ thêm một ngày.) Nghĩ trước thì không bị bất ngờ."
+        },
+        {
+          "id": "L7C4",
+          "order": 4,
+          "title": "An toàn là trên hết.",
+          "body": "Kéo thì nhọn, súng bắn keo thì nóng, hạt nhỏ thì em bé dễ nuốt. Tiệm có luật: có người lớn bên cạnh khi dùng keo nóng, cất kéo ngay sau khi dùng, không bán vòng có hạt nhỏ cho em bé."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "L7Q1",
+          "order": 1,
+          "prompt": "Việc \"đếm tiền và ghi sổ\" nên làm bao lâu một lần?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Mỗi năm một lần",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Sau mỗi buổi bán hàng",
+              "correct": true
+            },
+            {
+              "id": "c",
+              "text": "Không cần làm",
+              "correct": false
+            }
+          ],
+          "explanation": "Đếm ngay sau mỗi buổi thì còn nhớ rõ đã bán bao nhiêu. Để cả năm mới đếm thì quên hết, có khi mất tiền mà không biết.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L7Q2",
+          "order": 2,
+          "prompt": "Cách chia việc nào công bằng nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sóc làm hết vì Sóc khéo tay nhất.",
+              "correct": false
+            },
+            {
+              "id": "b",
+              "text": "Ai rảnh thì làm, không cần chia.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Mỗi bạn một vai, vài tuần đổi vai một lần.",
+              "correct": true
+            }
+          ],
+          "explanation": "Một bạn làm hết sẽ mệt và buồn. Không chia việc thì dễ có việc bị bỏ quên. Mỗi bạn một vai rồi đổi vai thì việc nào cũng có người lo, ai cũng được học.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L7Q3",
+          "order": 3,
+          "prompt": "Cú Mèo hỏi: \"Lỡ khách nhận vòng sai màu thì sao?\" Cách tránh nào tốt nhất?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ghi màu khách chọn vào sổ, rồi đọc lại cho khách nghe.",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Đoán màu khách thích.",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Mặc kệ, khách sẽ không để ý.",
+              "correct": false
+            }
+          ],
+          "explanation": "Ghi lại và đọc lại là cách tránh nhầm trước khi nó xảy ra. Khách đặt màu nào thì rất muốn đúng màu đó.",
+          "shuffleOptions": true
+        },
+        {
+          "id": "L7Q4",
+          "order": 4,
+          "prompt": "Lúc nào cần có người lớn bên cạnh?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Khi dùng súng bắn keo nóng",
+              "correct": true
+            },
+            {
+              "id": "b",
+              "text": "Khi vẽ poster",
+              "correct": false
+            },
+            {
+              "id": "c",
+              "text": "Khi đếm tiền",
+              "correct": false
+            }
+          ],
+          "explanation": "Keo nóng có thể làm bỏng tay. Vẽ poster và đếm tiền thì các con tự làm được.",
+          "shuffleOptions": true
+        }
+      ],
+      "form": {
+        "title": "Đến lượt đội con",
+        "intro": null,
+        "questions": [
+          {
+            "id": "L7F1",
+            "prompt": "Từ lúc làm trò chơi đến lúc trao cho bạn mua, đội phải làm những việc gì?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Vẽ thẻ, bàn cờ"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Cắt, dán"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Viết luật chơi"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Đóng hộp"
+                  },
+                  {
+                    "id": "e",
+                    "text": "Quảng cáo"
+                  },
+                  {
+                    "id": "f",
+                    "text": "Bán hàng hoặc dẫn chơi"
+                  },
+                  {
+                    "id": "g",
+                    "text": "Đếm tiền, ghi sổ"
+                  }
+                ],
+                "min": 1,
+                "allowAddOwn": true
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều, thêm được"
+          },
+          {
+            "id": "L7F2",
+            "prompt": "Con muốn làm việc nào trước? Vì sao?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "single_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Vẽ thẻ, bàn cờ"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Cắt, dán"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Viết luật chơi"
+                  },
+                  {
+                    "id": "d",
+                    "text": "Đóng hộp"
+                  },
+                  {
+                    "id": "e",
+                    "text": "Quảng cáo"
+                  },
+                  {
+                    "id": "f",
+                    "text": "Bán hàng hoặc dẫn chơi"
+                  },
+                  {
+                    "id": "g",
+                    "text": "Đếm tiền, ghi sổ"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ]
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 300,
+                "label": "Vì sao?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn 1 + 1 câu",
+            "note": "If the app can, list only the tasks the child ticked in L7F1 plus any they added."
+          },
+          {
+            "id": "L7F3",
+            "prompt": "Một chuyện \"lỡ… thì sao?\" có thể xảy ra với đội là gì? Làm gì để tránh?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "text",
+                "maxLength": 200,
+                "label": "Lỡ… thì sao?"
+              },
+              {
+                "id": "b",
+                "type": "text",
+                "maxLength": 200,
+                "label": "Làm gì để tránh?"
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "2 câu ngắn"
+          },
+          {
+            "id": "L7F4",
+            "prompt": "Đội giữ an toàn thế nào?",
+            "parts": [
+              {
+                "id": "a",
+                "type": "multi_choice",
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Dùng kéo, keo khi có người lớn"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Không chạy khi bán hàng"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Tiền đưa bố mẹ giữ"
+                  },
+                  {
+                    "id": "other",
+                    "text": "Khác",
+                    "allowText": true
+                  }
+                ],
+                "min": 1
+              }
+            ],
+            "allowDontKnow": true,
+            "hint": "chọn nhiều"
+          }
+        ],
+        "note": "Bao lâu đổi vai một lần và ai làm việc gì thì cả đội chốt trên Zoom."
+      }
+    }
+  ],
+  "homework": {
+    "title": "Bài về nhà",
+    "intro": "Bài về nhà là một tờ, phát ngay ngày 1, làm cùng bố mẹ trong tuần, mỗi việc vài phút. Việc 2 làm sau Màn 3, khi con đã chọn hai câu hỏi.",
+    "items": [
+      {
+        "id": "H1",
+        "order": 1,
+        "text": "Làm một bản nháp của trò chơi bằng giấy: bìa, thẻ vẽ tay, luật chơi ngắn. Ghi lại: cần những đồ gì, và làm mất bao lâu."
+      },
+      {
+        "id": "H2",
+        "order": 2,
+        "text": "Cho 3 bạn không ở trong đội chơi thử bản nháp. Trong lúc các bạn chơi, con đánh dấu: cười · chơi hết ván · muốn chơi lại · chỗ nào bị rối. Chơi xong, hỏi mỗi bạn hai câu con đã chọn ở Màn 3, và ghi lại câu trả lời."
+      },
+      {
+        "id": "H3",
+        "order": 3,
+        "text": "Giờ ra chơi, nhìn một lượt quanh sân và đánh dấu vào tờ có 5 hình: chạy nhảy · nói chuyện · chơi cờ, bài, trò trên bàn · ngồi một mình · khác. Làm hai ngày khác nhau, rủ một bạn làm cùng. Không ghi tên ai, không chụp ảnh."
+      },
+      {
+        "id": "H4",
+        "order": 4,
+        "text": "Xem giá 1–2 bộ board game ở nhà sách hoặc trên mạng, và giá từng thứ để làm một bộ (bìa, giấy, bút, hộp…). Ghi tên chỗ xem giá."
+      },
+      {
+        "id": "H5",
+        "order": 5,
+        "text": "Sau khi xem các bạn chơi và nghe các bạn trả lời, con muốn đổi gì ở trò chơi, giá hoặc cách bán?"
+      }
+    ],
+    "capture": {
+      "H1": [
+        {
+          "id": "materials",
+          "type": "item_list",
+          "groups": [
+            {
+              "id": "all",
+              "label": "Đồ cần để làm một bộ"
+            }
+          ],
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Tên đồ",
+              "maxLength": 80
+            }
+          ]
+        },
+        {
+          "id": "minutes",
+          "type": "number",
+          "label": "Làm mất bao lâu (phút)",
+          "unit": "phút"
+        }
+      ],
+      "H2": [
+        {
+          "id": "friends",
+          "type": "repeat",
+          "label": "Mỗi bạn chơi thử",
+          "min": 1,
+          "max": 5,
+          "fields": [
+            {
+              "id": "laughed",
+              "type": "checkbox",
+              "label": "Cười"
+            },
+            {
+              "id": "finished",
+              "type": "checkbox",
+              "label": "Chơi hết ván"
+            },
+            {
+              "id": "again",
+              "type": "checkbox",
+              "label": "Muốn chơi lại"
+            },
+            {
+              "id": "confused",
+              "type": "text",
+              "label": "Chỗ nào bị rối",
+              "maxLength": 200
+            },
+            {
+              "id": "answer1",
+              "type": "text",
+              "label": "Trả lời câu hỏi 1",
+              "maxLength": 200
+            },
+            {
+              "id": "answer2",
+              "type": "text",
+              "label": "Trả lời câu hỏi 2",
+              "maxLength": 200
+            }
+          ]
+        }
+      ],
+      "H3": [
+        {
+          "id": "day",
+          "type": "repeat",
+          "label": "Mỗi ngày",
+          "min": 1,
+          "max": 2,
+          "fields": [
+            {
+              "id": "run",
+              "type": "tally",
+              "label": "Chạy nhảy"
+            },
+            {
+              "id": "talk",
+              "type": "tally",
+              "label": "Nói chuyện"
+            },
+            {
+              "id": "board",
+              "type": "tally",
+              "label": "Chơi cờ, bài, trò trên bàn"
+            },
+            {
+              "id": "alone",
+              "type": "tally",
+              "label": "Ngồi một mình"
+            },
+            {
+              "id": "other",
+              "type": "tally",
+              "label": "Khác"
+            }
+          ]
+        }
+      ],
+      "H4": [
+        {
+          "id": "prices",
+          "type": "item_list",
+          "groups": [
+            {
+              "id": "games",
+              "label": "Bộ board game ở nhà sách hoặc trên mạng"
+            },
+            {
+              "id": "materials",
+              "label": "Đồ để làm một bộ"
+            }
+          ],
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Tên",
+              "maxLength": 80
+            },
+            {
+              "id": "price",
+              "type": "number",
+              "label": "Giá (nghìn đồng)"
+            },
+            {
+              "id": "source",
+              "type": "text",
+              "label": "Chỗ xem giá",
+              "maxLength": 80
+            }
+          ]
+        }
+      ],
+      "H5": [
+        {
+          "id": "change",
+          "type": "text",
+          "label": "Con muốn đổi gì?",
+          "maxLength": 400
+        }
+      ]
+    },
+    "printable": true
+  },
+  "zoom": {
+    "title": "Buổi Zoom",
+    "intro": "Buổi Zoom dài 30 phút, Trí dẫn, bố chỉ hỏi. Chỉ bỏ phiếu những điều mà phiếu của các con trả lời khác nhau, nhiều nhất 5–6 lần. Các lựa chọn hiện trên màn hình, mỗi bạn nói ý mình trước rồi giơ ngón tay để bỏ phiếu, chụp màn hình mỗi lần bỏ phiếu để làm bằng chứng các con tự quyết.",
+    "agenda": [
+      "5 phút: mỗi bạn kể một điều bất ngờ từ Bài về nhà.",
+      "20 phút: bỏ phiếu, chọn trong số này: tên trò chơi; bán bộ, vé chơi, hay cả hai; giá bán; Mục tiêu Toàn cầu; chia tiền lời; các nhóm việc và bao lâu đổi vai.",
+      "5 phút: mỗi bạn nói một điều bên ngoài có thể giúp đội, và một điều có thể làm khó đội (hai ô còn lại của SWOT)."
+    ],
+    "after": [
+      "Sau Zoom, Trí và bố cộng tiền (doanh thu, hai loại chi phí, lời gộp, lời ròng) và điền bảng việc từ phiếu Màn 7; những việc này không cần bỏ phiếu. Việc cần làm ngay tuần này: hỏi cô giáo về chữ ký cho Thỏa thuận chia lợi nhuận, và hỏi trường có cho bán không. Khi nộp, kèm ảnh các phiếu, Bài về nhà và ảnh chụp các lần bỏ phiếu."
+    ],
+    "inApp": false
+  }
+}
