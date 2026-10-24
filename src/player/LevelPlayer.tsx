@@ -80,6 +80,10 @@ export function LevelPlayer() {
     return { step: 'intro', index: 0 };
   });
 
+  // Re-reading a card from the worksheet: a side trip that does not move the saved position,
+  // replay the quiz or record anything.
+  const [peek, setPeek] = useState<number | null>(null);
+
   useSectionTiming(levelId, sectionOf(pointer));
 
   const go = useCallback(
@@ -109,18 +113,87 @@ export function LevelPlayer() {
   const quiz = byOrder(level.quiz);
   const formLocked = !!ls?.formLocked && !preview;
 
+  const onWorksheet = pointer.step === 'formIntro' || pointer.step === 'form' || pointer.step === 'review';
   const top = (label: string) => (
-    <div className="topbar no-print">
-      <button className="icon-btn" onClick={home} aria-label={t('backHome')}>
-        🗺️
-      </button>
-      <span className="title">
-        {t('levelLabel', { n: level.order })} · {label}
-      </span>
+    <>
+      <div className="topbar no-print">
+        <button className="icon-btn" onClick={home} aria-label={t('backHome')}>
+          🗺️
+        </button>
+        <span className="title">
+          {t('levelLabel', { n: level.order })} · {label}
+        </span>
+        <span className="spacer" />
+        {preview ? <span className="save-pill saving">{t('preview')}</span> : <SavePill />}
+      </div>
+      {onWorksheet && peek == null && (
+        <div className="topbar no-print" style={{ minHeight: 0, marginTop: -8 }}>
+          <span className="spacer" />
+          <button className="icon-btn" onClick={() => setPeek(0)}>
+            📖 {t('rereadCards')}
+          </button>
+        </div>
+      )}
+    </>
+  );
+
+  const cardArticle = (card: (typeof cards)[number]) => (
+    <article className="panel concept-card content-col">
+      <h2>
+        <RichText text={card.title} />
+      </h2>
+      <p>
+        <RichText text={card.body} />
+      </p>
+      {card.bullets && card.bullets.length > 0 && (
+        <ul>
+          {card.bullets.map((b, i) => (
+            <li key={i}>
+              <RichText text={b} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {card.footer && (
+        <p className="footer">
+          <RichText text={card.footer} />
+        </p>
+      )}
+    </article>
+  );
+
+  const cardProgress = (index: number, card: (typeof cards)[number]) => (
+    <div className="topbar">
+      <div className="progress-dots" aria-label={t('cardOf', { n: index + 1, total: cards.length })}>
+        {cards.map((_, i) => (
+          <span key={i} className={`dot${i <= index ? ' on' : ''}`} />
+        ))}
+        <span style={{ marginLeft: 6 }}>{t('cardOf', { n: index + 1, total: cards.length })}</span>
+      </div>
       <span className="spacer" />
-      {preview ? <span className="save-pill saving">{t('preview')}</span> : <SavePill />}
+      <ReadAloud card={card} />
     </div>
   );
+
+  if (peek != null && onWorksheet) {
+    const card = cards[peek];
+    const last = peek === cards.length - 1;
+    return (
+      <main className="screen">
+        {top(t('cards'))}
+        {cardProgress(peek, card)}
+        {cardArticle(card)}
+        <div className="bottom-actions">
+          <button className="btn secondary" onClick={() => (peek === 0 ? setPeek(null) : setPeek(peek - 1))}>
+            {peek === 0 ? t('backToForm') : t('back')}
+          </button>
+          <button className="btn" onClick={() => (last ? setPeek(null) : setPeek(peek + 1))}>
+            {last ? t('backToForm') : t('next')}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   switch (pointer.step) {
     case 'intro':
@@ -164,38 +237,8 @@ export function LevelPlayer() {
         <main className="screen">
           {top(t('cards'))}
           {pointer.index === 0 && <HintBanner id="parentReads" text={t('parentReads')} />}
-          <div className="topbar">
-            <div className="progress-dots" aria-label={t('cardOf', { n: pointer.index + 1, total: cards.length })}>
-              {cards.map((_, i) => (
-                <span key={i} className={`dot${i <= pointer.index ? ' on' : ''}`} />
-              ))}
-              <span style={{ marginLeft: 6 }}>{t('cardOf', { n: pointer.index + 1, total: cards.length })}</span>
-            </div>
-            <span className="spacer" />
-            <ReadAloud card={card} />
-          </div>
-          <article className="panel concept-card content-col">
-            <h2>
-              <RichText text={card.title} />
-            </h2>
-            <p>
-              <RichText text={card.body} />
-            </p>
-            {card.bullets && card.bullets.length > 0 && (
-              <ul>
-                {card.bullets.map((b, i) => (
-                  <li key={i}>
-                    <RichText text={b} />
-                  </li>
-                ))}
-              </ul>
-            )}
-            {card.footer && (
-              <p className="footer">
-                <RichText text={card.footer} />
-              </p>
-            )}
-          </article>
+          {cardProgress(pointer.index, card)}
+          {cardArticle(card)}
           <div className="bottom-actions">
             <button className="btn secondary" onClick={back}>
               {t('back')}

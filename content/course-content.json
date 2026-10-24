@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25.1",
+  "contentVersion": "2026-10-25.3",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -156,10 +156,10 @@
     "quiz": "Câu đố",
     "parentReads": "Bố mẹ đọc thẻ cho con nghe nhé",
     "parentTypes": "Con nói, bố mẹ gõ cũng được",
-    "levelDone": "Xong Màn {n}! Hẹn mai nhé.",
+    "levelDone": "Xong Màn {n}!",
     "homeworkReminder": "Nhớ Bài về nhà nhé",
     "objectives": "Mục tiêu (cho bố mẹ)",
-    "locked": "Mai mở",
+    "locked": "Chưa mở",
     "chooseProfile": "Con là ai?",
     "enterCode": "Nhập mã của con",
     "total": "Tổng",
@@ -221,7 +221,7 @@
             },
             {
               "id": "c",
-              "text": "Sóc mua một chiếc vòng ở chợ để đeo.",
+              "text": "Sóc ra chợ mua một chiếc vòng thật đẹp để đeo.",
               "correct": false
             }
           ],
@@ -231,7 +231,7 @@
         {
           "id": "L1Q2",
           "order": 2,
-          "prompt": "Thỏ Bông nhận gói quà giúp các bạn, mỗi gói 2 nghìn. Thỏ đang bán gì?",
+          "prompt": "Thỏ Bông gói quà giúp các bạn, mỗi gói 2 nghìn. Thỏ đang bán gì?",
           "options": [
             {
               "id": "a",
@@ -259,17 +259,17 @@
           "options": [
             {
               "id": "a",
-              "text": "\"Cậu thấy tận mắt chưa, hay cậu đoán?\"",
+              "text": "\"Cậu thấy tận mắt chuyện đó chưa, hay cậu chỉ đoán thôi?\"",
               "correct": true
             },
             {
               "id": "b",
-              "text": "\"Màu gì đẹp nhất?\"",
+              "text": "\"Vậy mình làm vòng màu gì cho đẹp nhất?\"",
               "correct": false
             },
             {
               "id": "c",
-              "text": "\"Mình mua mật ong trước nhé?\"",
+              "text": "\"Hay mình đi mua mật ong ăn mừng trước nhé?\"",
               "correct": false
             }
           ],
@@ -283,17 +283,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Chọn hình đẹp nhất trong 17 hình.",
+              "text": "Chọn hình có màu đẹp nhất trong 17 hình.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Nói tiệm giúp ai chuyện gì, rồi chọn mục tiêu giống chuyện đó nhất.",
+              "text": "Kể tiệm giúp ai, rồi chọn mục tiêu giống nhất.",
               "correct": true
             },
             {
               "id": "c",
-              "text": "Chọn mục tiêu số 1 vì nó đứng đầu.",
+              "text": "Chọn mục tiêu số 1, vì đứng đầu thì chắc quan trọng nhất.",
               "correct": false
             }
           ],
@@ -333,7 +333,7 @@
           },
           {
             "id": "L1F3",
-            "prompt": "Từ chuyện đó: trò chơi của đội giúp các bạn chuyện gì nhất?",
+            "prompt": "Theo con, trò chơi của đội giúp các bạn chuyện gì nhất?",
             "parts": [
               {
                 "id": "a",
@@ -371,7 +371,8 @@
                 "id": "b",
                 "type": "text",
                 "maxLength": 300,
-                "label": "Vì sao?"
+                "label": "Vì sao?",
+                "required": true
               }
             ],
             "allowDontKnow": true,
@@ -432,17 +433,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Ý tưởng nghe thật hay.",
+              "text": "Ý tưởng nghe thật hay, ai nghe cũng khen là thích quá.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Ý tưởng chưa ai từng làm.",
+              "text": "Ý tưởng mới tinh, chưa ai trên đời từng làm bao giờ.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Ý tưởng đội làm được thật, với thời gian, tiền và kỹ năng đang có.",
+              "text": "Ý tưởng mà đội làm được thật, với thời gian, tiền và kỹ năng đang có.",
               "correct": true
             }
           ],
@@ -456,7 +457,7 @@
           "options": [
             {
               "id": "a",
-              "text": "Cứ bán, vì đã có ba chữ \"có\".",
+              "text": "Cứ bán luôn, vì đã có tới ba chữ \"có\" rồi.",
               "correct": false
             },
             {
@@ -466,7 +467,7 @@
             },
             {
               "id": "c",
-              "text": "Bỏ luôn ý tưởng vòng tay.",
+              "text": "Bỏ luôn ý tưởng vòng tay, tìm một ý tưởng khác.",
               "correct": false
             }
           ],
@@ -490,7 +491,7 @@
             },
             {
               "id": "c",
-              "text": "Để Gấu quyết vì Gấu giữ tiền.",
+              "text": "Để Gấu quyết một mình, vì Gấu là người giữ tiền.",
               "correct": false
             }
           ],
@@ -653,17 +654,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Đoán thôi, ai chẳng thích màu đỏ.",
+              "text": "Khỏi hỏi, đoán thôi, vì bạn nào cũng thích màu đỏ.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Chỉ hỏi Gấu Mật.",
+              "text": "Chỉ cần hỏi Gấu Mật là đủ.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Hỏi thật nhiều bạn, và xem các bạn đang đeo màu gì.",
+              "text": "Hỏi nhiều bạn và xem các bạn đang đeo gì.",
               "correct": true
             }
           ],
@@ -691,7 +692,7 @@
               "correct": false
             }
           ],
-          "explanation": "Hai câu kia đã gợi ý sẵn câu trả lời, nên các bạn gật đầu vì ngại. Câu \"Bạn hay đeo gì khi đi cổ vũ?\" để các bạn tự kể thật.",
+          "explanation": "Hỏi \"đẹp nhất trường, đúng không?\" hay \"sẽ mua, nhé?\" là đã gợi ý sẵn câu trả lời, nên các bạn gật đầu vì ngại. Hỏi các bạn hay đeo gì thì các bạn tự kể thật.",
           "shuffleOptions": true
         },
         {
@@ -725,12 +726,12 @@
           "options": [
             {
               "id": "a",
-              "text": "Điểm yếu, vì đội chưa chuẩn bị.",
+              "text": "Điểm yếu, vì đội chưa chuẩn bị áo mưa.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Điểm mạnh, vì mưa thì đội được nghỉ.",
+              "text": "Điểm mạnh, vì trời mưa thì cả đội được nghỉ.",
               "correct": false
             },
             {
@@ -981,17 +982,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Bán mỗi bạn một chiếc vòng rồi thôi.",
+              "text": "Bán cho mỗi bạn một chiếc vòng thật đẹp rồi thôi.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Tăng giá vòng lên gấp đôi.",
+              "text": "Tăng giá vòng lên gấp đôi để có nhiều tiền hơn.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Mở buổi tết vòng mỗi tuần, ai cũng được đến lại.",
+              "text": "Mở buổi tết vòng mỗi tuần để các bạn đến lại.",
               "correct": true
             }
           ],
@@ -1005,17 +1006,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Nài nỉ đến khi bạn ấy mua.",
+              "text": "Nài nỉ mãi, nói thật nhiều đến khi bạn ấy chịu mua.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Hỏi bạn ấy thích màu nào, kể vòng có gì hay, rồi để bạn ấy tự chọn.",
+              "text": "Hỏi bạn ấy thích màu nào, kể vòng có gì hay, rồi để bạn tự chọn.",
               "correct": true
             },
             {
               "id": "c",
-              "text": "Quay đi chỗ khác.",
+              "text": "Quay đi chỗ khác, vì bạn ấy chưa muốn mua.",
               "correct": false
             }
           ],
@@ -1253,7 +1254,7 @@
             },
             {
               "id": "b",
-              "text": "Đúng.",
+              "text": "Đúng, doanh thu là tiền lời.",
               "correct": false
             },
             {
@@ -1272,21 +1273,21 @@
           "options": [
             {
               "id": "a",
-              "text": "\"Tại tụi cháu muốn giàu thật nhanh ạ.\"",
+              "text": "\"Tại tụi cháu muốn có thật nhiều tiền để giàu nhanh ạ.\"",
               "correct": false
             },
             {
               "id": "b",
-              "text": "\"Tụi cháu cũng không biết ạ.\"",
+              "text": "\"Tụi cháu thấy người ta bán vậy nên bán theo thôi ạ.\"",
               "correct": false
             },
             {
               "id": "c",
-              "text": "\"Tiền lời trả cho công tết vòng và để mua len làm tiếp ạ.\"",
+              "text": "\"Để trả công tết vòng và mua len làm tiếp ạ.\"",
               "correct": true
             }
           ],
-          "explanation": "Bán cao hơn chi phí là bình thường và công bằng, miễn là giá vừa với thứ khách nhận. Tiền lời trả cho công sức, giúp tiệm tiếp tục và làm việc tốt.",
+          "explanation": "Bán cao hơn chi phí là bình thường và công bằng, miễn là giá vừa với thứ khách nhận. Tiền lời trả cho công sức, giúp tiệm tiếp tục và làm việc tốt. Bán theo người khác mà không biết vì sao thì chưa hiểu tiệm của mình.",
           "shuffleOptions": true
         }
       ],
@@ -1416,17 +1417,17 @@
           "options": [
             {
               "id": "a",
-              "text": "Hỏi ở cửa hàng, hoặc nhờ bố mẹ xem giá trên mạng.",
+              "text": "Hỏi giá ở cửa hàng, hoặc nhờ bố mẹ xem giá trên mạng.",
               "correct": true
             },
             {
               "id": "b",
-              "text": "Đoán một con số.",
+              "text": "Đoán một con số, vì len chắc cũng rẻ thôi.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Chọn số nhỏ nhất cho đỡ lo.",
+              "text": "Ghi số nhỏ nhất có thể cho đỡ phải lo tiền.",
               "correct": false
             }
           ],
@@ -1440,21 +1441,21 @@
           "options": [
             {
               "id": "a",
-              "text": "9 chiếc mỗi tuần, vì 9 bạn muốn.",
+              "text": "9 chiếc mỗi tuần, vì có 9 bạn nói là muốn mua.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "100 chiếc cho oai.",
+              "text": "100 chiếc, đoán số thật to cho cả đội thêm vui.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Khoảng 4–5 chiếc trong tháng, vì thường chỉ một nửa mua thật và mỗi bạn mua một lần.",
+              "text": "Khoảng 4–5 chiếc trong cả tháng.",
               "correct": true
             }
           ],
-          "explanation": "Nói \"muốn\" không phải là mua. Và một chiếc vòng mua một lần là đủ, không phải tuần nào cũng mua. Đoán quá to thì mua thừa len.",
+          "explanation": "Nói \"muốn\" không phải là mua: thường chỉ khoảng một nửa mua thật. Và mỗi bạn chỉ mua một chiếc, không phải tuần nào cũng mua. Đoán quá to thì mua thừa len.",
           "shuffleOptions": true
         },
         {
@@ -1464,7 +1465,7 @@
           "options": [
             {
               "id": "a",
-              "text": "Chờ có lời rồi mới mua len.",
+              "text": "Chờ đến khi bán được vòng, có lời rồi mới mua len.",
               "correct": false
             },
             {
@@ -1474,7 +1475,7 @@
             },
             {
               "id": "c",
-              "text": "Lấy tiền trong ví bố mẹ mà không hỏi.",
+              "text": "Lấy tạm tiền trong ví bố mẹ mà không hỏi, mai nói sau.",
               "correct": false
             }
           ],
@@ -1488,21 +1489,21 @@
           "options": [
             {
               "id": "a",
-              "text": "Tiêu hết 100 nghìn mua mật ong.",
+              "text": "Trả nợ 20, còn 80 tiêu hết vào mật ong.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Giữ lại 40 nghìn, cho trường 40 nghìn, mua sách 40 nghìn.",
+              "text": "Giữ 40 để làm tiếp, cho trường 40, mua sách cho lớp 40.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Trả bố mẹ Gấu 20 nghìn, giữ 30 nghìn để làm tiếp, 50 nghìn cả đội bỏ phiếu chọn việc tốt.",
+              "text": "Trả nợ 20, giữ 30 để làm tiếp, 50 cho việc tốt.",
               "correct": true
             }
           ],
-          "explanation": "Tiêu hết thì lần sau không còn tiền mua len, và cũng trái luật cuộc thi. Kế hoạch 40, 40, 40 cộng lại là 120 nghìn, nhiều hơn số tiền tiệm có! Kế hoạch trả bố mẹ Gấu trước thì vừa đủ 100, và cả đội cùng quyết định.",
+          "explanation": "Tiêu hết vào mật ong thì lần sau không còn tiền mua len, và cũng trái luật cuộc thi. Chia 40, 40, 40 thì cộng lại là 120 nghìn, nhiều hơn số tiền tiệm có, lại quên trả nợ! Cách đúng là trả nợ trước, cộng lại vừa đủ 100, và việc tốt do cả đội bỏ phiếu chọn.",
           "shuffleOptions": true
         }
       ],
@@ -1517,7 +1518,7 @@
               {
                 "id": "a",
                 "type": "number",
-                "unit": "bộ",
+                "unit": "bộ hoặc vé",
                 "min": 0,
                 "max": 10000,
                 "label": "Số bộ hoặc vé trong 2 tháng"
@@ -1553,7 +1554,8 @@
                   {
                     "id": "owned",
                     "label": "Nhà con có sẵn, cho đội mượn",
-                    "hint": "không cần mua"
+                    "hint": "không cần mua",
+                    "noPrice": true
                   }
                 ],
                 "fields": [
@@ -1570,7 +1572,9 @@
                     "optional": true
                   }
                 ],
-                "maxItemsPerGroup": 10
+                "maxItemsPerGroup": 10,
+                "showTotal": true,
+                "totalLabel": "Tiền cần có để bắt đầu"
               }
             ],
             "allowDontKnow": true,
@@ -1590,7 +1594,7 @@
                   },
                   {
                     "id": "b",
-                    "text": "Xin góp"
+                    "text": "Xin người lớn góp đồ hoặc tiền"
                   },
                   {
                     "id": "c",
@@ -1620,7 +1624,7 @@
           },
           {
             "id": "L6F4",
-            "prompt": "Nếu đội lời 100 nghìn, chia thế nào? Cộng lại đúng 100.",
+            "prompt": "Nếu đội lời 100 nghìn, chia thế nào? Trả nợ trước, rồi chia phần còn lại. Cộng lại đúng 100.",
             "parts": [
               {
                 "id": "a",
@@ -1628,6 +1632,11 @@
                 "total": 100,
                 "unit": "nghìn",
                 "fields": [
+                  {
+                    "id": "debt",
+                    "label": "Trả nợ (nếu đội có mượn)",
+                    "optional": true
+                  },
                   {
                     "id": "reinvest",
                     "label": "Giữ lại để làm tiếp"
@@ -1642,7 +1651,7 @@
               }
             ],
             "allowDontKnow": true,
-            "hint": "điền số",
+            "hint": "điền số; không mượn ai thì để trống ô trả nợ",
             "note": "Validate that the fields sum to exactly 100 before the child can continue; show the running total."
           }
         ],
@@ -1702,7 +1711,7 @@
             },
             {
               "id": "c",
-              "text": "Không cần làm",
+              "text": "Không cần, tiền ở trong hộp rồi",
               "correct": false
             }
           ],
@@ -1716,12 +1725,12 @@
           "options": [
             {
               "id": "a",
-              "text": "Sóc làm hết vì Sóc khéo tay nhất.",
+              "text": "Sóc làm hết mọi việc, vì Sóc là bạn khéo tay nhất.",
               "correct": false
             },
             {
               "id": "b",
-              "text": "Ai rảnh thì làm, không cần chia.",
+              "text": "Ai rảnh thì làm, không cần chia việc cho mệt.",
               "correct": false
             },
             {
@@ -1745,12 +1754,12 @@
             },
             {
               "id": "b",
-              "text": "Đoán màu khách thích.",
+              "text": "Nhìn áo của khách rồi tự đoán màu khách thích.",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Mặc kệ, khách sẽ không để ý.",
+              "text": "Mặc kệ, vì khách thường sẽ không để ý đâu.",
               "correct": false
             }
           ],
@@ -1769,12 +1778,12 @@
             },
             {
               "id": "b",
-              "text": "Khi vẽ poster",
+              "text": "Khi vẽ và tô màu poster quảng cáo",
               "correct": false
             },
             {
               "id": "c",
-              "text": "Khi đếm tiền",
+              "text": "Khi đếm tiền và ghi vào sổ",
               "correct": false
             }
           ],
@@ -1947,7 +1956,7 @@
   ],
   "homework": {
     "title": "Bài về nhà",
-    "intro": "Bài về nhà là một tờ, phát ngay ngày 1, làm cùng bố mẹ trong tuần, mỗi việc vài phút. Việc 2 làm sau Màn 3, khi con đã chọn hai câu hỏi.",
+    "intro": "Năm việc nhỏ, làm cùng bố mẹ trong tuần này. Việc 1 làm ngay. Việc 2 làm sau Màn 3, khi con đã chọn hai câu hỏi.",
     "items": [
       {
         "id": "H1",
@@ -2047,7 +2056,8 @@
               "label": "Trả lời câu hỏi 2",
               "maxLength": 200
             }
-          ]
+          ],
+          "rowLabel": "Bạn {n}"
         }
       ],
       "H3": [
@@ -2083,7 +2093,8 @@
               "type": "tally",
               "label": "Khác"
             }
-          ]
+          ],
+          "rowLabel": "Ngày {n}"
         }
       ],
       "H4": [

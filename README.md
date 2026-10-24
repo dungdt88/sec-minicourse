@@ -47,6 +47,14 @@ pnpm validate-content [path/to/file.json]
 CI (`.github/workflows/ci.yml`) runs content validation, typecheck, unit tests and the build on
 every push. The e2e suite needs Docker and the Supabase CLI, so run it by hand before a release.
 
+`pnpm test:e2e` **resets the database it runs against**. To keep your dev data, run it on a
+second local stack (copy `supabase/` to another folder, change `project_id` and the ports in its
+`config.toml`, `npx supabase start --workdir <folder>`), then:
+
+```sh
+E2E_SUPABASE_WORKDIR=<folder> E2E_SUPABASE_URL=http://127.0.0.1:<api port> E2E_APP_PORT=5175 pnpm test:e2e
+```
+
 `e2e/acceptance.spec.ts` automates acceptance tests 1–13 and 15 from section 12. Test 14 (first
 screen under 3 s on a 4-year-old Android over 4G) needs a real device.
 
@@ -96,12 +104,17 @@ All optional, all in the schema. They turn builder notes into data, so no questi
 | `context: [{questionId, partId}]` | form question | shows the child's earlier answers read-only above the input | L5F2 (price from L4F2, cost from L5F1) |
 | `optionsFrom: {questionId, partId}` | `single_choice` part | lists only the options ticked (or added) in an earlier multi choice, plus "Khác" | L7F2 ← L7F1 |
 | `showAnswer: {questionId, partId}` | homework item | shows the child's earlier answer with the item, on screen and on the printed sheet | H2 ← L3F2 |
+| `required` | `text` part | not covered by the question's "Chưa biết" once other parts are answered | L1F4 "Vì sao?" |
+| `noPrice`, `showTotal`, `totalLabel` | `item_list` group / part | group without price boxes; running total of the prices | L6F2 |
+| `optional` | `sum_split` field | may stay empty, counts as 0 | L6F4 "Trả nợ" |
+| `rowLabel` | `repeat` part (homework) | row name with `{n}`, default "Lần {n}" | H2 "Bạn {n}", H3 "Ngày {n}" |
 | `homework.remindAfterLevels` | homework | levels after which the homework button and reminder are highlighted (default `[1, 3]`) | – |
 | `characters[].images`, `levels[].character`, `levels[].sticker`, `cards[].audio` | | real artwork, the intro character, sticker artwork, recorded read-aloud | – |
 
 These fields and the playtest fixes below are the only changes made to the supplied content file (see git history).
 
-**Content fixes after the 25 October playtest** (version `2026-10-25.1`): L6F1 unit "nghìn" → "bộ";
+**Current content: the mentor's `2026-10-25.3`** plus this app's `context`, `optionsFrom`,
+`showAnswer` and `rowLabel` fields. Earlier: **content fixes after the 25 October playtest** (version `2026-10-25.1`): L6F1 unit "nghìn" → "bộ";
 L3Q2 and L6Q4 explanations no longer refer to options by letter (options are shuffled). Wording
 suggestions left for the mentor are in [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
 

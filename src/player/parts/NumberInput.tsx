@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { NumberPart } from '../../content/types';
+import { ThousandCheck, inThousands } from './ThousandCheck';
 import { current, set, type PartProps } from './types';
 
 /** Integer input with the phone's number pad. A ± button appears only where min is negative. */
@@ -44,6 +45,17 @@ export function NumberInput({ part, answer, onChange, readOnly, t, labelId }: Pa
         />
         {part.unit && <span className="unit">{part.unit === 'nghìn' ? 'nghìn đồng' : part.unit}</span>}
       </div>
+      {inThousands(part.unit) && (
+        <ThousandCheck
+          value={value}
+          t={t}
+          readOnly={readOnly}
+          onFix={(n) => {
+            setText(String(Math.abs(n)));
+            onChange(set(n));
+          }}
+        />
+      )}
       {allowNegative && (
         // A labelled choice rather than a bare +/− button: phone number pads have no minus key.
         <button

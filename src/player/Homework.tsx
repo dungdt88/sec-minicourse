@@ -10,14 +10,48 @@ import { PartField } from './parts';
 import { usePlayer } from './session';
 import { SavePill } from './ui';
 
-function useEarlierAnswer(item: HomeworkItem): string | null {
+/**
+ * The earlier answer an item shows (e.g. H2 ← the two questions picked in L3F2), numbered so
+ * "Trả lời câu hỏi 1/2" in the capture fields match. Before it exists: which level it comes from.
+ */
+function useEarlierAnswer(item: HomeworkItem): { lines: string[] } | { fromLevel: number } | null {
   const { content, answer, t } = usePlayer();
   const ref = item.showAnswer;
   if (!ref) return null;
-  const part = findQuestion(content, ref.questionId)?.question.parts.find((p) => p.id === ref.partId);
+  const found = findQuestion(content, ref.questionId);
+  const part = found?.question.parts.find((p) => p.id === ref.partId);
+  if (!found || !part) return null;
   const a = answer(ref.questionId, ref.partId);
-  if (!part || !a || a.dontKnow) return null;
-  return formatPart(part, a, content, t) || null;
+  if (!a || a.dontKnow || a.value == null) return { fromLevel: found.level.order };
+  const ids = (a.value as { optionIds?: string[] }).optionIds;
+  if (ids && 'options' in part) return { lines: ids.map((id) => part.options.find((o) => o.id === id)?.text ?? id) };
+  return { lines: [formatPart(part, a, content, t)] };
+}
+
+function EarlierAnswer({ item, print }: { item: HomeworkItem; print?: boolean }) {
+  const { t } = usePlayer();
+  const earlier = useEarlierAnswer(item);
+  if (!earlier) return null;
+  if ('fromLevel' in earlier)
+    return print ? null : <p className="hint" style={{ marginTop: 8 }}>{t('earlierLater', { n: earlier.fromLevel })}</p>;
+  const list = earlier.lines.length > 1 ? (
+    <ol style={{ margin: '4px 0 0', paddingLeft: '1.4em' }}>
+      {earlier.lines.map((l, i) => (
+        <li key={i}>{l}</li>
+      ))}
+    </ol>
+  ) : (
+    <strong> {earlier.lines[0]}</strong>
+  );
+  return print ? (
+    <div style={{ margin: '0 0 4px' }}>
+      {t('youChose')} {list}
+    </div>
+  ) : (
+    <div className="context-box" style={{ marginTop: 8 }}>
+      {t('youChose')} {list}
+    </div>
+  );
 }
 
 function Capture({ item, parts }: { item: HomeworkItem; parts: Part[] }) {
@@ -35,7 +69,6 @@ function Capture({ item, parts }: { item: HomeworkItem; parts: Part[] }) {
           t={t}
           content={content}
           lookup={(q, p) => answer(q, p)}
-          allowDontKnow={false}
           fallbackLabelId={`hw-${item.id}`}
         />
       ))}
@@ -48,7 +81,6 @@ function ItemCard({ item }: { item: HomeworkItem }) {
   const { content, t } = usePlayer();
   const [open, setOpen] = useState(false);
   const parts = content.homework.capture?.[item.id];
-  const earlier = useEarlierAnswer(item);
   return (
     <section className="panel">
       <div className="hw-item">
@@ -59,11 +91,7 @@ function ItemCard({ item }: { item: HomeworkItem }) {
           <p style={{ margin: 0 }} id={`hw-${item.id}`}>
             {item.text}
           </p>
-          {earlier && (
-            <p className="context-box" style={{ marginTop: 8 }}>
-              {t('youChose')} <strong>{earlier}</strong>
-            </p>
-          )}
+          <EarlierAnswer item={item} />
         </div>
       </div>
       {parts && (
@@ -174,18 +202,13 @@ function PrintableSheet({ name }: { name: string }) {
 }
 
 function PrintItem({ item }: { item: HomeworkItem }) {
-  const { content, t } = usePlayer();
-  const earlier = useEarlierAnswer(item);
+  const { content } = usePlayer();
   return (
     <section>
       <p style={{ margin: '0 0 4px' }}>
         <strong>{item.order}.</strong> {item.text}
       </p>
-      {earlier && (
-        <p style={{ margin: '0 0 4px' }}>
-          {t('youChose')} <em>{earlier}</em>
-        </p>
-      )}
+      <EarlierAnswer item={item} print />
       {(content.homework.capture?.[item.id] ?? []).map((p) => (
         <PrintPart key={p.id} part={p} />
       ))}

@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormQuestion, Level, Part } from '../content/types';
 import { findQuestion } from '../content/types';
-import { checkPart, formatPart, type PartAnswer } from '../domain/answers';
+import { checkPart, formatPart, withColon, type PartAnswer } from '../domain/answers';
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
@@ -68,6 +68,47 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
   const lookup = (q: string, p: string) => (q === question.id ? drafts[p] : answer(q, p));
   const complete = question.parts.every((p) => checkPart(p, drafts[p.id], t).complete);
   const promptId = `prompt-${question.id}`;
+  // "Tiếp" stays tappable; a tap on an unfinished question says what is missing instead of
+  // silently doing nothing. Messages about a part wait for that first tap.
+  const [attempted, setAttempted] = useState(false);
+
+  // One "Chưa biết" per question. It covers the parts not answered yet, so a child who knows
+  // the choice but not the "vì sao" keeps their choice. Tapping it again takes it back.
+  const anyDontKnow = question.parts.some((p) => drafts[p.id]?.dontKnow);
+  const toggleDontKnow = () => {
+    if (anyDontKnow) {
+      for (const p of question.parts) if (drafts[p.id]?.dontKnow) change(p, { value: null, dontKnow: false });
+      return;
+    }
+    const missing = question.parts.filter((p) => !checkPart(p, drafts[p.id], t).complete);
+    // A `required` text part (e.g. L1F4 "Vì sao?") is not skipped once the child has answered the
+    // rest: having picked an SDG, they say why. If they know nothing yet, the whole question is "Chưa biết".
+    const answeredSome = missing.length < question.parts.length;
+    const skippable = missing.filter((p) => !(answeredSome && p.type === 'text' && p.required));
+    if (missing.length && !skippable.length) {
+      setAttempted(true);
+      return;
+    }
+    for (const p of missing.length ? skippable : question.parts) change(p, { value: null, dontKnow: true });
+  };
+
+  // Everything else is done and only a required part is missing: name it.
+  const isRequired = (p: Part) => p.type === 'text' && !!p.required;
+  const othersDone = question.parts.every((p) => isRequired(p) || checkPart(p, drafts[p.id], t).complete);
+  const requiredMissing = othersDone
+    ? question.parts.find((p) => isRequired(p) && !checkPart(p, drafts[p.id], t).complete)
+    : undefined;
+
+  const tryNext = () => {
+    flushAll();
+    if (complete || readOnly) {
+      onNext();
+      return;
+    }
+    setAttempted(true);
+    const first = question.parts.find((p) => !checkPart(p, drafts[p.id], t).complete);
+    if (first) document.getElementById(`part-${question.id}-${first.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  };
 
   const contextRows = (question.context ?? []).map((ref) => {
     const found = findQuestion(content, ref.questionId);
@@ -121,11 +162,26 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
           t={t}
           content={content}
           lookup={lookup}
-          allowDontKnow={question.allowDontKnow}
-          compactDontKnow={question.parts.length > 1}
+          domId={`part-${question.id}-${part.id}`}
+          showMissing={attempted}
           fallbackLabelId={promptId}
         />
       ))}
+      {question.allowDontKnow && (
+        <button type="button" className="option dont-know" role="checkbox" aria-checked={anyDontKnow} disabled={readOnly} onClick={toggleDontKnow}>
+          <span className="mark" aria-hidden="true">
+            {anyDontKnow ? '✓' : '?'}
+          </span>
+          <span>{t('dontKnow')}</span>
+        </button>
+      )}
+      {attempted && !complete && !readOnly && (
+        <p className="gentle" role="alert">
+          {/* After "Chưa biết" only a required part can be missing: name it instead of
+              suggesting "Chưa biết" again. */}
+          {requiredMissing ? t('requiredHint', { label: requiredMissing.label ?? '' }) : t('missingHint')}
+        </p>
+      )}
       <div className="bottom-actions">
         <button
           className="btn secondary"
@@ -136,14 +192,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         >
           {t('back')}
         </button>
-        <button
-          className="btn"
-          disabled={!complete && !readOnly}
-          onClick={() => {
-            flushAll();
-            onNext();
-          }}
-        >
+        <button className="btn" onClick={tryNext}>
           {t('next')}
         </button>
       </div>
@@ -193,7 +242,7 @@ export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top }
             </div>
             {parts.map((p, j) => (
               <p className="a" key={j}>
-                {p.label && <span className="muted">{p.label} </span>}
+                {p.label && <span className="muted">{withColon(p.label)} </span>}
                 {p.text || <em className="muted">{t('noAnswer')}</em>}
               </p>
             ))}

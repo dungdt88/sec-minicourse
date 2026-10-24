@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { checkPart, compareKey, formatPart, visibleOptions, type PartAnswer } from '../src/domain/answers';
+import { checkPart, compareKey, formatPart, itemListTotal, visibleOptions, withColon, type ItemListValue, type PartAnswer } from '../src/domain/answers';
+import { inThousands } from '../src/player/parts/ThousandCheck';
 import { makeT } from '../src/content/strings';
 import { findQuestion, type CourseContent, type Part } from '../src/content/types';
 
@@ -160,5 +161,34 @@ describe('compare keys', () => {
     expect(compareKey(part('L4F2'), ans(15))).toBe('15');
     expect(compareKey(part('L1F1'), ans('x'))).toBeNull();
     expect(compareKey(part('L4F1'), dontKnow)).toBe('∅');
+  });
+});
+
+describe('content 2026-10-25.3 fields', () => {
+  it('L6F4: the debt line is optional and counts as 0', () => {
+    const p = part('L6F4');
+    expect(check(p, ans({ values: { reinvest: 50, good: 50 } })).complete).toBe(true);
+    expect(check(p, ans({ values: { debt: 20, reinvest: 30, good: 50 } })).complete).toBe(true);
+    expect(check(p, ans({ values: { debt: 20, reinvest: 50, good: 50 } })).message).toBe('Cộng lại phải đúng 100');
+    expect(check(p, ans({ values: { debt: 20, reinvest: 80 } })).complete).toBe(false); // good is not optional
+    expect(formatPart(p, ans({ values: { reinvest: 50, good: 50 } }), content, t)).not.toMatch(/Trả nợ/);
+  });
+  it('L6F2: the start-up total skips the "already at home" group', () => {
+    const p = part('L6F2') as Extract<Part, { type: 'item_list' }>;
+    const v: ItemListValue = { groups: { equipment: [{ name: 'Kéo', price: 25 }], materials: [{ name: 'Bìa', price: 20 }, { name: '', price: 99 }], owned: [{ name: 'Bút', price: 5 }] } };
+    expect(itemListTotal(p, v)).toBe(45);
+  });
+});
+
+describe('labels and units', () => {
+  it('adds a colon unless the label is a question', () => {
+    expect(withColon('Chọn một hình')).toBe('Chọn một hình:');
+    expect(withColon('Vì sao?')).toBe('Vì sao?');
+  });
+  it('knows which fields are in thousands of đồng', () => {
+    expect(inThousands('nghìn')).toBe(true);
+    expect(inThousands('Giá (nghìn đồng)')).toBe(true);
+    expect(inThousands('bộ hoặc vé')).toBe(false);
+    expect(inThousands(undefined)).toBe(false);
   });
 });

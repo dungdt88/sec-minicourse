@@ -1,5 +1,6 @@
 import type { ItemListPart, RepeatPart, SumSplitPart } from '../../content/types';
-import { sumSplitTotal, type ItemListValue, type ListRow, type RepeatRow, type RepeatValue, type SumSplitValue } from '../../domain/answers';
+import { itemListTotal, sumSplitTotal, type ItemListValue, type ListRow, type RepeatRow, type RepeatValue, type SumSplitValue } from '../../domain/answers';
+import { ThousandCheck, inThousands } from './ThousandCheck';
 import { current, set, type PartProps } from './types';
 
 const digits = (s: string) => s.replace(/[^0-9]/g, '').slice(0, 9);
@@ -7,50 +8,65 @@ const toNum = (s: string) => (s === '' ? null : parseInt(s, 10));
 
 export function ItemListInput({ part, answer, onChange, readOnly, t }: PartProps<ItemListPart>) {
   const value = current<ItemListValue>(answer) ?? { groups: {} };
-  const rowsOf = (g: string): ListRow[] => value.groups?.[g]?.length ? value.groups[g] : [{}];
+  const rowsOf = (g: string): ListRow[] => (value.groups?.[g]?.length ? value.groups[g] : [{}]);
   const update = (g: string, rows: ListRow[]) => onChange(set({ groups: { ...value.groups, [g]: rows } }));
+  const setCell = (g: string, rows: ListRow[], i: number, id: string, v: ListRow[string]) =>
+    update(g, rows.map((r, j) => (j === i ? { ...r, [id]: v } : r)));
   return (
     <>
       {part.groups.map((g) => {
         const rows = rowsOf(g.id);
         const full = part.maxItemsPerGroup != null && rows.length >= part.maxItemsPerGroup;
+        // Groups like "Nhà con có sẵn" have nothing to pay, so no price box.
+        const fields = g.noPrice ? part.fields.filter((f) => f.type !== 'number') : part.fields;
         return (
           <fieldset key={g.id} className="list-group">
             <legend className="part-label">{g.label}</legend>
             {g.hint && <p className="hint" style={{ marginTop: -6 }}>{g.hint}</p>}
             {rows.map((row, i) => (
-              <div className="list-row" key={i}>
-                {part.fields.map((f) =>
-                  f.type === 'number' ? (
+              <div className="list-item" key={i}>
+                {fields.map((f) => {
+                  const short = f.label.replace(/\s*\(.*\)\s*/, '');
+                  if (f.type === 'number') {
+                    const money = inThousands(f.label);
+                    const n = row[f.id] == null ? null : Number(row[f.id]);
+                    return (
+                      <div key={f.id} className="part" style={{ gap: 6 }}>
+                        <div className="num-row">
+                          <input
+                            className="num-input"
+                            aria-label={`${f.label} ${i + 1}`}
+                            placeholder={short}
+                            inputMode="numeric"
+                            autoComplete="off"
+                            readOnly={readOnly}
+                            value={n == null ? '' : String(n)}
+                            onChange={(e) => setCell(g.id, rows, i, f.id, toNum(digits(e.target.value)))}
+                          />
+                          {money && <span className="unit">nghìn đồng</span>}
+                        </div>
+                        {money && <ThousandCheck value={n} t={t} readOnly={readOnly} onFix={(k) => setCell(g.id, rows, i, f.id, k)} />}
+                      </div>
+                    );
+                  }
+                  return (
                     <input
                       key={f.id}
-                      className="num-input"
+                      className="text-input short"
                       aria-label={`${f.label} ${i + 1}`}
-                      placeholder={f.label.replace(/\s*\(.*\)\s*/, '')}
-                      inputMode="numeric"
-                      autoComplete="off"
-                      readOnly={readOnly}
-                      value={row[f.id] == null ? '' : String(row[f.id])}
-                      onChange={(e) => update(g.id, rows.map((r, j) => (j === i ? { ...r, [f.id]: toNum(digits(e.target.value)) } : r)))}
-                    />
-                  ) : (
-                    <input
-                      key={f.id}
-                      className="text-input"
-                      aria-label={`${f.label} ${i + 1}`}
-                      placeholder={f.label}
+                      placeholder={short}
                       maxLength={f.maxLength}
                       lang="vi"
                       autoComplete="off"
                       readOnly={readOnly}
                       value={(row[f.id] as string) ?? ''}
-                      onChange={(e) => update(g.id, rows.map((r, j) => (j === i ? { ...r, [f.id]: e.target.value } : r)))}
+                      onChange={(e) => setCell(g.id, rows, i, f.id, e.target.value)}
                     />
-                  ),
-                )}
+                  );
+                })}
                 {!readOnly && rows.length > 1 && (
-                  <button type="button" className="icon-btn" aria-label={`${t('remove')} ${i + 1}`} onClick={() => update(g.id, rows.filter((_, j) => j !== i))}>
-                    ✕
+                  <button type="button" className="btn quiet small" style={{ alignSelf: 'flex-start' }} onClick={() => update(g.id, rows.filter((_, j) => j !== i))}>
+                    ✕ {t('remove')}
                   </button>
                 )}
               </div>
@@ -63,6 +79,12 @@ export function ItemListInput({ part, answer, onChange, readOnly, t }: PartProps
           </fieldset>
         );
       })}
+      {part.showTotal && (
+        <div className="sum-total" role="status" aria-live="polite">
+          <span>{part.totalLabel ?? t('total')}</span>
+          <span>{itemListTotal(part, value)} nghìn</span>
+        </div>
+      )}
     </>
   );
 }
@@ -129,7 +151,7 @@ export function RepeatInput({ part, answer, onChange, readOnly, t }: PartProps<R
       <div className="part-label">{part.label}</div>
       {rows.map((row, i) => (
         <fieldset className="list-group" key={i}>
-          <legend className="part-label">{t('rowN', { n: i + 1 })}</legend>
+          <legend className="part-label">{part.rowLabel ? part.rowLabel.replaceAll('{n}', String(i + 1)) : t('rowN', { n: i + 1 })}</legend>
           {part.fields.map((f) => {
             if (f.type === 'checkbox')
               return (

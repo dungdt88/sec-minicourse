@@ -72,6 +72,8 @@ interface PartBase {
 export interface TextPart extends PartBase {
   type: 'text';
   maxLength?: number;
+  /** Still needs an answer when the question's "Chưa biết" covers the other parts. */
+  required?: boolean;
 }
 
 export interface SingleChoicePart extends PartBase {
@@ -116,9 +118,13 @@ export interface ListField {
 
 export interface ItemListPart extends PartBase {
   type: 'item_list';
-  groups: { id: string; label: string; hint?: string }[];
+  /** noPrice: the group's rows have no number fields (e.g. things already owned). */
+  groups: { id: string; label: string; hint?: string; noPrice?: boolean }[];
   fields: ListField[];
   maxItemsPerGroup?: number;
+  /** Show the running total of the number fields, labelled totalLabel. */
+  showTotal?: boolean;
+  totalLabel?: string;
 }
 
 export interface SumSplitField {
@@ -126,6 +132,8 @@ export interface SumSplitField {
   label: string;
   allowText?: boolean;
   textLabel?: string;
+  /** May be left empty; counts as 0 (e.g. "Trả nợ" when the team borrowed nothing). */
+  optional?: boolean;
 }
 
 export interface SumSplitPart extends PartBase {
@@ -146,6 +154,8 @@ export interface RepeatField {
 export interface RepeatPart extends PartBase {
   type: 'repeat';
   label: string;
+  /** Row label with {n}, e.g. "Bạn {n}". */
+  rowLabel?: string;
   min?: number;
   max?: number;
   fields: RepeatField[];

@@ -38,21 +38,25 @@ function Input(props: PartProps) {
   }
 }
 
-/** A part with its label, input, validation message and the "Chưa biết" escape as last option. */
+/**
+ * A part with its label, input and messages. The "Chưa biết" escape belongs to the question
+ * (see FormQuestionScreen); a part only shows that it is set by dimming its input.
+ */
 export function PartField(
   props: Omit<PartProps, 'labelId'> & {
-    allowDontKnow: boolean;
     fallbackLabelId: string;
-    /** In a question with several parts, a small "Chưa biết" per part instead of a full-width box. */
-    compactDontKnow?: boolean;
+    /** After the child tapped "Tiếp" on an unfinished question: say what this part still needs. */
+    showMissing?: boolean;
+    domId?: string;
   },
 ) {
-  const { part, answer, onChange, readOnly, t, allowDontKnow, fallbackLabelId, compactDontKnow } = props;
+  const { part, answer, t, fallbackLabelId, showMissing, domId } = props;
   const labelId = part.label ? `label-${part.id}` : fallbackLabelId;
   const check = checkPart(part as Part, answer, t);
   const dontKnow = !!answer?.dontKnow;
+  const message = showMissing && !check.complete ? (check.message ?? t('missingPart')) : null;
   return (
-    <div className="part">
+    <div className="part" id={domId}>
       {part.label && part.type !== 'repeat' && (
         <div className="part-label" id={labelId}>
           <RichText text={part.label} />
@@ -63,23 +67,11 @@ export function PartField(
           <Input {...props} labelId={labelId} />
         </div>
       </div>
-      {check.message && !dontKnow && (
+      {dontKnow && <p className="hint">✓ {t('dontKnow')}</p>}
+      {message && (
         <p className="part-message" role="alert">
-          {check.message}
+          {message}
         </p>
-      )}
-      {allowDontKnow && (
-        <button
-          type="button"
-          className={`option dont-know${compactDontKnow ? ' compact' : ''}`}
-          role="checkbox"
-          aria-checked={dontKnow}
-          disabled={readOnly}
-          onClick={() => onChange({ value: null, dontKnow: !dontKnow })}
-        >
-          <span className="mark" aria-hidden="true">{dontKnow ? '✓' : '?'}</span>
-          <span>{t('dontKnow')}</span>
-        </button>
       )}
     </div>
   );

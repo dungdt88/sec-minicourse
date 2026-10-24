@@ -44,8 +44,10 @@ test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
   await next(page);
   await page.getByRole('button', { name: 'Bắt đầu' }).click();
 
-  // L1F1 text
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeDisabled();
+  // L1F1 text: "Tiếp" on an empty question stays put and says what is missing
+  await next(page);
+  await expect(page.getByText('Còn phần chưa xong')).toBeVisible();
+  await expect(page.getByText('Câu 1/4').first()).toBeVisible();
   await page.locator('textarea').fill('Trò Magic: tung xúc xắc, ai về đích trước thì thắng. Phiên bản 1.');
   await next(page);
   // L1F2 "Chưa biết" on a text question (6)
@@ -53,11 +55,13 @@ test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
   await next(page);
   // L1F3 "Khác" reveals a text field
   await page.getByRole('radio', { name: 'Khác' }).click();
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeDisabled();
+  await expect(page.locator('.part-message')).toHaveCount(0); // no red text before the child tries
+  await next(page);
+  await expect(page.locator('.part-message')).toHaveText('Ghi thêm một chút nhé.');
   await page.getByPlaceholder('Ghi thêm một chút nhé.').fill('Vui hơn');
   await next(page);
   // L1F4 SDG + why
-  await page.locator('.sdg-tile').nth(2).click();
+  await page.locator('.sdg-row').nth(2).click();
   await expect(page.getByText('Ai cũng khỏe mạnh và vui vẻ.')).toBeVisible();
   await page.locator('textarea').fill('Chơi cùng nhau thì vui');
   await next(page);
@@ -65,7 +69,7 @@ test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
   await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
   await expect(page.getByText('Chưa biết')).toBeVisible();
   await page.getByRole('button', { name: 'Nộp phiếu' }).click();
-  await expect(page.getByText('Xong Màn 1! Hẹn mai nhé.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Xong Màn 1!' })).toBeVisible();
   await expect(page.getByText('Nhớ Bài về nhà nhé')).toBeVisible();
   await waitSaved(page);
   await page.locator('.btn', { hasText: 'Về bản đồ' }).click();
@@ -148,8 +152,8 @@ test('5: a leading question gets gentle feedback once', async ({ browser }) => {
   await page.getByRole('checkbox', { name: /Giờ ra chơi bạn thích làm gì/ }).click();
   await expect(page.getByText(/gợi ý sẵn câu trả lời/)).toHaveCount(0);
   await page.getByRole('checkbox', { name: /Bạn đã chơi board game nào chưa/ }).click();
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeEnabled();
   await next(page);
+  await expect(page.getByText('Câu 3/4').first()).toBeVisible();
   await ctx.close();
 });
 
@@ -168,11 +172,11 @@ test('4, 6: L6F4 must add up to 100; "Chưa biết" on a number question', async
   const good = page.getByLabel('Cho trường hoặc việc tốt');
   await keep.fill('60');
   await good.fill('30');
+  await next(page);
   await expect(page.getByText('Cộng lại phải đúng 100')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeDisabled();
+  await expect(page.getByText('Câu 4/4').first()).toBeVisible(); // blocked
   await keep.fill('50');
   await good.fill('50');
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeEnabled();
   await next(page);
   await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
   await waitSaved(page);

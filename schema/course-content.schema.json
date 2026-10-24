@@ -4,268 +4,813 @@
   "title": "Course content for Tiệm Vòng Tay Rừng Xanh",
   "description": "Schema 1.x. Adding a form part type: add its name to $defs/part.properties.type.enum, add a $defs/<name>Part definition, and add one if/then line to $defs/part.allOf.",
   "type": "object",
-  "required": ["schemaVersion", "contentVersion", "locale", "title", "characters", "sdg", "ui", "levels", "homework"],
+  "required": [
+    "schemaVersion",
+    "contentVersion",
+    "locale",
+    "title",
+    "characters",
+    "sdg",
+    "ui",
+    "levels",
+    "homework"
+  ],
   "properties": {
-    "schemaVersion": { "type": "string", "pattern": "^1\\.[0-9]+$" },
-    "contentVersion": { "type": "string", "minLength": 1 },
-    "locale": { "type": "string", "minLength": 2 },
-    "title": { "$ref": "#/$defs/text" },
-    "sourceDoc": { "type": "string" },
-    "characters": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/character" } },
-    "sdg": { "type": "array", "minItems": 17, "maxItems": 17, "items": { "$ref": "#/$defs/sdg" } },
-    "ui": { "type": "object", "additionalProperties": { "type": "string" } },
-    "levels": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/level" } },
-    "homework": { "$ref": "#/$defs/homework" },
-    "zoom": { "type": "object" }
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$"
+    },
+    "contentVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "locale": {
+      "type": "string",
+      "minLength": 2
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "sourceDoc": {
+      "type": "string"
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/character"
+      }
+    },
+    "sdg": {
+      "type": "array",
+      "minItems": 17,
+      "maxItems": 17,
+      "items": {
+        "$ref": "#/$defs/sdg"
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "levels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/level"
+      }
+    },
+    "homework": {
+      "$ref": "#/$defs/homework"
+    },
+    "zoom": {
+      "type": "object"
+    }
   },
   "additionalProperties": false,
   "$defs": {
-    "text": { "type": "string", "minLength": 1 },
-    "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
-    "assetPath": { "type": "string", "pattern": "^assets/" },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "assetPath": {
+      "type": "string",
+      "pattern": "^assets/"
+    },
     "answerRef": {
       "type": "object",
-      "required": ["questionId", "partId"],
-      "properties": { "questionId": { "$ref": "#/$defs/id" }, "partId": { "$ref": "#/$defs/id" } },
+      "required": [
+        "questionId",
+        "partId"
+      ],
+      "properties": {
+        "questionId": {
+          "$ref": "#/$defs/id"
+        },
+        "partId": {
+          "$ref": "#/$defs/id"
+        }
+      },
       "additionalProperties": false
     },
     "character": {
       "type": "object",
-      "required": ["id", "name", "trait", "catchphrase", "role"],
+      "required": [
+        "id",
+        "name",
+        "trait",
+        "catchphrase",
+        "role"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "name": { "$ref": "#/$defs/text" },
-        "trait": { "$ref": "#/$defs/text" },
-        "catchphrase": { "$ref": "#/$defs/text" },
-        "role": { "$ref": "#/$defs/text" },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "trait": {
+          "$ref": "#/$defs/text"
+        },
+        "catchphrase": {
+          "$ref": "#/$defs/text"
+        },
+        "role": {
+          "$ref": "#/$defs/text"
+        },
         "images": {
           "type": "object",
-          "propertyNames": { "enum": ["neutral", "happy", "thinking", "oops"] },
-          "additionalProperties": { "$ref": "#/$defs/assetPath" }
+          "propertyNames": {
+            "enum": [
+              "neutral",
+              "happy",
+              "thinking",
+              "oops"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/assetPath"
+          }
         }
       },
       "additionalProperties": false
     },
     "sdg": {
       "type": "object",
-      "required": ["number", "title", "kidCaption", "icon"],
+      "required": [
+        "number",
+        "title",
+        "kidCaption",
+        "icon"
+      ],
       "properties": {
-        "number": { "type": "integer", "minimum": 1, "maximum": 17 },
-        "title": { "$ref": "#/$defs/text" },
-        "kidCaption": { "$ref": "#/$defs/text" },
-        "icon": { "$ref": "#/$defs/assetPath" }
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 17
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "kidCaption": {
+          "$ref": "#/$defs/text"
+        },
+        "icon": {
+          "$ref": "#/$defs/assetPath"
+        }
       },
       "additionalProperties": false
     },
     "level": {
       "type": "object",
-      "required": ["id", "order", "title", "name", "objectives", "cards", "quiz", "form"],
+      "required": [
+        "id",
+        "order",
+        "title",
+        "name",
+        "objectives",
+        "cards",
+        "quiz",
+        "form"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "order": { "type": "integer", "minimum": 1 },
-        "title": { "$ref": "#/$defs/text" },
-        "name": { "$ref": "#/$defs/text" },
-        "objectives": { "type": "array", "items": { "$ref": "#/$defs/text" } },
-        "cards": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/card" } },
-        "quiz": { "type": "array", "items": { "$ref": "#/$defs/quizQuestion" } },
-        "form": { "$ref": "#/$defs/form" },
-        "character": { "$ref": "#/$defs/id" },
-        "sticker": { "$ref": "#/$defs/assetPath" }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/card"
+          }
+        },
+        "quiz": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/quizQuestion"
+          }
+        },
+        "form": {
+          "$ref": "#/$defs/form"
+        },
+        "character": {
+          "$ref": "#/$defs/id"
+        },
+        "sticker": {
+          "$ref": "#/$defs/assetPath"
+        }
       },
       "additionalProperties": false
     },
     "card": {
       "type": "object",
-      "required": ["id", "order", "title", "body"],
+      "required": [
+        "id",
+        "order",
+        "title",
+        "body"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "order": { "type": "integer", "minimum": 1 },
-        "title": { "$ref": "#/$defs/text" },
-        "body": { "$ref": "#/$defs/text" },
-        "bullets": { "type": "array", "items": { "$ref": "#/$defs/text" } },
-        "footer": { "type": ["string", "null"] },
-        "audio": { "$ref": "#/$defs/assetPath" }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "body": {
+          "$ref": "#/$defs/text"
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "footer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audio": {
+          "$ref": "#/$defs/assetPath"
+        }
       },
       "additionalProperties": false
     },
     "quizQuestion": {
       "type": "object",
-      "required": ["id", "order", "prompt", "options", "explanation"],
+      "required": [
+        "id",
+        "order",
+        "prompt",
+        "options",
+        "explanation"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "order": { "type": "integer", "minimum": 1 },
-        "prompt": { "$ref": "#/$defs/text" },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prompt": {
+          "$ref": "#/$defs/text"
+        },
         "options": {
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
           "items": {
             "type": "object",
-            "required": ["id", "text", "correct"],
+            "required": [
+              "id",
+              "text",
+              "correct"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "text": { "$ref": "#/$defs/text" },
-              "correct": { "type": "boolean" }
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "text": {
+                "$ref": "#/$defs/text"
+              },
+              "correct": {
+                "type": "boolean"
+              }
             },
             "additionalProperties": false
           }
         },
-        "explanation": { "$ref": "#/$defs/text" },
-        "shuffleOptions": { "type": "boolean" }
+        "explanation": {
+          "$ref": "#/$defs/text"
+        },
+        "shuffleOptions": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
     "form": {
       "type": "object",
-      "required": ["title", "questions"],
+      "required": [
+        "title",
+        "questions"
+      ],
       "properties": {
-        "title": { "$ref": "#/$defs/text" },
-        "intro": { "type": ["string", "null"] },
-        "questions": { "type": "array", "items": { "$ref": "#/$defs/formQuestion" } },
-        "note": { "type": ["string", "null"] }
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "intro": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/formQuestion"
+          }
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       },
       "additionalProperties": false
     },
     "formQuestion": {
       "type": "object",
-      "required": ["id", "prompt", "parts", "allowDontKnow"],
+      "required": [
+        "id",
+        "prompt",
+        "parts",
+        "allowDontKnow"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "prompt": { "$ref": "#/$defs/text" },
-        "hint": { "type": "string" },
-        "parts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/part" } },
-        "allowDontKnow": { "type": "boolean" },
-        "note": { "type": ["string", "null"] },
-        "context": { "type": "array", "items": { "$ref": "#/$defs/answerRef" } }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "prompt": {
+          "$ref": "#/$defs/text"
+        },
+        "hint": {
+          "type": "string"
+        },
+        "parts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/part"
+          }
+        },
+        "allowDontKnow": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "context": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/answerRef"
+          }
+        }
       },
       "additionalProperties": false
     },
     "choiceOption": {
       "type": "object",
-      "required": ["id", "text"],
+      "required": [
+        "id",
+        "text"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "text": { "$ref": "#/$defs/text" },
-        "allowText": { "type": "boolean" },
-        "leading": { "type": "boolean" },
-        "feedback": { "type": "string" }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "allowText": {
+          "type": "boolean"
+        },
+        "leading": {
+          "type": "boolean"
+        },
+        "feedback": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
     "part": {
       "type": "object",
-      "required": ["id", "type"],
+      "required": [
+        "id",
+        "type"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
         "type": {
-          "enum": ["text", "single_choice", "multi_choice", "number", "pick_n", "sdg_picker", "item_list", "sum_split", "repeat"]
+          "enum": [
+            "text",
+            "single_choice",
+            "multi_choice",
+            "number",
+            "pick_n",
+            "sdg_picker",
+            "item_list",
+            "sum_split",
+            "repeat"
+          ]
         }
       },
       "allOf": [
-        { "if": { "properties": { "type": { "const": "text" } } }, "then": { "$ref": "#/$defs/textPart" } },
-        { "if": { "properties": { "type": { "const": "single_choice" } } }, "then": { "$ref": "#/$defs/singleChoicePart" } },
-        { "if": { "properties": { "type": { "const": "multi_choice" } } }, "then": { "$ref": "#/$defs/multiChoicePart" } },
-        { "if": { "properties": { "type": { "const": "number" } } }, "then": { "$ref": "#/$defs/numberPart" } },
-        { "if": { "properties": { "type": { "const": "pick_n" } } }, "then": { "$ref": "#/$defs/pickNPart" } },
-        { "if": { "properties": { "type": { "const": "sdg_picker" } } }, "then": { "$ref": "#/$defs/sdgPickerPart" } },
-        { "if": { "properties": { "type": { "const": "item_list" } } }, "then": { "$ref": "#/$defs/itemListPart" } },
-        { "if": { "properties": { "type": { "const": "sum_split" } } }, "then": { "$ref": "#/$defs/sumSplitPart" } },
-        { "if": { "properties": { "type": { "const": "repeat" } } }, "then": { "$ref": "#/$defs/repeatPart" } }
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "text"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/textPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "single_choice"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/singleChoicePart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "multi_choice"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/multiChoicePart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "number"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/numberPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "pick_n"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/pickNPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "sdg_picker"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/sdgPickerPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "item_list"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/itemListPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "sum_split"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/sumSplitPart"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "repeat"
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/$defs/repeatPart"
+          }
+        }
       ]
     },
     "textPart": {
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "maxLength": { "type": "integer", "minimum": 1 }
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "required": {
+          "type": "boolean",
+          "description": "The part must be written even when the question's other parts are 'Chưa biết'."
+        }
       },
       "additionalProperties": false
     },
     "singleChoicePart": {
-      "required": ["options"],
+      "required": [
+        "options"
+      ],
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "options": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/choiceOption" } },
-        "optionsFrom": { "$ref": "#/$defs/answerRef" }
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        },
+        "optionsFrom": {
+          "$ref": "#/$defs/answerRef"
+        }
       },
       "additionalProperties": false
     },
     "multiChoicePart": {
-      "required": ["options"],
+      "required": [
+        "options"
+      ],
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "options": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/choiceOption" } },
-        "min": { "type": "integer", "minimum": 0 },
-        "max": { "type": "integer", "minimum": 1 },
-        "allowAddOwn": { "type": "boolean" }
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "allowAddOwn": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
     "numberPart": {
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "unit": { "type": "string" },
-        "min": { "type": "integer" },
-        "max": { "type": "integer" }
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        }
       },
       "additionalProperties": false
     },
     "pickNPart": {
-      "required": ["n", "options"],
+      "required": [
+        "n",
+        "options"
+      ],
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "n": { "type": "integer", "minimum": 1 },
-        "options": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/choiceOption" } }
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        }
       },
       "additionalProperties": false
     },
     "sdgPickerPart": {
-      "properties": { "id": true, "type": true, "label": { "type": "string" } },
+      "properties": {
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     },
     "listField": {
       "type": "object",
-      "required": ["id", "type", "label"],
+      "required": [
+        "id",
+        "type",
+        "label"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "type": { "enum": ["text", "number"] },
-        "label": { "$ref": "#/$defs/text" },
-        "maxLength": { "type": "integer", "minimum": 1 },
-        "optional": { "type": "boolean" }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "number"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "optional": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
     "itemListPart": {
-      "required": ["groups", "fields"],
+      "required": [
+        "groups",
+        "fields"
+      ],
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
         "groups": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
-            "type": "object", "required": ["id", "label"],
-            "properties": { "id": { "$ref": "#/$defs/id" }, "label": { "$ref": "#/$defs/text" }, "hint": { "type": "string" } },
+            "type": "object",
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "hint": {
+                "type": "string"
+              },
+              "noPrice": {
+                "type": "boolean",
+                "description": "Rows in this group have no number fields (e.g. things the family already owns)."
+              }
+            },
             "additionalProperties": false
           }
         },
-        "fields": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/listField" } },
-        "maxItemsPerGroup": { "type": "integer", "minimum": 1 }
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/listField"
+          }
+        },
+        "maxItemsPerGroup": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "showTotal": {
+          "type": "boolean",
+          "description": "Show the running total of the number fields."
+        },
+        "totalLabel": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     },
     "sumSplitPart": {
-      "required": ["total", "fields"],
+      "required": [
+        "total",
+        "fields"
+      ],
       "properties": {
-        "id": true, "type": true, "label": { "type": "string" },
-        "total": { "type": "integer", "minimum": 1 },
-        "unit": { "type": "string" },
+        "id": true,
+        "type": true,
+        "label": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unit": {
+          "type": "string"
+        },
         "fields": {
-          "type": "array", "minItems": 2,
+          "type": "array",
+          "minItems": 2,
           "items": {
-            "type": "object", "required": ["id", "label"],
+            "type": "object",
+            "required": [
+              "id",
+              "label"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "label": { "$ref": "#/$defs/text" },
-              "allowText": { "type": "boolean" },
-              "textLabel": { "type": "string" }
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "allowText": {
+                "type": "boolean"
+              },
+              "textLabel": {
+                "type": "string"
+              },
+              "optional": {
+                "type": "boolean",
+                "description": "May be left empty; counts as 0."
+              }
             },
             "additionalProperties": false
           }
@@ -274,50 +819,125 @@
       "additionalProperties": false
     },
     "repeatPart": {
-      "required": ["label", "fields"],
+      "required": [
+        "label",
+        "fields"
+      ],
       "properties": {
-        "id": true, "type": true,
-        "label": { "$ref": "#/$defs/text" },
-        "min": { "type": "integer", "minimum": 0 },
-        "max": { "type": "integer", "minimum": 1 },
+        "id": true,
+        "type": true,
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        },
         "fields": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
-            "type": "object", "required": ["id", "type", "label"],
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "label"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "type": { "enum": ["checkbox", "tally", "text", "number"] },
-              "label": { "$ref": "#/$defs/text" },
-              "maxLength": { "type": "integer", "minimum": 1 }
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "type": {
+                "enum": [
+                  "checkbox",
+                  "tally",
+                  "text",
+                  "number"
+                ]
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "maxLength": {
+                "type": "integer",
+                "minimum": 1
+              }
             },
             "additionalProperties": false
           }
+        },
+        "rowLabel": {
+          "type": "string",
+          "description": "Label for each row, with {n}, e.g. 'Bạn {n}'. Default 'Lần {n}'."
         }
       },
       "additionalProperties": false
     },
     "homework": {
       "type": "object",
-      "required": ["title", "intro", "items"],
+      "required": [
+        "title",
+        "intro",
+        "items"
+      ],
       "properties": {
-        "title": { "$ref": "#/$defs/text" },
-        "intro": { "type": "string" },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "intro": {
+          "type": "string"
+        },
         "items": {
-          "type": "array", "minItems": 1,
+          "type": "array",
+          "minItems": 1,
           "items": {
-            "type": "object", "required": ["id", "order", "text"],
+            "type": "object",
+            "required": [
+              "id",
+              "order",
+              "text"
+            ],
             "properties": {
-              "id": { "$ref": "#/$defs/id" },
-              "order": { "type": "integer", "minimum": 1 },
-              "text": { "$ref": "#/$defs/text" },
-              "showAnswer": { "$ref": "#/$defs/answerRef" }
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "text": {
+                "$ref": "#/$defs/text"
+              },
+              "showAnswer": {
+                "$ref": "#/$defs/answerRef"
+              }
             },
             "additionalProperties": false
           }
         },
-        "capture": { "type": "object", "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/part" } } },
-        "printable": { "type": "boolean" },
-        "remindAfterLevels": { "type": "array", "items": { "type": "integer", "minimum": 1 } }
+        "capture": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/part"
+            }
+          }
+        },
+        "printable": {
+          "type": "boolean"
+        },
+        "remindAfterLevels": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
       },
       "additionalProperties": false
     }

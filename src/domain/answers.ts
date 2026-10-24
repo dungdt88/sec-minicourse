@@ -160,10 +160,23 @@ export function sumSplitTotal(part: SumSplitPart, v: SumSplitValue | null | unde
   let missing = false;
   for (const f of part.fields) {
     const n = v?.values?.[f.id];
-    if (typeof n !== 'number' || !Number.isFinite(n)) missing = true;
-    else sum += n;
+    if (typeof n === 'number' && Number.isFinite(n)) sum += n;
+    else if (!f.optional) missing = true;
   }
   return { sum, missing };
+}
+
+/** Sum of the number fields of named rows, for item lists with showTotal (e.g. start-up money). */
+export function itemListTotal(part: ItemListPart, v: ItemListValue | null | undefined): number {
+  let total = 0;
+  for (const g of part.groups) {
+    if (g.noPrice) continue;
+    for (const row of v?.groups?.[g.id] ?? []) {
+      if (!part.fields.some((f) => f.type === 'text' && !isBlank(row[f.id]))) continue;
+      for (const f of part.fields) if (f.type === 'number' && typeof row[f.id] === 'number') total += row[f.id] as number;
+    }
+  }
+  return total;
 }
 
 /** Single-choice options after optionsFrom filtering. */
@@ -234,6 +247,7 @@ export function formatPart(part: Part, answer: PartAnswer | undefined, content: 
     case 'sum_split': {
       const s = v as SumSplitValue;
       return part.fields
+        .filter((f) => !(f.optional && s.values?.[f.id] == null))
         .map((f) => {
           const extra = f.allowText && s.texts?.[f.id] ? ` (${s.texts[f.id]})` : '';
           return `${f.label}${extra}: ${s.values?.[f.id] ?? '–'}${part.unit ? ' ' + part.unit : ''}`;
@@ -295,3 +309,6 @@ export function compareKey(part: Part, answer: PartAnswer | undefined): string |
 
 export const isComparable = (part: Part) =>
   ['single_choice', 'multi_choice', 'pick_n', 'number', 'sdg_picker', 'sum_split'].includes(part.type);
+
+/** "Chọn một hình" → "Chọn một hình:"; "Vì sao?" stays as is. Used where a label precedes an answer. */
+export const withColon = (label: string) => (/[?:：]$/.test(label.trim()) ? label : `${label}:`);

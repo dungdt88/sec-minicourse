@@ -4,7 +4,7 @@ import type { AnswerVersion, TeamData } from '../api/types';
 import type { CourseContent } from '../content/types';
 import { HOMEWORK_LEVEL_ID, byOrder } from '../content/types';
 import { makeT } from '../content/strings';
-import { formatPart } from '../domain/answers';
+import { formatPart, withColon } from '../domain/answers';
 import { answerHistory, asPartAnswer, fmtTime, latest, questionText } from './derive';
 
 export function download(filename: string, data: Blob | string, type = 'text/plain;charset=utf-8') {
@@ -148,9 +148,9 @@ export async function childPdf(d: TeamData, profileId: string, contents: Map<str
   ];
 
   const answerBlock = (a: AnswerVersion | undefined, partLabel: string | undefined, text: string, edits: number): PdfNode[] => {
-    if (!a) return [{ text: [partLabel ? { text: `${partLabel} `, bold: true } : '', { text: '(chưa trả lời)', italics: true, color: '#777' }], margin: [10, 0, 0, 4] }];
+    if (!a) return [{ text: [partLabel ? { text: `${withColon(partLabel)} `, bold: true } : '', { text: '(chưa trả lời)', italics: true, color: '#777' }], margin: [10, 0, 0, 4] }];
     return [
-      { text: [partLabel ? { text: `${partLabel} `, bold: true } : '', text], margin: [10, 0, 0, 2] },
+      { text: [partLabel ? { text: `${withColon(partLabel)} `, bold: true } : '', text], margin: [10, 0, 0, 2] },
       {
         text: `Trả lời lần đầu ${fmtTime(a.createdAt)} · cập nhật ${fmtTime(a.updatedAt)}${edits ? ` · sửa ${edits} lần` : ''}`,
         style: 'stamp',

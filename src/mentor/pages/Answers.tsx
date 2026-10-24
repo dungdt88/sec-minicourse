@@ -1,7 +1,7 @@
 // FR-M-06: one child's answers with timestamps and the full version history.
 import { useState } from 'react';
 import { HOMEWORK_LEVEL_ID, byOrder, sortedLevels, type Part } from '../../content/types';
-import { formatPart } from '../../domain/answers';
+import { formatPart, withColon } from '../../domain/answers';
 import { activeProfiles, answerHistory, asPartAnswer, fmtTime } from '../derive';
 import { useMentor } from '../MentorApp';
 
@@ -18,7 +18,7 @@ export function AnswersPage() {
       const fmt = (v: (typeof versions)[number]) => formatPart(part, asPartAnswer(v), contents.get(v.contentVersionId) ?? active, t);
       return (
         <div key={part.id} style={{ margin: '4px 0 8px' }}>
-          {part.label && <span className="muted">{part.label} </span>}
+          {part.label && <span className="muted">{withColon(part.label)} </span>}
           {last ? <strong style={{ whiteSpace: 'pre-wrap' }}>{fmt(last) || '–'}</strong> : <em className="muted">chưa trả lời</em>}
           {last && (
             <div className="small-text muted">
