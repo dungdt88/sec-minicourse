@@ -1,0 +1,11 @@
+{
+  "name": "Tiệm Vòng Tay Rừng Xanh",
+  "short_name": "Vòng Tay",
+  "lang": "vi",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8ec",
+  "theme_color": "#fff8ec",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

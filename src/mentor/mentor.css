@@ -1,0 +1,247 @@
+/* Mentor console: a plain, dense desktop layout that still works on a phone. */
+.m-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100dvh;
+  font-size: 15px;
+  line-height: 1.45;
+  background: #fbf7f0;
+}
+.m-nav {
+  background: #fff;
+  border-right: 1px solid var(--line);
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.m-nav .brand {
+  font-weight: 900;
+  font-size: 16px;
+  padding: 4px 10px 12px;
+}
+.m-nav a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+}
+.m-nav a.active {
+  background: var(--leaf-soft);
+  color: var(--leaf-dark);
+}
+.m-nav .who {
+  margin-top: auto;
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 10px;
+}
+.m-main {
+  padding: 20px 24px 60px;
+  min-width: 0;
+}
+.m-main h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.m-main h2 {
+  font-size: 18px;
+  margin: 24px 0 8px;
+}
+.m-main p.lead {
+  color: var(--ink-soft);
+  margin: 0 0 16px;
+}
+@media (max-width: 760px) {
+  .m-shell {
+    grid-template-columns: 1fr;
+  }
+  .m-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .m-nav .who {
+    margin-top: 0;
+    width: 100%;
+  }
+  .m-main {
+    padding: 16px;
+  }
+}
+.m-table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+table.m-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.m-table th,
+.m-table td {
+  border-bottom: 1px solid #f0e6d6;
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.m-table th {
+  background: #faf4ea;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.m-table tr.flag td {
+  background: #fff6e0;
+}
+.m-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.m-btn {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.m-btn.primary {
+  background: var(--leaf);
+  border-color: var(--leaf);
+  color: #fff;
+}
+.m-btn.danger {
+  background: #fff;
+  border-color: #d58b8b;
+  color: #9c2b2b;
+}
+.m-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.m-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.m-input,
+.m-select {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 15px;
+}
+.m-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.m-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #eee;
+}
+.m-tag.ok {
+  background: var(--leaf-soft);
+  color: var(--leaf-dark);
+}
+.m-tag.warn {
+  background: var(--honey-soft);
+}
+.m-tag.bad {
+  background: var(--wrong-soft);
+  color: var(--wrong-ink);
+}
+.m-error {
+  color: #9c2b2b;
+  font-weight: 700;
+}
+.m-avatar-pick button {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: #fff;
+  cursor: pointer;
+}
+.m-avatar-pick button[aria-pressed='true'] {
+  border-color: var(--leaf);
+  background: var(--leaf-soft);
+}
+.m-versions summary {
+  cursor: pointer;
+  color: var(--leaf-dark);
+  font-size: 13px;
+}
+.m-versions ol {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.m-dialog {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 480px;
+}
+.m-dialog::backdrop {
+  background: rgba(40, 30, 20, 0.35);
+}
+.m-login {
+  max-width: 380px;
+  margin: 12vh auto;
+  padding: 0 16px;
+}
+.vote-line td {
+  height: 30px;
+}
+@media print {
+  .m-shell {
+    display: block;
+  }
+  .m-nav,
+  .m-noprint {
+    display: none !important;
+  }
+  .m-main {
+    padding: 0;
+  }
+  .m-table-wrap {
+    border: 0;
+  }
+  .m-card {
+    break-inside: avoid;
+    border-color: #999;
+  }
+}
+
+.m-toast {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: min(560px, calc(100vw - 32px));
+  background: #3b2f2a;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}

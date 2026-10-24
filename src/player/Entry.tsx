@@ -1,0 +1,228 @@
+// Profile picker, PIN entry and the session gate around the player screens (FR-P-01, FR-P-02).
+import { useEffect, useMemo, useState } from 'react';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { playerApi } from '../api';
+import { WriteQueue } from '../api/queue';
+import { ApiError, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
+import { makeT } from '../content/strings';
+import { deviceType } from '../domain/progress';
+import { PlayerSessionProvider, deviceTokens, loadContent } from './session';
+
+const CURRENT_KEY = 'tvt.currentProfile';
+
+function useBoot() {
+  const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent } | null>(null);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    setError(false);
+    (async () => {
+      const api = await playerApi();
+      const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh }));
+      if (alive) setBoot({ api, content });
+    })().catch(() => alive && setError(true));
+    return () => {
+      alive = false;
+    };
+  }, [attempt]);
+  return { boot, error, retry: () => setAttempt((n) => n + 1) };
+}
+
+function Offline({ retry }: { retry: () => void }) {
+  const t = makeT(undefined);
+  return (
+    <main className="screen center">
+      <p className="big-title" style={{ marginTop: '30vh' }}>
+        📶
+      </p>
+      <p>{t('offlineStart')}</p>
+      <button className="btn" onClick={retry}>
+        {t('retry')}
+      </button>
+    </main>
+  );
+}
+
+function Loading() {
+  return (
+    <main className="screen center" aria-busy="true">
+      <p style={{ marginTop: '35vh' }} className="muted">
+        {makeT(undefined)('loading')}
+      </p>
+    </main>
+  );
+}
+
+export function ProfilePicker() {
+  const { boot, error, retry } = useBoot();
+  const [profiles, setProfiles] = useState<PublicProfile[] | null>(null);
+  const navigate = useNavigate();
+  const t = useMemo(() => makeT(boot?.content.content.ui), [boot]);
+
+  useEffect(() => {
+    if (!boot) return;
+    boot.api.listProfiles().then(setProfiles, () => setProfiles([]));
+  }, [boot]);
+
+  if (error) return <Offline retry={retry} />;
+  if (!boot || !profiles) return <Loading />;
+
+  const pick = (p: PublicProfile) => {
+    if (deviceTokens.get(p.id)) {
+      localStorage.setItem(CURRENT_KEY, p.id);
+      navigate('/play/home');
+    } else navigate(`/pin/${p.id}`);
+  };
+
+  return (
+    <main className="screen">
+      <h1 className="big-title center" style={{ marginTop: 24 }}>
+        {t('chooseProfile')}
+      </h1>
+      <p className="center muted small-text" style={{ margin: 0 }}>
+        {boot.content.content.title}
+      </p>
+      <div className="profile-grid">
+        {profiles.map((p) => (
+          <button key={p.id} className="profile-tile" onClick={() => pick(p)}>
+            <span className="avatar" aria-hidden="true">
+              {p.avatar}
+            </span>
+            <span className="name">{p.displayName}</span>
+          </button>
+        ))}
+      </div>
+      <p className="center small-text" style={{ marginTop: 'auto' }}>
+        <a href="/mentor">Dành cho người hướng dẫn</a>
+      </p>
+    </main>
+  );
+}
+
+export function PinEntry() {
+  const { profileId = '' } = useParams();
+  const { boot, error, retry } = useBoot();
+  const [profile, setProfile] = useState<PublicProfile | null>(null);
+  const [pin, setPin] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
+  const t = useMemo(() => makeT(boot?.content.content.ui), [boot]);
+
+  useEffect(() => {
+    if (!boot) return;
+    boot.api.listProfiles().then((ps) => setProfile(ps.find((p) => p.id === profileId) ?? null));
+  }, [boot, profileId]);
+
+  useEffect(() => {
+    if (pin.length !== 4 || !boot || busy) return;
+    setBusy(true);
+    boot.api
+      .login(profileId, pin, deviceType())
+      .then((token) => {
+        deviceTokens.set(profileId, token);
+        localStorage.setItem(CURRENT_KEY, profileId);
+        navigate('/play/home', { replace: true });
+      })
+      .catch((e: unknown) => {
+        const err = e instanceof ApiError ? e : new ApiError('unknown');
+        setMessage(
+          err.code === 'wrong_pin'
+            ? t('wrongPin')
+            : err.code === 'rate_limited'
+              ? t('tooManyTries', { min: err.retryAfterMinutes ?? 15 })
+              : t('offlineStart'),
+        );
+        setPin('');
+      })
+      .finally(() => setBusy(false));
+  }, [pin, boot, busy, profileId, navigate, t]);
+
+  if (error) return <Offline retry={retry} />;
+  if (!boot) return <Loading />;
+
+  const press = (d: string) => {
+    setMessage(null);
+    setPin((p) => (p.length < 4 ? p + d : p));
+  };
+
+  return (
+    <main className="screen">
+      <div className="topbar">
+        <button className="icon-btn" onClick={() => navigate('/')}>
+          ← {t('back')}
+        </button>
+      </div>
+      <div className="center">
+        <div style={{ fontSize: 72, lineHeight: 1 }} aria-hidden="true">
+          {profile?.avatar}
+        </div>
+        <h1 className="big-title">{profile?.displayName}</h1>
+        <p style={{ margin: '8px 0 0' }}>{t('enterCode')}</p>
+      </div>
+      <div className="pin-dots" aria-label={`${t('pin')}: ${pin.length}/4`} role="status">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className={i < pin.length ? 'filled' : ''} />
+        ))}
+      </div>
+      <p className="error-text" role="alert" style={{ minHeight: 28 }}>
+        {message}
+      </p>
+      <div className="pin-pad">
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => (
+          <button key={d} onClick={() => press(d)} disabled={busy}>
+            {d}
+          </button>
+        ))}
+        <span />
+        <button onClick={() => press('0')} disabled={busy}>
+          0
+        </button>
+        <button onClick={() => setPin((p) => p.slice(0, -1))} aria-label={t('delete')} disabled={busy}>
+          ⌫
+        </button>
+      </div>
+    </main>
+  );
+}
+
+/** Loads the child's state for the remembered profile, then renders the player routes. */
+export function SessionGate() {
+  const { boot, error, retry } = useBoot();
+  const navigate = useNavigate();
+  const profileId = localStorage.getItem(CURRENT_KEY);
+  const token = profileId ? deviceTokens.get(profileId) : null;
+  const [state, setState] = useState<PlayerState | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const queue = useMemo(() => (boot ? new WriteQueue(boot.api) : null), [boot]);
+
+  useEffect(() => {
+    if (!token || !profileId) {
+      navigate('/', { replace: true });
+      return;
+    }
+    if (!boot) return;
+    boot.api.state(token).then(setState, (e: unknown) => {
+      if (e instanceof ApiError && e.code === 'unauthorized') {
+        // PIN changed or profile archived: ask for the PIN again.
+        deviceTokens.remove(profileId);
+        navigate(`/pin/${profileId}`, { replace: true });
+      } else setLoadError(true);
+    });
+  }, [boot, token, profileId, navigate]);
+
+  if (error || loadError) return <Offline retry={retry} />;
+  if (!boot || !state || !token || !queue) return <Loading />;
+
+  return (
+    <PlayerSessionProvider api={boot.api} token={token} content={boot.content} initialState={state} queue={queue} base="/play">
+      <Outlet />
+    </PlayerSessionProvider>
+  );
+}
+
+export function switchProfile(navigate: (to: string) => void) {
+  localStorage.removeItem(CURRENT_KEY);
+  navigate('/');
+}

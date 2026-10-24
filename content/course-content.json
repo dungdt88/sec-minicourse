@@ -1325,7 +1325,17 @@
             ],
             "allowDontKnow": true,
             "hint": "số: giá bán − tiền làm, tính cùng bố mẹ",
-            "note": "Show the child's own earlier answers as context above the input: price from L4F2 and cost from L5F1."
+            "note": "Show the child's own earlier answers as context above the input: price from L4F2 and cost from L5F1.",
+            "context": [
+              {
+                "questionId": "L4F2",
+                "partId": "a"
+              },
+              {
+                "questionId": "L5F1",
+                "partId": "a"
+              }
+            ]
           },
           {
             "id": "L5F3",
@@ -1861,7 +1871,11 @@
                     "text": "Khác",
                     "allowText": true
                   }
-                ]
+                ],
+                "optionsFrom": {
+                  "questionId": "L7F1",
+                  "partId": "a"
+                }
               },
               {
                 "id": "b",
@@ -1943,7 +1957,11 @@
       {
         "id": "H2",
         "order": 2,
-        "text": "Cho 3 bạn không ở trong đội chơi thử bản nháp. Trong lúc các bạn chơi, con đánh dấu: cười · chơi hết ván · muốn chơi lại · chỗ nào bị rối. Chơi xong, hỏi mỗi bạn hai câu con đã chọn ở Màn 3, và ghi lại câu trả lời."
+        "text": "Cho 3 bạn không ở trong đội chơi thử bản nháp. Trong lúc các bạn chơi, con đánh dấu: cười · chơi hết ván · muốn chơi lại · chỗ nào bị rối. Chơi xong, hỏi mỗi bạn hai câu con đã chọn ở Màn 3, và ghi lại câu trả lời.",
+        "showAnswer": {
+          "questionId": "L3F2",
+          "partId": "a"
+        }
       },
       {
         "id": "H3",
