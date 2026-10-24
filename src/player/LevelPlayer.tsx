@@ -129,8 +129,16 @@ export function LevelPlayer() {
           {top(level.name)}
           <h1 className="big-title center">{level.title}</h1>
           <Character character={character} expression="happy" size={150} />
-          <p className="center speech" style={{ margin: '0 auto' }}>
-            {character?.catchphrase}
+          {character && (
+            <p className="center speech" style={{ margin: '0 auto' }}>
+              <span className="muted" style={{ fontWeight: 700 }}>
+                {t('characterSays', { name: character.name })}
+              </span>{' '}
+              “{character.catchphrase}”
+            </p>
+          )}
+          <p className="center muted" style={{ margin: 0 }}>
+            {t('levelContents', { cards: cards.length, quiz: quiz.length, form: level.form.questions.length })}
           </p>
           {level.objectives.length > 0 && (
             <details className="objectives">
@@ -229,11 +237,17 @@ export function LevelPlayer() {
           {top(level.form.title)}
           <h1 className="big-title center">{level.form.title}</h1>
           <Character character={character} expression="thinking" size={130} />
-          {level.form.intro && <p className="center content-col">{level.form.intro}</p>}
-          <div className="hint-banner">
-            <span aria-hidden="true">👨‍👩‍👧</span>
-            <p>{t('parentTypes')}</p>
-          </div>
+          <p className="center content-col" style={{ margin: '0 auto', fontWeight: 700 }}>
+            {t('formIntroDefault', { n: level.form.questions.length })}
+          </p>
+          {level.form.intro && <p className="center content-col muted" style={{ margin: '0 auto' }}>{level.form.intro}</p>}
+          {/* The parent hint once, unless the level's own intro already says it. */}
+          {!level.form.intro?.includes(t('parentTypes')) && (
+            <div className="hint-banner">
+              <span aria-hidden="true">👨‍👩‍👧</span>
+              <p>{t('parentTypes')}</p>
+            </div>
+          )}
           {formLocked && <p className="notice lock">{t('formLocked')}</p>}
           <div className="bottom-actions">
             <button className="btn" onClick={next}>
@@ -278,13 +292,16 @@ export function LevelPlayer() {
 
     case 'complete': {
       const remind = (content.homework.remindAfterLevels ?? [1, 3]).includes(level.order);
+      const isLast = level.order === Math.max(...content.levels.map((l) => l.order));
       return (
         <main className="screen center">
           {top(t('done'))}
           <div className="pop" style={{ marginTop: 24 }}>
             <Sticker order={level.order} image={level.sticker} size={150} label={t('stickerFor', { n: level.order })} />
           </div>
-          <h1 className="big-title">{t('levelDone', { n: level.order })}</h1>
+          {/* "Hẹn mai nhé" does not fit after the last level. */}
+          <h1 className="big-title">{t(isLast ? 'lastLevelDone' : 'levelDone', { n: level.order })}</h1>
+          {isLast && <p className="notice">🎉 {t('courseDone', { n: content.levels.length })}</p>}
           <Character character={character} expression="happy" size={110} decorative />
           {remind && (
             <div className="notice">

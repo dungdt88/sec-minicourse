@@ -3,7 +3,7 @@ import type { NumberPart } from '../../content/types';
 import { current, set, type PartProps } from './types';
 
 /** Integer input with the phone's number pad. A ± button appears only where min is negative. */
-export function NumberInput({ part, answer, onChange, readOnly, labelId }: PartProps<NumberPart>) {
+export function NumberInput({ part, answer, onChange, readOnly, t, labelId }: PartProps<NumberPart>) {
   const value = current<number>(answer);
   const allowNegative = part.min != null && part.min < 0;
   const [text, setText] = useState(value == null ? '' : String(Math.abs(value)));
@@ -20,38 +20,50 @@ export function NumberInput({ part, answer, onChange, readOnly, labelId }: PartP
   };
 
   return (
-    <div className="num-row">
+    <>
+      <div className="num-row">
+        {negative && (
+          <span className="unit" style={{ fontSize: 28 }} aria-hidden="true">
+            −
+          </span>
+        )}
+        <input
+          className="num-input"
+          aria-labelledby={labelId}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="off"
+          readOnly={readOnly}
+          value={text}
+          onChange={(e) => {
+            const digits = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
+            setText(digits);
+            emit(digits, negative);
+          }}
+        />
+        {part.unit && <span className="unit">{part.unit === 'nghìn' ? 'nghìn đồng' : part.unit}</span>}
+      </div>
       {allowNegative && (
+        // A labelled choice rather than a bare +/− button: phone number pads have no minus key.
         <button
           type="button"
-          className="icon-btn"
-          aria-pressed={negative}
-          aria-label="Số âm"
+          role="checkbox"
+          aria-checked={negative}
+          className="option"
+          style={{ minHeight: 52 }}
           disabled={readOnly}
           onClick={() => {
             setNegative(!negative);
             emit(text, !negative);
           }}
         >
-          {negative ? '−' : '+'}
+          <span className="mark" aria-hidden="true">
+            {negative ? '✓' : ''}
+          </span>
+          <span>{t('negativeToggle')}</span>
         </button>
       )}
-      <input
-        className="num-input"
-        aria-labelledby={labelId}
-        type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
-        autoComplete="off"
-        readOnly={readOnly}
-        value={text}
-        onChange={(e) => {
-          const digits = e.target.value.replace(/[^0-9]/g, '').replace(/^0+(?=\d)/, '').slice(0, 9);
-          setText(digits);
-          emit(digits, negative);
-        }}
-      />
-      {part.unit && <span className="unit">{part.unit === 'nghìn' ? 'nghìn đồng' : part.unit}</span>}
-    </div>
+    </>
   );
 }

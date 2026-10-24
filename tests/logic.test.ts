@@ -6,7 +6,7 @@ import { WriteQueue } from '../src/api/queue';
 import { ApiError, type LevelState, type Mutation, type PlayerApi, type TeamData } from '../src/api/types';
 import { compareRows } from '../src/mentor/derive';
 import type { CourseContent } from '../src/content/types';
-import { homeworkHighlighted } from '../src/player/Home';
+import { finishedToday, homeworkHighlighted } from '../src/player/Home';
 
 const content = JSON.parse(readFileSync('content/course-content.json', 'utf8')) as CourseContent;
 
@@ -57,6 +57,12 @@ describe('level statuses', () => {
     const st = levelStatuses(levels, [state('L5', { override: 'unlocked' }), state('L1', { override: 'locked' })]);
     expect(st.get('L5')).toBe('available');
     expect(st.get('L1')).toBe('locked');
+  });
+  it('says "Lần sau" only when a level was finished today (local time)', () => {
+    const now = new Date(2026, 9, 26, 19, 0);
+    expect(finishedToday([new Date(2026, 9, 26, 8, 30).toISOString()], now)).toBe(true);
+    expect(finishedToday([new Date(2026, 9, 25, 20, 0).toISOString(), null], now)).toBe(false);
+    expect(finishedToday([], now)).toBe(false);
   });
   it('homework is highlighted on day 1 and after level 3', () => {
     expect(homeworkHighlighted([1, 3], [])).toBe(true);

@@ -26,7 +26,6 @@ export function SdgPicker({ answer, onChange, readOnly, t, content, labelId }: P
           </button>
         ))}
       </div>
-      <p className="hint" style={{ fontSize: 13 }}>{t('sdgCredit')}</p>
       {chosen && (
         <div className="panel sdg-detail pop" aria-live="polite">
           <div className="sdg-tile" aria-hidden="true">
@@ -41,6 +40,8 @@ export function SdgPicker({ answer, onChange, readOnly, t, content, labelId }: P
           </div>
         </div>
       )}
+      {/* UN guidelines: credit and disclaimer with the icons. Small and last, for the parent. */}
+      <p className="hint" style={{ fontSize: 13 }}>{t('sdgCredit')}</p>
     </>
   );
 }

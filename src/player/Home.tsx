@@ -14,6 +14,13 @@ export function homeworkHighlighted(remindAfter: number[], completedOrders: numb
   return remindAfter.includes(latest);
 }
 
+const localDay = (iso: string) => new Date(iso).toDateString();
+
+/** True if any level was finished today (local time): the map then says "Lần sau", not "Hôm nay". */
+export function finishedToday(completedAt: (string | null)[], now = new Date()): boolean {
+  return completedAt.some((c) => c != null && localDay(c) === now.toDateString());
+}
+
 export function Home() {
   const { content, state, t, base, preview, levelState } = usePlayer();
   const navigate = useNavigate();
@@ -23,6 +30,8 @@ export function Home() {
   const completedOrders = levels.filter((l) => statuses.get(l.id) === 'done').map((l) => l.order);
   const remindAfter = content.homework.remindAfterLevels ?? [1, 3];
   const hwHighlight = homeworkHighlighted(remindAfter, completedOrders);
+  const allDone = completedOrders.length === levels.length;
+  const playedToday = finishedToday(state.levels.map((s) => s.completedAt));
 
   return (
     <main className="screen">
@@ -41,25 +50,32 @@ export function Home() {
         <span className="spacer" />
         {!preview && (
           <button className="icon-btn" onClick={() => switchProfile(navigate)}>
-            {t('switchProfile')}
+            {t('notMe', { name: state.profile.displayName })}
           </button>
         )}
       </div>
 
       {today && (
         <div className="center">
-          <span className="today-tag">{t('today', { n: today.order })}</span>
+          <span className="today-tag">{t(playedToday ? 'nextTime' : 'today', { n: today.order })}</span>
         </div>
+      )}
+      {allDone && (
+        <p className="notice center" role="status">
+          🎉 {t('courseDone', { n: levels.length })}
+        </p>
       )}
 
       <nav className="map" aria-label={content.title}>
-        {levels.map((level) => {
+        {levels.map((level, i) => {
           const status = statuses.get(level.id)!;
           const ls = levelState(level.id);
           const isToday = today?.id === level.id;
           const resume = status === 'available' && ls?.pointer && ls.pointer.step !== 'intro';
-          const sub =
-            status === 'done' ? t('replay') : status === 'locked' ? t('locked') : resume ? t('continue') : t('start');
+          // Say why a level is closed: the one before is not finished yet, or the mentor closed it.
+          const lockedText =
+            ls?.override === 'locked' || i === 0 ? t('lockedByMentor') : t('lockedAfter', { n: levels[i - 1].order });
+          const sub = status === 'done' ? t('replay') : status === 'locked' ? lockedText : resume ? t('continue') : t('start');
           return (
             <button
               key={level.id}

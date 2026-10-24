@@ -105,3 +105,22 @@ describe('precompiled schema validator', () => {
     expect(readFileSync(GENERATED, 'utf8')).toBe(generate());
   });
 });
+
+describe('quiz text and shuffled options', () => {
+  it('rejects an explanation that names options by letter', () => {
+    const c = copy();
+    c.levels[2].quiz[1].explanation = 'Câu A và C đã gợi ý sẵn câu trả lời. Câu B để các bạn tự kể.';
+    expect(errorsOf(c).some((e) => e.id === 'L3Q2' && /A\/B\/C/.test(e.message))).toBe(true);
+  });
+  it('allows letters when the question is not shuffled', () => {
+    const c = copy();
+    c.levels[2].quiz[1].explanation = 'Câu A và C đã gợi ý sẵn câu trả lời.';
+    c.levels[2].quiz[1].shuffleOptions = false;
+    expect(validateContent(c).ok).toBe(true);
+  });
+  it('does not flag ordinary words', () => {
+    const c = copy();
+    c.levels[0].quiz[0].explanation = 'Vitamin C và cách bán vòng. Ý của bạn A là gì?';
+    expect(validateContent(c).ok).toBe(true);
+  });
+});

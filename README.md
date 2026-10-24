@@ -99,11 +99,11 @@ All optional, all in the schema. They turn builder notes into data, so no questi
 | `homework.remindAfterLevels` | homework | levels after which the homework button and reminder are highlighted (default `[1, 3]`) | – |
 | `characters[].images`, `levels[].character`, `levels[].sticker`, `cards[].audio` | | real artwork, the intro character, sticker artwork, recorded read-aloud | – |
 
-These are the only changes made to the supplied content file (see git history).
+These fields and the playtest fixes below are the only changes made to the supplied content file (see git history).
 
-**Content issue to confirm:** L6F1 part `a` asks for a number of sets or tickets ("Số bộ hoặc vé
-trong 2 tháng") but has `"unit": "nghìn"`, so the app shows "nghìn đồng" next to it. It probably
-should be `"unit": "bộ"`. It is left as supplied.
+**Content fixes after the 25 October playtest** (version `2026-10-25.1`): L6F1 unit "nghìn" → "bộ";
+L3Q2 and L6Q4 explanations no longer refer to options by letter (options are shuffled). Wording
+suggestions left for the mentor are in [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
 
 ### Adding a new question type
 

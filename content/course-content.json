@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25",
+  "contentVersion": "2026-10-25.1",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -691,7 +691,7 @@
               "correct": false
             }
           ],
-          "explanation": "Câu A và C đã gợi ý sẵn câu trả lời, nên các bạn gật đầu vì ngại. Câu B để các bạn tự kể thật.",
+          "explanation": "Hai câu kia đã gợi ý sẵn câu trả lời, nên các bạn gật đầu vì ngại. Câu \"Bạn hay đeo gì khi đi cổ vũ?\" để các bạn tự kể thật.",
           "shuffleOptions": true
         },
         {
@@ -1502,7 +1502,7 @@
               "correct": true
             }
           ],
-          "explanation": "Tiêu hết thì lần sau không còn tiền mua len, và cũng trái luật cuộc thi. Kế hoạch B cộng lại là 120 nghìn, nhiều hơn số tiền tiệm có! Kế hoạch C trả nợ trước, vừa đủ 100, và cả đội cùng quyết định.",
+          "explanation": "Tiêu hết thì lần sau không còn tiền mua len, và cũng trái luật cuộc thi. Kế hoạch 40, 40, 40 cộng lại là 120 nghìn, nhiều hơn số tiền tiệm có! Kế hoạch trả bố mẹ Gấu trước thì vừa đủ 100, và cả đội cùng quyết định.",
           "shuffleOptions": true
         }
       ],
@@ -1517,7 +1517,7 @@
               {
                 "id": "a",
                 "type": "number",
-                "unit": "nghìn",
+                "unit": "bộ",
                 "min": 0,
                 "max": 10000,
                 "label": "Số bộ hoặc vé trong 2 tháng"

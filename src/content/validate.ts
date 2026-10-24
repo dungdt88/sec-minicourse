@@ -90,6 +90,8 @@ function dedupe(errors: ContentError[]): ContentError[] {
   });
 }
 
+const LETTER_REF = /(?<!\p{L})([Cc]âu|[Kk]ế hoạch|[Cc]ách|[Đđ]áp án|[Ýý])\s+[ABC](?!\p{L})|(?<!\p{L})[ABC]\s+(và|hoặc)\s+[ABC](?!\p{L})/u;
+
 /** Rules a JSON schema cannot express: uniqueness, exactly-one-correct, cross references. */
 function semanticChecks(c: CourseContent, errors: ContentError[]) {
   const err = (where: string, id: string | null, message: string) => errors.push({ where, id, message });
@@ -123,6 +125,11 @@ function semanticChecks(c: CourseContent, errors: ContentError[]) {
     for (const q of level.quiz) {
       const where = `${level.id} › ${q.id}`;
       claim(q.id, where);
+      // Options are shuffled on every play, so "Câu A", "Kế hoạch B"… would point at the wrong one.
+      if (q.shuffleOptions !== false)
+        for (const field of ['prompt', 'explanation'] as const)
+          if (LETTER_REF.test(q[field]))
+            err(where, q.id, `${field === 'prompt' ? 'câu hỏi' : 'lời giải'} gọi đáp án bằng chữ A/B/C, nhưng đáp án bị xáo trộn mỗi lần chơi; hãy gọi bằng nội dung`);
       const correct = q.options.filter((o) => o.correct).length;
       if (correct !== 1) err(where, q.id, `câu đố phải có đúng 1 đáp án đúng, đang có ${correct}`);
       uniqueIds(q.options, where, q.id, 'lựa chọn', err);

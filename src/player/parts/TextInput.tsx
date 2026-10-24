@@ -15,13 +15,14 @@ export function TextInput({ part, answer, onChange, readOnly, t, labelId }: Part
         lang="vi"
         autoComplete="off"
         rows={short ? 2 : 4}
-        placeholder={t('parentTypes')}
+        placeholder={t('writeHere')}
         onChange={(e) => onChange(set(e.target.value))}
       />
-      {max != null && (
-        // Soft limit (FR-P-24): a counter, never a blocking error.
+      {max != null && value.length > max * 0.8 && (
+        // Soft limit (FR-P-24): a counter, never a blocking error. Shown only near the limit, so a
+        // child does not read "0/400" as a length to reach.
         <div className={`counter${value.length > max ? ' over' : ''}`} aria-live="polite">
-          {value.length}/{max}
+          {t('tooLong', { n: value.length, max })}
         </div>
       )}
     </>

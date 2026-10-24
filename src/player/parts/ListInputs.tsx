@@ -126,11 +126,10 @@ export function RepeatInput({ part, answer, onChange, readOnly, t }: PartProps<R
   const setCell = (i: number, id: string, v: RepeatRow[string]) => update(rows.map((r, j) => (j === i ? { ...r, [id]: v } : r)));
   return (
     <>
+      <div className="part-label">{part.label}</div>
       {rows.map((row, i) => (
         <fieldset className="list-group" key={i}>
-          <legend className="part-label">
-            {part.label} {i + 1}
-          </legend>
+          <legend className="part-label">{t('rowN', { n: i + 1 })}</legend>
           {part.fields.map((f) => {
             if (f.type === 'checkbox')
               return (

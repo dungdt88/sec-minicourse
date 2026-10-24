@@ -59,7 +59,11 @@ function ItemCard({ item }: { item: HomeworkItem }) {
           <p style={{ margin: 0 }} id={`hw-${item.id}`}>
             {item.text}
           </p>
-          {earlier && <p className="context-box" style={{ marginTop: 8 }}>{earlier}</p>}
+          {earlier && (
+            <p className="context-box" style={{ marginTop: 8 }}>
+              {t('youChose')} <strong>{earlier}</strong>
+            </p>
+          )}
         </div>
       </div>
       {parts && (
@@ -170,7 +174,7 @@ function PrintableSheet({ name }: { name: string }) {
 }
 
 function PrintItem({ item }: { item: HomeworkItem }) {
-  const { content } = usePlayer();
+  const { content, t } = usePlayer();
   const earlier = useEarlierAnswer(item);
   return (
     <section>
@@ -179,7 +183,7 @@ function PrintItem({ item }: { item: HomeworkItem }) {
       </p>
       {earlier && (
         <p style={{ margin: '0 0 4px' }}>
-          <em>{earlier}</em>
+          {t('youChose')} <em>{earlier}</em>
         </p>
       )}
       {(content.homework.capture?.[item.id] ?? []).map((p) => (

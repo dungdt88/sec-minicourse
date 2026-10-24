@@ -86,7 +86,6 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         ))}
         <span style={{ marginLeft: 6 }}>{t('questionOf', { n: index + 1, total })}</span>
       </div>
-      {index === 0 && level.form.intro && <p className="muted small-text" style={{ margin: 0 }}>{level.form.intro}</p>}
       <div>
         <h1 className="prompt content-col" id={promptId}>
           <RichText text={question.prompt} />
@@ -123,6 +122,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
           content={content}
           lookup={lookup}
           allowDontKnow={question.allowDontKnow}
+          compactDontKnow={question.parts.length > 1}
           fallbackLabelId={promptId}
         />
       ))}

@@ -69,7 +69,8 @@ test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
   await expect(page.getByText('Nhớ Bài về nhà nhé')).toBeVisible();
   await waitSaved(page);
   await page.locator('.btn', { hasText: 'Về bản đồ' }).click();
-  await expect(page.getByText('Hôm nay: Màn 2')).toBeVisible();
+  await expect(page.getByText('Lần sau: Màn 2')).toBeVisible(); // finished a level today
+  await expect(page.locator('.map-node', { hasText: 'Màn 3:' })).toContainText('Xong Màn 2 thì mở');
   await expect(page.locator('.map-node', { hasText: 'Màn 1:' })).toContainText('Chơi lại');
   await ctx.close();
 });
@@ -293,7 +294,7 @@ test('11: content upload is validated; a new level 8 appears locked', async ({ b
   const node = page.locator('.map-node', { hasText: 'Màn 8:' });
   await expect(node).toBeVisible();
   await expect(node).toBeDisabled();
-  await expect(node).toContainText('Mai mở');
+  await expect(node).toContainText('Xong Màn 7 thì mở');
   await ctx.close();
 });
 

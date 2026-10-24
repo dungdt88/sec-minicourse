@@ -130,8 +130,15 @@ export function QuizEnd({ level, character, onNext, top }: { level: Level; chara
         {t('quizDone')}
       </h1>
       <Character character={character} expression="happy" size={130} />
-      <Stars n={firstTryRight} total={level.quiz.length} />
-      <p>{t('firstTryStars', { n: firstTryRight, total: level.quiz.length })}</p>
+      {/* No row of grey stars when nothing was right first time: that reads as a failed score. */}
+      {firstTryRight > 0 && <Stars n={firstTryRight} total={level.quiz.length} />}
+      <p className="content-col" style={{ margin: '0 auto' }}>
+        {firstTryRight === level.quiz.length
+          ? t('quizAllRight')
+          : firstTryRight > 0
+            ? t('quizSomeRight', { n: firstTryRight, total: level.quiz.length })
+            : t('quizNoneRight', { total: level.quiz.length })}
+      </p>
       <div className="bottom-actions">
         <button className="btn" onClick={onNext}>
           {t('next')}

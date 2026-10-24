@@ -39,8 +39,15 @@ function Input(props: PartProps) {
 }
 
 /** A part with its label, input, validation message and the "Chưa biết" escape as last option. */
-export function PartField(props: Omit<PartProps, 'labelId'> & { allowDontKnow: boolean; fallbackLabelId: string }) {
-  const { part, answer, onChange, readOnly, t, allowDontKnow, fallbackLabelId } = props;
+export function PartField(
+  props: Omit<PartProps, 'labelId'> & {
+    allowDontKnow: boolean;
+    fallbackLabelId: string;
+    /** In a question with several parts, a small "Chưa biết" per part instead of a full-width box. */
+    compactDontKnow?: boolean;
+  },
+) {
+  const { part, answer, onChange, readOnly, t, allowDontKnow, fallbackLabelId, compactDontKnow } = props;
   const labelId = part.label ? `label-${part.id}` : fallbackLabelId;
   const check = checkPart(part as Part, answer, t);
   const dontKnow = !!answer?.dontKnow;
@@ -64,7 +71,7 @@ export function PartField(props: Omit<PartProps, 'labelId'> & { allowDontKnow: b
       {allowDontKnow && (
         <button
           type="button"
-          className="option dont-know"
+          className={`option dont-know${compactDontKnow ? ' compact' : ''}`}
           role="checkbox"
           aria-checked={dontKnow}
           disabled={readOnly}
