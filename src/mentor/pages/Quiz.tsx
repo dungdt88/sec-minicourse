@@ -1,7 +1,7 @@
 // FR-M-05: first-attempt result and chosen option per child and question, with a team tally.
 import { byOrder, sortedLevels } from '../../content/types';
 import { activeProfiles, firstAttempt } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function QuizPage() {
   const { data, active, contents } = useMentor();

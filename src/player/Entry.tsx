@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { playerApi } from '../api';
 import { WriteQueue } from '../api/queue';
-import { ApiError, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
+import { ApiError, mentorLabelOf, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
 import { makeT } from '../content/strings';
 import { DEFAULT_SKIN, useSetSkin } from '../art/skin';
 import { Character } from '../art/Character';
@@ -15,7 +15,8 @@ const CURRENT_KEY = 'tvt.currentProfile';
 function useBoot() {
   const setSkin = useSetSkin();
   // requirePin: whether children need their code (a team setting, off unless the mentor turns it on).
-  const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent; requirePin: boolean } | null>(null);
+  // mentorLabel: what the children call the mentor ("bố Trí"), for kid-facing text.
+  const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent; requirePin: boolean; mentorLabel: string } | null>(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -26,9 +27,12 @@ function useBoot() {
       const settingsP = api.settings().catch(() => null);
       void settingsP.then((s) => s && alive && setSkin(s.skin ?? DEFAULT_SKIN));
       let requirePin = false;
-      const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh, requirePin }));
-      requirePin = !!(await settingsP)?.requirePin;
-      if (alive) setBoot({ api, content, requirePin });
+      let mentorLabel = mentorLabelOf(null);
+      const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh, requirePin, mentorLabel }));
+      const settings = await settingsP;
+      requirePin = !!settings?.requirePin;
+      mentorLabel = mentorLabelOf(settings);
+      if (alive) setBoot({ api, content, requirePin, mentorLabel });
     })().catch(() => alive && setError(true));
     return () => {
       alive = false;
@@ -189,7 +193,7 @@ export function PinEntry() {
           {profile.avatar}
         </div>
         <h1 className="big-title">{profile.displayName}</h1>
-        <p className="notice">{t('noCodeYet')}</p>
+        <p className="notice">{t('noCodeYet', { mentor: boot.mentorLabel })}</p>
       </main>
     );
 

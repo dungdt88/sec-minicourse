@@ -57,16 +57,44 @@
 @media (max-width: 760px) {
   .m-shell {
     grid-template-columns: 1fr;
+    /* the header takes its own height; the page gets the rest */
+    grid-template-rows: auto 1fr;
   }
+  /* One row that scrolls sideways, instead of wrapping into three rows. */
   .m-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 6px 8px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
+    scrollbar-width: thin;
+  }
+  .m-nav .brand {
+    padding: 4px 8px;
+  }
+  .m-nav a {
+    flex: none;
   }
   .m-nav .who {
     margin-top: 0;
-    width: 100%;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .m-nav .who br {
+    display: none;
+  }
+  .m-nav .who .m-btn,
+  .m-nav > .m-btn {
+    margin: 0 !important;
+    flex: none;
   }
   .m-main {
     padding: 16px;

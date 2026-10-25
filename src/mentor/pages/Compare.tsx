@@ -6,7 +6,7 @@ import type { Profile } from '../../api/types';
 import type { Translate } from '../../content/strings';
 import type { CourseContent } from '../../content/types';
 import { activeProfiles, asPartAnswer, compareRows, voteLines, type CompareRow } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function ComparePage() {
   const { data, active, contents, t } = useMentor();

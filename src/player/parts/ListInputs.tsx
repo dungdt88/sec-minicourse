@@ -241,14 +241,22 @@ export function RepeatInput({ part, answer, onChange, readOnly, t }: PartProps<R
                 </div>
               );
             }
+            // A visible label above the box (a placeholder is cut off on a phone and gone once a
+            // parent types); the playtest answer boxes get a short starter instead.
             if (f.type === 'number')
               return (
-                <input key={f.id} className="num-input" aria-label={f.label} placeholder={f.label} inputMode="numeric" readOnly={readOnly}
-                  value={row[f.id] == null ? '' : String(row[f.id])} onChange={(e) => setCell(i, f.id, toNum(digits(e.target.value)))} />
+                <label key={f.id} className="field">
+                  <span className="field-label">{f.label}</span>
+                  <input className="num-input" inputMode="numeric" readOnly={readOnly}
+                    value={row[f.id] == null ? '' : String(row[f.id])} onChange={(e) => setCell(i, f.id, toNum(digits(e.target.value)))} />
+                </label>
               );
             return (
-              <input key={f.id} className="text-input short" aria-label={f.label} placeholder={f.label} lang="vi" autoComplete="off" maxLength={f.maxLength} readOnly={readOnly}
-                value={(row[f.id] as string) ?? ''} onChange={(e) => setCell(i, f.id, e.target.value)} />
+              <label key={f.id} className="field">
+                <span className="field-label">{f.label}</span>
+                <input className="text-input short" placeholder={f.pickIndex ? t('friendAnswered') : undefined} lang="vi" autoComplete="off" maxLength={f.maxLength} readOnly={readOnly}
+                  value={(row[f.id] as string) ?? ''} onChange={(e) => setCell(i, f.id, e.target.value)} />
+              </label>
             );
           })}
           {!readOnly && rows.length > min && (

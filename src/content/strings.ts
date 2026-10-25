@@ -86,7 +86,8 @@ export const APP_STRINGS: UiStrings = {
   mapDone: 'Xong rồi!',
   homework: 'Bài về nhà',
   print: 'In',
-  noCodeYet: 'Con chưa có mã. Bố mẹ nhờ người hướng dẫn đặt mã cho con nhé.',
+  // {mentor}: what the children call the mentor (team setting mentorLabel, e.g. "bố Trí").
+  noCodeYet: 'Con chưa có mã. Bố mẹ nhờ {mentor} đặt mã cho con nhé.',
   wrongPin: 'Ối, sai mã rồi. Thử lại nhé!',
   tooManyTries: 'Thử nhiều quá rồi. Đợi {min} phút rồi thử lại nhé.',
   quizDone: 'Xong câu đố! Thu kẹo nào!',
@@ -125,6 +126,7 @@ export const APP_STRINGS: UiStrings = {
   formIntroTitle: 'Đến lượt đội con',
   stickerFor: 'Nhãn dán Màn {n}',
   capture: 'Ghi kết quả',
+  friendAnswered: 'Bạn ấy trả lời…',
   homeworkSaved: 'Kết quả được lưu tự động.',
   sdgPick: 'Chạm vào hình con chọn.',
   choose: 'Chọn hình này',

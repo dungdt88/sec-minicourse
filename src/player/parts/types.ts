@@ -13,6 +13,8 @@ export interface PartProps<P extends Part = Part> {
   lookup: (questionId: string, partId: string) => PartAnswer | undefined;
   /** Accessible name for the input, usually the question prompt or part label. */
   labelId: string;
+  /** The question's own hint already says how many to pick ("chọn 2"): skip the app's line. */
+  ruleInHint?: boolean;
 }
 
 /** Value of the answer, ignoring it when "Chưa biết" is on. */

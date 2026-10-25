@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { activeProfiles } from '../derive';
 import { childPdf, download, exportCsv, exportJson } from '../exports';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function ExportsPage() {
   const { data, contents, active, notify } = useMentor();

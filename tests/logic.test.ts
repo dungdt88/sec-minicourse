@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { newOptionOrder, seededShuffle } from '../src/domain/shuffle';
 import { levelStatuses, todayLevel } from '../src/domain/progress';
 import { WriteQueue } from '../src/api/queue';
-import { ApiError, type LevelState, type Mutation, type PlayerApi, type TeamData } from '../src/api/types';
+import { ApiError, mentorLabelOf, type LevelState, type Mutation, type PlayerApi, type TeamData } from '../src/api/types';
 import { compareRows } from '../src/mentor/derive';
 import { voteSheetText } from '../src/mentor/pages/Compare';
 import { makeT } from '../src/content/strings';
@@ -178,5 +178,14 @@ describe('uuid() outside a secure context', () => {
     } finally {
       Object.defineProperty(crypto, 'randomUUID', { value: original, configurable: true });
     }
+  });
+});
+
+describe('what the children call the mentor (team setting mentorLabel)', () => {
+  it('fills the code message, and falls back to "người hướng dẫn" when unset or blank', () => {
+    const t = makeT(undefined);
+    expect(t('noCodeYet', { mentor: mentorLabelOf({ mentorLabel: ' bố Trí ' }) })).toBe('Con chưa có mã. Bố mẹ nhờ bố Trí đặt mã cho con nhé.');
+    expect(mentorLabelOf({ mentorLabel: '  ' })).toBe('người hướng dẫn');
+    expect(mentorLabelOf(null)).toBe('người hướng dẫn');
   });
 });

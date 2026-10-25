@@ -295,7 +295,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
     case 'formIntro':
       return (
         <main className="screen">
-          {top(t('yourTurn'))}
+          {top('')}
           <h1 className="big-title center">{t('yourTurn')}</h1>
           <div className="hero">
             <Character character={character} expression="thinking" size={130} />
@@ -323,7 +323,8 @@ function LevelScreen({ levelId }: { levelId: string }) {
           readOnly={formLocked}
           onBack={back}
           onNext={next}
-          top={top(t('yourTurn'))}
+          // "Từ điển pháp thuật 2/4" by the progress bar names the screen; the header does not repeat it.
+          top={top('')}
           reread={reread}
         />
       );
@@ -342,7 +343,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
             if (!formLocked) write({ kind: 'submit', levelId });
             go({ step: 'complete', index: 0 });
           }}
-          top={top(t('review'))}
+          top={top('')}
           reread={reread}
         />
       );

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { sortedLevels } from '../../content/types';
 import { levelStatuses } from '../../domain/progress';
 import { activeProfiles, fmtTime, lastActivity, minutes, timeSpent } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function Dashboard() {
   const { data, active } = useMentor();

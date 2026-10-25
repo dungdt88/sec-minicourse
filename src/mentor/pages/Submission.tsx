@@ -3,7 +3,7 @@
 import { findQuestion, type Part } from '../../content/types';
 import { formatPart, withColon } from '../../domain/answers';
 import { activeProfiles, answerHistory, asPartAnswer, latest } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function SubmissionPage() {
   const { data, active, contents, t } = useMentor();

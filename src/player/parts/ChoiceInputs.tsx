@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { prefersReducedMotion } from '../../art/skin';
 import type { MultiChoicePart, PickNPart, SingleChoicePart } from '../../content/types';
 import { asMultiValue, visibleOptions, type ChoiceValue, type MultiValue, type PickValue } from '../../domain/answers';
 import { RichText } from '../ui';
@@ -59,7 +60,7 @@ export function SingleChoiceInput({ part, answer, onChange, readOnly, t, lookup,
   );
 }
 
-export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId }: PartProps<MultiChoicePart>) {
+export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId, ruleInHint }: PartProps<MultiChoicePart>) {
   const value = asMultiValue(current<MultiValue>(answer));
   const own = value.own ?? [];
   const count = value.optionIds.length + own.filter((s) => s.trim()).length;
@@ -88,7 +89,7 @@ export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId 
 
   return (
     <>
-      {part.max != null && <p className="hint">{t('pickAtMost', { n: part.max })}</p>}
+      {part.max != null && !ruleInHint && <p className="hint">{t('pickAtMost', { n: part.max })}</p>}
       <div className="option-list" role="group" aria-labelledby={labelId}>
         {part.options.map((o) => (
           <div key={o.id} className="part">
@@ -157,11 +158,18 @@ export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId 
   );
 }
 
-/** Tick exactly n. Leading options get their feedback once, gently; the child may keep them. */
-export function PickNInput({ part, answer, onChange, readOnly, t, labelId }: PartProps<PickNPart>) {
+/**
+ * Tick exactly n. Leading options get their feedback once, gently, right under the option just
+ * tapped (on a phone the end of the list is off-screen); the child may keep them.
+ */
+export function PickNInput({ part, answer, onChange, readOnly, t, labelId, ruleInHint }: PartProps<PickNPart>) {
   const value = current<PickValue>(answer) ?? { optionIds: [] };
   const [shown, setShown] = useState<Set<string>>(new Set());
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ optionId: string; text: string } | null>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (feedback) noteRef.current?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  }, [feedback]);
   const [blocked, setBlocked] = useState(false);
 
   const toggle = (id: string) => {
@@ -177,7 +185,7 @@ export function PickNInput({ part, answer, onChange, readOnly, t, labelId }: Par
     }
     const o = part.options.find((x) => x.id === id);
     if (o?.leading && o.feedback && !shown.has(id)) {
-      setFeedback(o.feedback);
+      setFeedback({ optionId: id, text: o.feedback });
       setShown(new Set(shown).add(id));
     } else setFeedback(null);
     onChange(set({ optionIds: [...value.optionIds, id] }));
@@ -185,20 +193,22 @@ export function PickNInput({ part, answer, onChange, readOnly, t, labelId }: Par
 
   return (
     <>
-      <p className="hint">{t('pickN', { n: part.n })}</p>
+      {!ruleInHint && <p className="hint">{t('pickN', { n: part.n })}</p>}
       <div className="option-list" role="group" aria-labelledby={labelId}>
         {part.options.map((o) => (
-          <Tile key={o.id} role="checkbox" checked={value.optionIds.includes(o.id)} disabled={readOnly} onClick={() => toggle(o.id)}>
-            <RichText text={o.text} />
-          </Tile>
+          <Fragment key={o.id}>
+            <Tile role="checkbox" checked={value.optionIds.includes(o.id)} disabled={readOnly} onClick={() => toggle(o.id)}>
+              <RichText text={o.text} />
+            </Tile>
+            {feedback?.optionId === o.id && (
+              <div className="gentle pop" role="status" ref={noteRef}>
+                <span aria-hidden="true">🦉 </span>
+                {feedback.text}
+              </div>
+            )}
+          </Fragment>
         ))}
       </div>
-      {feedback && (
-        <div className="gentle pop" role="status">
-          <span aria-hidden="true">🦉 </span>
-          {feedback}
-        </div>
-      )}
       {blocked && (
         <p className="part-message" role="alert">
           {t('pickN', { n: part.n })}

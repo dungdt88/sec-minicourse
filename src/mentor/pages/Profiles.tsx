@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Profile } from '../../api/types';
 import { AVATARS } from '../../content/avatars';
 import { childPdf, download, profileJson } from '../exports';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 function AvatarPick({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (

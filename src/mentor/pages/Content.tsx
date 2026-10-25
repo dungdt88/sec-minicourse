@@ -11,7 +11,7 @@ import { Homework } from '../../player/Homework';
 import { LevelPlayer } from '../../player/LevelPlayer';
 import { PlayerSessionProvider } from '../../player/session';
 import { fmtTime } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 type Checked = { ok: true; content: CourseContent } | { ok: false; errors: ContentError[] } | null;
 

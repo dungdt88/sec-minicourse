@@ -2,7 +2,7 @@
 import { sortedLevels } from '../../content/types';
 import { levelStatuses } from '../../domain/progress';
 import { activeProfiles } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function LevelsPage() {
   const { data, active, api, run } = useMentor();

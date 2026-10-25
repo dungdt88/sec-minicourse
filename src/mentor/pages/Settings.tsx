@@ -1,10 +1,10 @@
 // Mentors of the team, the error log (NFR-12) and deleting all team data (FR-M-13).
 import { useEffect, useRef, useState } from 'react';
-import type { ErrorLogEntry, TeamSettings } from '../../api/types';
+import { DEFAULT_MENTOR_LABEL, type ErrorLogEntry, type TeamSettings } from '../../api/types';
 import { useSetSkin } from '../../art/skin';
 import { fmtTime } from '../derive';
 import { exportJson } from '../exports';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function SettingsPage() {
   const { api, run, data, notify, session } = useMentor();
@@ -17,6 +17,7 @@ export function SettingsPage() {
   const resetDialog = useRef<HTMLDialogElement>(null);
   const [resetExported, setResetExported] = useState(false);
   const [settings, setSettings] = useState<TeamSettings | null>(null);
+  const [label, setLabel] = useState<string | null>(null); // the mentor-label field while editing
   const setSkin = useSetSkin();
 
   const load = () => {
@@ -52,6 +53,39 @@ export function SettingsPage() {
         </label>
         <p className="small-text muted">Tắt thì dùng giao diện sáng bình thường, cùng bố cục. Máy của các con đổi theo khi mở lại ứng dụng.</p>
       </div>
+
+      <h2>Các con gọi người hướng dẫn là</h2>
+      <form
+        className="m-card"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const mentorLabel = (label ?? '').trim();
+          if (await run(() => api.updateSettings({ mentorLabel }))) {
+            setSettings((s) => (s ? { ...s, mentorLabel } : s));
+            setLabel(null);
+            notify(`Các con sẽ thấy: “${mentorLabel || DEFAULT_MENTOR_LABEL}”.`);
+          }
+        }}
+      >
+        <div className="m-row">
+          <input
+            className="m-input"
+            aria-label="Các con gọi người hướng dẫn là"
+            placeholder={DEFAULT_MENTOR_LABEL}
+            maxLength={40}
+            disabled={!settings}
+            value={label ?? settings?.mentorLabel ?? ''}
+            onChange={(e) => setLabel(e.target.value)}
+          />
+          <button className="m-btn primary" disabled={label == null}>
+            Lưu
+          </button>
+        </div>
+        <p className="small-text muted">
+          Dùng trong lời nhắn cho các con, ví dụ: “Bố mẹ nhờ {(label ?? settings?.mentorLabel)?.trim() || DEFAULT_MENTOR_LABEL} đặt mã cho con nhé.” Để trống thì là “
+          {DEFAULT_MENTOR_LABEL}”.
+        </p>
+      </form>
 
       <h2>Mã của các con</h2>
       <div className="m-card">

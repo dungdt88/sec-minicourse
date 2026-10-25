@@ -59,30 +59,133 @@ E2E_SUPABASE_WORKDIR=<folder> E2E_SUPABASE_URL=http://127.0.0.1:<api port> E2E_A
 `e2e/acceptance.spec.ts` automates acceptance tests 1–13 and 15 from section 12. Test 14 (first
 screen under 3 s on a 4-year-old Android over 4G) needs a real device.
 
-## Deploy (client's own accounts)
+## Deploy (Lightsail + Supabase cloud)
 
-Expected cost at this scale: **USD 0/month** (Supabase free tier + Vercel Hobby). A free Supabase
-project pauses after a week without traffic; open the app or the dashboard to wake it, or move to
-Supabase Pro (USD 25/month) if that becomes a problem during the course.
+The app is static. GitHub Actions builds it into a Docker image (nginx, non-root, port 3000
+inside the container) and runs it on the shared Lightsail instance at `127.0.0.1:3001`, behind
+Caddy, as in `mika-cms-webapp/docs/deployment-standard.md` ("Adding a project"). All data is in
+Supabase. Files: `Dockerfile`, `deploy/nginx.conf`, `deploy/security-headers.conf`,
+`.github/workflows/deploy.yml`.
 
-1. **Supabase**: create a project (region Singapore is closest to Ho Chi Minh City).
-   - Link and push the schema: `npx supabase link --project-ref <ref>` then `npx supabase db push`.
-   - Authentication → Sign In / Providers: turn **off** "Allow new users to sign up". Keep Email on.
-   - Authentication → URL Configuration: Site URL = your Vercel URL; add `https://<your-app>/mentor`
-     to redirect URLs (for magic links).
-   - Create the team, the first mentor, load the content and create the children's profiles:
-     ```sh
-     SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<publishable key> \
-     SUPABASE_SERVICE_ROLE_KEY=<secret key> TEAM_NAME="Đội Magic" \
-     MENTOR_EMAIL=<you> MENTOR_PASSWORD=<strong password> \
-     PROFILES="Tên1:🦊:1234,Tên2:🐼:5678,Tên3:🦄:9012,Tên4:🐢:3456" pnpm bootstrap
-     ```
-     The secret key is used only on your machine for this one script. Never put it in Vercel.
-2. **Vercel**: import the repository. Set the environment variables `VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_ANON_KEY` (the publishable key) and `VITE_TEAM_SLUG=default`. Deploy.
-   `vercel.json` handles routing, HTTPS-only headers and a strict Content-Security-Policy.
-3. More mentors (up to any number): invite them in Supabase → Authentication → Users → Invite,
-   then add their email in the console under **Cài đặt**.
+Cost: the Supabase free tier, and the Lightsail instance that already runs Mika (this container
+is capped at 64 MB and a quarter of a CPU). **A free Supabase project pauses after 7 days without
+use**; opening the app wakes it within a minute. Supabase Pro (USD 25/month) never pauses.
+
+Have ready: the domain (e.g. `vongtay.example.com`), the mentor's email and a strong password, and
+SSH access to the instance as `ubuntu`.
+
+### 1. Supabase project (once)
+
+1. Create a project in **Singapore** (ap-southeast-1). Note the project ref, the publishable key
+   and the secret key (Project Settings → API Keys).
+2. Push the schema (migrations only; `supabase/seed.sql` is for local development and is not run):
+   ```sh
+   npx supabase login
+   npx supabase link --project-ref <ref>
+   npx supabase db push
+   ```
+3. Authentication → Sign In / Providers: turn **off** "Allow new users to sign up". Keep Email on.
+   Authentication → Providers → Email: minimum password length 12.
+4. Authentication → URL Configuration: Site URL `https://<domain>`; add `https://<domain>/mentor`
+   to the redirect URLs (for the mentor's email sign-in link).
+5. Create the team, the mentor, the content and the four children, in the order the picker shows
+   them, without codes:
+   ```sh
+   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<publishable key> \
+   SUPABASE_SERVICE_ROLE_KEY=<secret key> TEAM_NAME="Đội Magic" MENTOR_LABEL="bố Trí" \
+   MENTOR_EMAIL=<mentor email> MENTOR_PASSWORD=<strong password> \
+   PROFILES="Đậu:🐯,Go-Han:🐸,Suri:🐬,Bình Minh:🦁" pnpm bootstrap
+   ```
+   This creates exactly: team "Đội Magic" (Halloween on, team progress on, codes off, the children
+   call the mentor "bố Trí"); one mentor account; the content in `content/course-content.json`,
+   active; the four profiles. No answers, no demo children, no test account. The avatars are
+   placeholders: change them in **Các con**. The secret key is used only on your machine, for
+   this script and the check below; it never goes into GitHub or the server. Start the command
+   with a space so the shell does not keep it in its history.
+6. Check that the project holds no children's data (read only; exits 1 if it does):
+   ```sh
+   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret key> pnpm launch-check
+   ```
+   Or paste `supabase/snippets/launch-check.sql` into the SQL Editor: every "children's data" row
+   must show 0.
+7. More mentors: Authentication → Users → **Invite user**, then add the email in the console
+   under **Cài đặt**. Supabase's built-in email only reaches members of your Supabase organisation
+   and sends a few emails an hour; set up custom SMTP to invite anyone else, or create the account
+   with a password instead (Authentication → Users → Add user).
+
+### 2. The server (once)
+
+On a machine with SSH access to the instance (`18.136.67.209`):
+
+1. Check the host prerequisites in the deployment standard are done (Docker log rotation, one
+   Caddy file per site, Mika's prune scoped to its own images). Reserve port **3001** in its
+   allocation table.
+2. A deploy key for this project only:
+   ```sh
+   ssh-keygen -t ed25519 -C "deploy-sec-minicourse" -f ~/.ssh/sec-minicourse_deploy -N ""
+   ssh-copy-id -i ~/.ssh/sec-minicourse_deploy.pub ubuntu@18.136.67.209
+   ```
+3. DNS: an A record for `<domain>` → `18.136.67.209`. Check: `dig +short <domain>`.
+4. Caddy, on the instance:
+   ```sh
+   sudo tee /etc/caddy/sites/<domain>.caddy >/dev/null <<'EOF'
+   <domain> {
+       encode zstd gzip
+       reverse_proxy 127.0.0.1:3001
+   }
+   EOF
+   sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
+   ```
+   Until the container runs, the domain answers 502.
+
+### 3. GitHub repository (once)
+
+A private repository, then the variables and the one secret the workflow reads:
+
+```sh
+gh repo create dungdt88/sec-minicourse --private --source=. --remote=origin
+gh variable set DEPLOY_HOST --body 18.136.67.209
+gh variable set DEPLOY_USER --body ubuntu
+gh variable set VITE_SUPABASE_URL --body https://<ref>.supabase.co
+gh variable set VITE_SUPABASE_ANON_KEY --body <publishable key>
+gh secret set DEPLOY_SSH_KEY < ~/.ssh/sec-minicourse_deploy
+git push -u origin master          # the first push runs the tests and deploys
+```
+
+| Kind | Name | What |
+| --- | --- | --- |
+| Variable | `DEPLOY_HOST` | the instance's static IP |
+| Variable | `DEPLOY_USER` | `ubuntu` |
+| Variable | `VITE_SUPABASE_URL` | `https://<ref>.supabase.co`; also the only Supabase origin the CSP allows |
+| Variable | `VITE_SUPABASE_ANON_KEY` | the **publishable** key. It is in the browser bundle by design; row-level security and the database functions decide what it can reach |
+| Variable (optional) | `VITE_TEAM_SLUG` | defaults to `default` |
+| Secret | `DEPLOY_SSH_KEY` | the private deploy key |
+
+The image goes to GHCR as a **private** package, linked to the repository. The workflow signs the
+server in to GHCR with its own token on every deploy, so the package can stay private. If a pull
+fails with "denied": the package's settings → Manage Actions access → add this repository (Read).
+
+### 4. Deploy and verify
+
+A push to `master` deploys; `gh workflow run deploy.yml --ref master` redeploys without a commit.
+Watch with `gh run watch`. The run fails unless the new container reports healthy.
+
+```sh
+# on the instance
+docker ps                                                   # sec-minicourse, "healthy"
+free -m                                                     # available still > 150 MB
+# from anywhere
+curl -sI https://<domain> | head -3                         # 200, server: Caddy
+curl -s https://<domain>/health                             # ok
+curl --max-time 5 http://18.136.67.209:3001/                # MUST fail: the port is not public
+```
+
+Then open `https://<domain>`: the picker shows Đậu, Go-Han, Suri and Bình Minh, and
+`https://<domain>/mentor` signs the mentor in.
+
+Roll back by re-running the last good **Deploy** run. To try the image locally first:
+`docker build --build-arg VITE_SUPABASE_URL=… --build-arg VITE_SUPABASE_ANON_KEY=… -t sec-minicourse .`
+then `docker run --rm -p 127.0.0.1:3001:3000 --read-only --tmpfs /tmp sec-minicourse`.
 
 ## Changing the content (no code change)
 
@@ -183,6 +286,9 @@ supabase/migrations/   tables, RLS, server functions
   purpose: no ranking, no per-child scores or order, never another child's answers (FR-P-25). Only
   names, avatars, completed levels and the team's candy total leave the server
   (`player_team_progress`). The mentor can switch it off in Cài đặt (`teams.settings.teamProgress`).
+- **What the children call the mentor.** `teams.settings.mentorLabel` (Cài đặt → "Các con gọi
+  người hướng dẫn là", e.g. "bố Trí"; default "người hướng dẫn") fills `{mentor}` in kid-facing
+  text, such as "Bố mẹ nhờ bố Trí đặt mã cho con nhé." The mentor console still says "người hướng dẫn".
 - **Trial-run reset (FR-M-15).** Cài đặt → "Xoá kết quả chạy thử": export first, then answers,
   attempts, timings and progress are deleted; profiles, PINs, level locks and settings stay.
   `teams.data_epoch` goes up by one; every write carries the epoch it was made in, and the server

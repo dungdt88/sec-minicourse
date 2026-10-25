@@ -1,9 +1,14 @@
 // One-time setup of a Supabase project (local or hosted): team, first mentor, content, profiles.
-// Safe to run again: it skips what already exists.
+// Safe to run again: it skips what already exists. It creates only what the variables below
+// name: no demo children, no answers, no test mentor.
 //
 //   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… SUPABASE_ANON_KEY=… \
-//   MENTOR_EMAIL=you@example.com MENTOR_PASSWORD=… \
-//   PROFILES="An:🦊:1111,Bình:🐼:2222" pnpm bootstrap
+//   MENTOR_EMAIL=you@example.com MENTOR_PASSWORD=… MENTOR_LABEL="bố Trí" \
+//   PROFILES="An:🦊,Bình:🐼:2222" pnpm bootstrap
+//
+// PROFILES: name:avatar[:4-digit code], in the order the picker shows them. Without a code the
+// child taps their picture (codes are off for a new team); a code can be set later in "Các con".
+// A new team starts with: Halloween skin on, team progress on, codes off.
 //
 // The service role key is used only here, on your machine; it never goes into the app.
 import { readFileSync } from 'node:fs';
@@ -24,6 +29,8 @@ const teamName = env('TEAM_NAME', 'Đội Magic');
 const email = env('MENTOR_EMAIL').toLowerCase();
 const password = env('MENTOR_PASSWORD');
 const contentFile = env('CONTENT_FILE', 'content/course-content.json');
+// What the children call the mentor in kid-facing text; see TeamSettings.mentorLabel.
+const mentorLabel = process.env.MENTOR_LABEL?.trim();
 const profilesSpec = process.env.PROFILES ?? '';
 
 const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
@@ -32,11 +39,18 @@ async function main() {
   // Team
   let { data: team } = await admin.from('teams').select('id').eq('slug', slug).maybeSingle();
   if (!team) {
-    const res = await admin.from('teams').insert({ slug, name: teamName }).select('id').single();
+    const settings = { skin: 'halloween', teamProgress: true, requirePin: false, ...(mentorLabel ? { mentorLabel } : {}) };
+    const res = await admin.from('teams').insert({ slug, name: teamName, settings }).select('id').single();
     if (res.error) throw res.error;
     team = res.data;
     console.log(`team "${slug}" created`);
+  } else if (mentorLabel) {
+    const cur = await admin.from('teams').select('settings').eq('id', team.id).single();
+    if (cur.error) throw cur.error;
+    const up = await admin.from('teams').update({ settings: { ...cur.data.settings, mentorLabel } }).eq('id', team.id);
+    if (up.error) throw up.error;
   }
+  if (mentorLabel) console.log(`children call the mentor "${mentorLabel}"`);
 
   // Mentor account
   let userId: string | undefined;
@@ -71,8 +85,9 @@ async function main() {
   const { data: existing } = await mentor.from('profiles').select('display_name');
   const have = new Set((existing ?? []).map((p: { display_name: string }) => p.display_name));
   for (const spec of profilesSpec.split(',').map((s) => s.trim()).filter(Boolean)) {
-    const [name, avatar, pin] = spec.split(':');
+    const [name, avatar, pin = ''] = spec.split(':');
     if (have.has(name)) continue;
+    // No code: the server stores a random one and marks the profile as having none (pin_set).
     const r = await mentor.rpc('mentor_create_profile', { p_name: name, p_avatar: avatar, p_pin: pin });
     if (r.error) throw r.error;
     console.log(`profile ${name} created`);

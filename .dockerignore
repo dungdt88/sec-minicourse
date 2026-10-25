@@ -1,0 +1,17 @@
+# Keep the build context small and free of local data.
+.git
+node_modules
+dist
+test-results
+playwright-report
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+supabase/.temp
+supabase/.branches
+.DS_Store
+# The owner's working files in the repo root (not part of the app)
+/course-content.json
+/vite-version-feedback.md

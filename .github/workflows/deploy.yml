@@ -1,0 +1,128 @@
+name: Deploy
+
+# Push to master: unit tests, then build the image, push it to GHCR tagged with the commit SHA,
+# and run it on the shared Lightsail instance behind Caddy (docs: deployment-standard.md in
+# mika-cms-webapp, "Adding a project"). This app is static, so the container is tiny.
+on:
+  push:
+    branches:
+      - master
+  # Deploy without a new commit, e.g. after changing a variable.
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  CONTAINER: sec-minicourse
+  HOST_PORT: 3001
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      # --ignore-scripts: skips the Supabase CLI download, which the tests do not need.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm test
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=,format=long
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          # These labels are what makes the scoped prune below safe. Do not drop them.
+          labels: ${{ steps.meta.outputs.labels }}
+          # Inlined into the browser bundle, so public by design: the publishable key only
+          # reaches what the database's row-level security and functions allow.
+          build-args: |
+            VITE_SUPABASE_URL=${{ vars.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ vars.VITE_SUPABASE_ANON_KEY }}
+            VITE_TEAM_SLUG=${{ vars.VITE_TEAM_SLUG || 'default' }}
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # appleboy/ssh-action does not stop on the first error by itself. Without this, a
+            # failed pull would still stop the running container with nothing to replace it.
+            set -e
+
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Deploy the SHA tag, never `latest`: what is running stays unambiguous, and a
+            # rollback is re-running an older workflow run.
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+            docker stop ${{ env.CONTAINER }} || true
+            docker rm ${{ env.CONTAINER }} || true
+
+            # 127.0.0.1 only: Docker's port rules bypass the host firewall, and Caddy is the one
+            # public entry point. Caps keep this app from starving its neighbours; nginx serving
+            # static files needs a few MB. The filesystem is read-only apart from /tmp.
+            docker run -d \
+              --name ${{ env.CONTAINER }} \
+              --restart unless-stopped \
+              -p 127.0.0.1:${{ env.HOST_PORT }}:3000 \
+              --memory=64m --memory-swap=64m \
+              --cpus=0.25 \
+              --read-only --tmpfs /tmp:rw,size=16m \
+              --log-opt max-size=10m --log-opt max-file=3 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+            # Fail the deploy if the new container does not come up, instead of reporting green
+            # while the site is down. `if` rather than `&&` so a false test does not trip `set -e`.
+            for i in $(seq 1 45); do
+              status=$(docker inspect -f '{{.State.Health.Status}}' ${{ env.CONTAINER }} 2>/dev/null || echo starting)
+              if [ "$status" = healthy ]; then break; fi
+              sleep 2
+            done
+            if [ "$status" != healthy ]; then
+              echo "${{ env.CONTAINER }} did not become healthy (status: $status)"
+              docker logs --tail 50 ${{ env.CONTAINER }} || true
+              exit 1
+            fi
+            echo "${{ env.CONTAINER }} healthy"
+
+            # Images older than a week, of THIS repo only: an unscoped prune would delete other
+            # projects' rollback targets on the shared host.
+            docker image prune -af \
+              --filter "until=168h" \
+              --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository }}"

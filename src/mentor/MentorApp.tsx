@@ -1,11 +1,12 @@
 // Mentor console (section 8). Every page sits behind the login gate (FR-M-01); data is loaded
 // once into a context and refreshed after each change.
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { mentorApi } from '../api';
-import { ApiError, type MentorApi, type MentorSession, type TeamData } from '../api/types';
+import { ApiError, type MentorApi, type MentorSession } from '../api/types';
 import type { CourseContent } from '../content/types';
-import { makeT, type Translate } from '../content/strings';
+import { makeT } from '../content/strings';
+import { MentorContext, useMentor, type MentorCtx } from './context';
 import './mentor.css';
 import { ComparePage, ZoomSheetPage } from './pages/Compare';
 import { ContentPage, PreviewPage } from './pages/Content';
@@ -17,29 +18,6 @@ import { ProfilesPage } from './pages/Profiles';
 import { QuizPage } from './pages/Quiz';
 import { SettingsPage } from './pages/Settings';
 import { SubmissionPage } from './pages/Submission';
-
-interface MentorCtx {
-  api: MentorApi;
-  session: MentorSession;
-  data: TeamData;
-  /** Content of every version referenced by data, plus the active one. */
-  contents: Map<string, CourseContent>;
-  active: CourseContent;
-  activeId: string;
-  t: Translate;
-  refresh: () => Promise<void>;
-  /** Runs a change, shows its error if any, then reloads. */
-  run: (fn: () => Promise<unknown>) => Promise<boolean>;
-  /** Shows a short message at the top of the page. */
-  notify: (message: string) => void;
-}
-
-const Ctx = createContext<MentorCtx | null>(null);
-export const useMentor = () => {
-  const v = useContext(Ctx);
-  if (!v) throw new Error('useMentor outside provider');
-  return v;
-};
 
 async function loadAll(api: MentorApi) {
   const data = await api.teamData();
@@ -245,7 +223,7 @@ export default function MentorApp() {
   };
 
   return (
-    <Ctx.Provider value={value}>
+    <MentorContext.Provider value={value}>
       {toast && (
         <div className="m-toast" role="alert" onClick={() => setToast(null)}>
           {toast}
@@ -275,7 +253,7 @@ export default function MentorApp() {
           }
         />
       </Routes>
-    </Ctx.Provider>
+    </MentorContext.Provider>
   );
 }
 

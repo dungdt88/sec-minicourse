@@ -172,6 +172,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
             lookup={lookup}
             domId={`part-${question.id}-${part.id}`}
             missing={attempted && check.blocking.includes(part.id)}
+            ruleInHint={!!question.hint && !part.label}
             nudge={nudged.has(part.id) && check.nudge.includes(part.id)}
             fallbackLabelId={promptId}
           />

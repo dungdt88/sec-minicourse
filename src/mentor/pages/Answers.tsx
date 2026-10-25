@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { HOMEWORK_LEVEL_ID, byOrder, sortedLevels, type Part } from '../../content/types';
 import { formatPart, withColon } from '../../domain/answers';
 import { activeProfiles, answerHistory, asPartAnswer, fmtTime } from '../derive';
-import { useMentor } from '../MentorApp';
+import { useMentor } from '../context';
 
 export function AnswersPage() {
   const { data, active, contents, t } = useMentor();

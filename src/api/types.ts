@@ -110,8 +110,13 @@ export interface TeamSettings {
   teamProgress?: boolean;
   /** Children enter with their 4-digit code (default off: tap the picture). */
   requirePin?: boolean;
+  /** What the children call the mentor in kid-facing text ("bố Trí"); default "người hướng dẫn". */
+  mentorLabel?: string;
   dataEpoch: number;
 }
+
+export const DEFAULT_MENTOR_LABEL = 'người hướng dẫn';
+export const mentorLabelOf = (s: Pick<TeamSettings, 'mentorLabel'> | null | undefined) => s?.mentorLabel?.trim() || DEFAULT_MENTOR_LABEL;
 
 /** Everything the player needs after unlocking a profile. */
 export interface PlayerState {
