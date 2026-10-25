@@ -63,7 +63,7 @@ screen under 3 s on a 4-year-old Android over 4G) needs a real device.
 ## Deploy (Lightsail + Supabase cloud)
 
 The app is static. GitHub Actions builds it into a Docker image (nginx, non-root, port 3000
-inside the container) and runs it on the shared Lightsail instance at `127.0.0.1:3001`, behind
+inside the container) and runs it on the shared Lightsail instance at `127.0.0.1:3002`, behind
 Caddy, as in `mika-cms-webapp/docs/deployment-standard.md` ("Adding a project"). All data is in
 Supabase, in the app's own schema `sec_minicourse`, inside a Supabase project that other apps
 share. Files: `Dockerfile`, `deploy/nginx.conf`, `deploy/security-headers.conf`,
@@ -143,7 +143,7 @@ new projects; a unit test fails if it is out of date.
 On a machine with SSH access to the instance (`18.136.67.209`):
 
 1. Check the host prerequisites in the deployment standard are done (Docker log rotation, one
-   Caddy file per site, Mika's prune scoped to its own images). Reserve port **3001** in its
+   Caddy file per site, Mika's prune scoped to its own images). Reserve port **3002** (3001 is `tu-lanh-ra-mon`) in its
    allocation table.
 2. A deploy key for this project only:
    ```sh
@@ -157,7 +157,7 @@ On a machine with SSH access to the instance (`18.136.67.209`):
    sudo tee /etc/caddy/sites/tiemvongtay.chabinuhandmade.com.caddy >/dev/null <<'EOF'
    tiemvongtay.chabinuhandmade.com {
        encode zstd gzip
-       reverse_proxy 127.0.0.1:3001
+       reverse_proxy 127.0.0.1:3002
    }
    EOF
    sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
@@ -203,7 +203,7 @@ free -m                                                     # available still > 
 # from anywhere
 curl -sI https://tiemvongtay.chabinuhandmade.com | head -3   # 200, server: Caddy
 curl -s https://tiemvongtay.chabinuhandmade.com/health       # ok
-curl --max-time 5 http://18.136.67.209:3001/                # MUST fail: the port is not public
+curl --max-time 5 http://18.136.67.209:3002/                # MUST fail: the port is not public
 ```
 
 Then open `https://tiemvongtay.chabinuhandmade.com`: the picker shows Đậu, Go-Han, Suri and Bình Minh, and
@@ -211,7 +211,7 @@ Then open `https://tiemvongtay.chabinuhandmade.com`: the picker shows Đậu, Go
 
 Roll back by re-running the last good **Deploy** run. To try the image locally first:
 `docker build --build-arg VITE_SUPABASE_URL=… --build-arg VITE_SUPABASE_ANON_KEY=… -t sec-minicourse .`
-then `docker run --rm -p 127.0.0.1:3001:3000 --read-only --tmpfs /tmp sec-minicourse`.
+then `docker run --rm -p 127.0.0.1:3002:3000 --read-only --tmpfs /tmp sec-minicourse`.
 
 ## Changing the content (no code change)
 
