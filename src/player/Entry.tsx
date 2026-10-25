@@ -5,12 +5,14 @@ import { playerApi } from '../api';
 import { WriteQueue } from '../api/queue';
 import { ApiError, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
 import { makeT } from '../content/strings';
+import { DEFAULT_SKIN, useSetSkin } from '../art/skin';
 import { deviceType } from '../domain/progress';
 import { PlayerSessionProvider, deviceTokens, loadContent } from './session';
 
 const CURRENT_KEY = 'tvt.currentProfile';
 
 function useBoot() {
+  const setSkin = useSetSkin();
   const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent } | null>(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -19,6 +21,7 @@ function useBoot() {
     setError(false);
     (async () => {
       const api = await playerApi();
+      api.settings().then((s) => alive && setSkin(s.skin ?? DEFAULT_SKIN), () => {});
       const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh }));
       if (alive) setBoot({ api, content });
     })().catch(() => alive && setError(true));

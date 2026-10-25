@@ -16,6 +16,7 @@ import { LevelsPage } from './pages/Levels';
 import { ProfilesPage } from './pages/Profiles';
 import { QuizPage } from './pages/Quiz';
 import { SettingsPage } from './pages/Settings';
+import { SubmissionPage } from './pages/Submission';
 
 interface MentorCtx {
   api: MentorApi;
@@ -131,6 +132,7 @@ const NAV: [string, string][] = [
   ['quiz', 'Câu đố'],
   ['answers', 'Phiếu trả lời'],
   ['compare', 'So sánh'],
+  ['submission', 'Bài nộp'],
   ['exports', 'Xuất dữ liệu'],
   ['content', 'Nội dung'],
   ['settings', 'Cài đặt'],
@@ -263,6 +265,7 @@ export default function MentorApp() {
                 <Route path="quiz" element={<QuizPage />} />
                 <Route path="answers" element={<AnswersPage />} />
                 <Route path="compare" element={<ComparePage />} />
+                <Route path="submission" element={<SubmissionPage />} />
                 <Route path="exports" element={<ExportsPage />} />
                 <Route path="content" element={<ContentPage />} />
                 <Route path="settings" element={<SettingsPage />} />

@@ -24,7 +24,7 @@
   --radius: 18px;
   --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --body-size: 19px;
-  color-scheme: light;
+  color-scheme: only light;
 }
 
 * {
@@ -1030,4 +1030,162 @@ details.objectives summary {
 }
 .list-item.card-row:last-of-type {
   border-bottom: 2px solid var(--line);
+}
+
+.chip-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.info-chip {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: 16px;
+}
+.cheer-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* ---------- quiz feedback motion (DR-05: < 600 ms for options, pop-up < 2 s, none if reduced) */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+  70% { transform: translateY(2px); }
+}
+@keyframes wobble {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(2px); }
+}
+.option.bounce { animation: bounce 450ms ease-out; }
+.option.wobble { animation: wobble 450ms ease-out; }
+
+.candies { display: flex; justify-content: center; gap: 6px; }
+
+.mascot-pop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.mascot-pop-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: pop-in 1800ms ease-out forwards;
+}
+.mascot-pop.wrong .mascot-pop-body { animation: wobble-out 1800ms ease-out forwards; }
+.mascot-pop-word {
+  background: var(--card);
+  border-radius: 999px;
+  padding: 4px 16px;
+  font-weight: 900;
+  font-size: 24px;
+  box-shadow: var(--shadow);
+}
+@keyframes pop-in {
+  0% { transform: scale(0.3) translateY(60px); opacity: 0; }
+  20% { transform: scale(1.1) translateY(-10px); opacity: 1; }
+  30% { transform: scale(1) translateY(0); }
+  80% { opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+@keyframes wobble-out {
+  0% { transform: scale(0.6); opacity: 0; }
+  15% { transform: scale(1) rotate(-8deg); opacity: 1; }
+  30% { transform: rotate(8deg); }
+  45% { transform: rotate(-5deg); }
+  60% { transform: rotate(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.flyer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  animation: fly 1600ms ease-out forwards;
+}
+.flyer.f0 { --dx: -140px; --dy: -160px; }
+.flyer.f1 { --dx: 150px; --dy: -140px; }
+.flyer.f2 { --dx: -170px; --dy: 40px; }
+.flyer.f3 { --dx: 160px; --dy: 60px; }
+.flyer.f4 { --dx: -60px; --dy: -210px; }
+.flyer.f5 { --dx: 80px; --dy: -200px; }
+@keyframes fly {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity: 0; }
+}
+
+/* ---------- seasonal skin "Halloween" (DR-08): cream, lilac and pumpkin, a faint pattern.
+   Text colours are unchanged, so contrast stays as in the plain theme. */
+html[data-skin='halloween'] {
+  --paper: #fff7ef;
+  --line: #e6d6ee;
+  --leaf: #7a3fb0;
+  --leaf-dark: #5b2d8a;
+  --leaf-soft: #f1e7f8;
+  --honey: #f28c38;
+  --honey-soft: #ffe9d4;
+  --sky-soft: #efe9fb;
+}
+html[data-skin='halloween'] body {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%237a3fb0' opacity='0.07'%3E%3Cpath d='M20 20 l3 6 6 1 -4.5 4 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4 6 -1 z'/%3E%3Cpath d='M120 30 a12 12 0 1 0 10 18 a9 9 0 1 1 -10 -18 z'/%3E%3Cpath d='M70 110 c-2 -4 -5 -3 -5 0 c-4 -4 -9 -3 -11 2 c4 -1 7 2 8 5 c2 -3 5 -2 8 2 c3 -4 6 -5 8 -2 c1 -3 4 -6 8 -5 c-2 -5 -7 -6 -11 -2 c0 -3 -3 -4 -5 0 z'/%3E%3Ccircle cx='140' cy='120' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+html[data-skin='halloween'] .today-tag {
+  background: #f28c38;
+}
+
+/* Today's level as a glowing pumpkin (map), and a small ghost riding the progress dots. */
+.pumpkin-glow {
+  display: inline-flex;
+  border-radius: 50%;
+  animation: glow 2.4s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(242, 140, 56, 0.5)); }
+  50% { filter: drop-shadow(0 0 10px rgba(242, 140, 56, 0.9)); }
+}
+.progress-ghost {
+  display: inline-flex;
+  margin: -6px 0 0 -4px;
+  transition: transform 300ms ease-out;
+}
+
+.tip-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: -4px 0 0;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.tip-line span {
+  flex: 1;
+}
+.tip-line button {
+  min-width: 48px;
+  min-height: 48px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 16px;
+  cursor: pointer;
 }

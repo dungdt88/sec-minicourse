@@ -1,5 +1,7 @@
 // Small shared pieces of the player screens.
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { Ghost } from '../art/Halloween';
+import { useSkin } from '../art/skin';
 import { usePlayer } from './session';
 import type { Card } from '../content/types';
 
@@ -32,7 +34,7 @@ export function SavePill() {
 }
 
 /** Dismissible one-line hint; dismissal is remembered on this device (FR-P-12). */
-export function HintBanner({ id, text }: { id: string; text: string }) {
+export function HintBanner({ id, text, line }: { id: string; text: string; /** one small line (FR-P-24) */ line?: boolean }) {
   const { t } = usePlayer();
   const key = `tvt.hint.${id}`;
   const [hidden, setHidden] = useState(() => {
@@ -43,6 +45,23 @@ export function HintBanner({ id, text }: { id: string; text: string }) {
     }
   });
   if (hidden) return null;
+  const dismiss = () => {
+    setHidden(true);
+    try {
+      localStorage.setItem(key, '1');
+    } catch {
+      /* ignore */
+    }
+  };
+  if (line)
+    return (
+      <p className="tip-line" role="note">
+        <span>{text}</span>
+        <button type="button" aria-label={t('hideHint')} onClick={dismiss}>
+          ✕
+        </button>
+      </p>
+    );
   return (
     <div className="hint-banner" role="note">
       <span aria-hidden="true">👨‍👩‍👧</span>
@@ -143,20 +162,22 @@ export function ReadAloud({ card }: { card: Card }) {
   );
 }
 
-export function Stars({ n, total }: { n: number; total: number }) {
+/** "Thẻ 2/4" / "Câu 2/4" dots; with the Halloween skin a small ghost rides the current dot (DR-08). */
+export function ProgressDots({ index, total, label }: { index: number; total: number; label: string }) {
+  const skin = useSkin();
   return (
-    <div className="stars" aria-hidden="true">
+    <div className="progress-dots" aria-label={label}>
       {Array.from({ length: total }, (_, i) => (
-        <svg key={i} width="44" height="44" viewBox="0 0 24 24">
-          <path
-            d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8z"
-            fill={i < n ? '#f2b632' : '#eadcc6'}
-            stroke={i < n ? '#c98f0f' : '#cbbba3'}
-            strokeWidth="1.2"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Fragment key={i}>
+          <span className={`dot${i <= index ? ' on' : ''}`} />
+          {skin === 'halloween' && i === index && (
+            <span className="progress-ghost" aria-hidden="true">
+              <Ghost size={24} />
+            </span>
+          )}
+        </Fragment>
       ))}
+      <span style={{ marginLeft: 6 }}>{label}</span>
     </div>
   );
 }

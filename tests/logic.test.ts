@@ -74,7 +74,7 @@ describe('level statuses', () => {
 });
 
 describe('write queue', () => {
-  const m = (id: string): Mutation => ({ id, kind: 'submit', levelId: 'L1', contentVersionId: 'c', deviceType: 'phone', at: '' });
+  const m = (id: string): Mutation => ({ id, epoch: 0, kind: 'submit', levelId: 'L1', contentVersionId: 'c', deviceType: 'phone', at: '' });
   const memory = () => {
     const map = new Map<string, string>();
     return { getItem: (k: string) => map.get(k) ?? null, setItem: (k: string, v: string) => void map.set(k, v) } as unknown as Storage;

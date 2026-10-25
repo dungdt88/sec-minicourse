@@ -3,6 +3,8 @@
 // `images: { neutral: "assets/characters/soc-neutral.png", … }` to a character in the content file.
 
 import type { Character as CharacterData, Expression } from '../content/types';
+import { Costume } from './Halloween';
+import { useSkin } from './skin';
 
 interface Props {
   character: CharacterData | undefined;
@@ -175,6 +177,7 @@ function Mouth({ expression, owl }: { expression: Expression; owl?: boolean }) {
 }
 
 export function Character({ character, expression = 'neutral', size = 120, decorative }: Props) {
+  const skin = useSkin();
   const image = character?.images?.[expression] ?? character?.images?.neutral;
   const label = decorative ? undefined : character?.name;
   if (image) {
@@ -190,6 +193,7 @@ export function Character({ character, expression = 'neutral', size = 120, decor
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
+      style={{ overflow: 'visible' }}
     >
       {look.back?.(look.fur, look.dark)}
       {look.ears(look.fur, look.dark)}
@@ -210,6 +214,7 @@ export function Character({ character, expression = 'neutral', size = 120, decor
         </g>
       )}
       {expression === 'oops' && <path d="M96 40 Q100 48 96 52 Q92 48 96 40 Z" fill="#7cc4f2" stroke="#3d8cc0" strokeWidth="1.5" />}
+      {skin === 'halloween' && character && <Costume characterId={character.id} />}
     </svg>
   );
 }

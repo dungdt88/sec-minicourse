@@ -1,14 +1,14 @@
-// The client's acceptance tests (RFP section 12), automated where a browser can check them.
-// Tests share one database and run in order. Numbers refer to the RFP list.
+// The client's acceptance tests (RFP v1.1 section 12, content 2026-10-25.10), automated where a
+// browser can check them. Tests share one database and run in order. Numbers refer to the RFP list.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { dontKnowAndNext, kidPage, mentorPage, next, playToForm, waitSaved } from './helpers';
+import { dontKnowAndNext, kidPage, mentorPage, next, playToForm, questionNo, waitSaved } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
-const L1Q1_CORRECT = 'Sóc tết vòng rồi bán cho các bạn trong trường.';
+const L1Q1_CORRECT = 'Sóc tết vòng bán cho các bạn.';
 let firstOrder: string[] = [];
 
 const optionTexts = (page: Page) => page.locator('.option-list .option span:last-child').allTextContents();
@@ -20,11 +20,12 @@ async function setLevel(page: Page, order: number, kid: string, value: 'unlocked
   await expect(page.locator('.m-toast')).toHaveCount(0);
 }
 
-test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
+test('1, 6, 16: a child completes level 1 on a phone', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'An');
-  await expect(page.getByText('Hôm nay: Màn 1')).toBeVisible();
+  await expect(page.getByText('Hôm nay mình chơi: Màn 1')).toBeVisible();
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
-  await page.getByRole('button', { name: 'Bắt đầu' }).click();
+  await expect(page.locator('.info-chip', { hasText: 'phút' })).toBeVisible(); // FR-P-10
+  await page.locator('.bottom-actions .btn').click();
   await expect(page.getByText('Bố mẹ đọc thẻ cho con nghe nhé')).toBeVisible();
   for (let i = 0; i < 4; i++) {
     await expect(page.getByText(`Thẻ ${i + 1}/4`).first()).toBeVisible();
@@ -33,56 +34,59 @@ test('1, 6: a child completes level 1 on a phone', async ({ browser }) => {
   // Q1: answer wrongly on purpose and see the explanation.
   firstOrder = await optionTexts(page);
   await page.locator('.option', { hasNotText: L1Q1_CORRECT }).first().click();
-  await expect(page.getByText('Chưa đúng. Xem này:')).toBeVisible();
+  await expect(page.locator('.feedback.bad h3')).not.toBeEmpty();
   await expect(page.locator('.option[disabled]')).toHaveCount(3); // locked after the first tap
   await next(page);
   for (let i = 1; i < 4; i++) {
     await page.locator('.option').first().click();
     await next(page);
   }
-  await expect(page.getByText('Xong câu đố!')).toBeVisible();
+  await expect(page.getByText('Xong câu đố! Thu kẹo nào!')).toBeVisible();
+  await expect(page.locator('.candies svg')).toHaveCount(4); // FR-P-19: one candy or wrapper per question
   await next(page);
-  await page.getByRole('button', { name: 'Bắt đầu' }).click();
+  await page.locator('.bottom-actions .btn').click(); // form intro
 
-  // L1F1 text: "Tiếp" on an empty question stays put and says what is missing
+  // L1F2: a question of only text cannot be passed empty
   await next(page);
-  await expect(page.getByText('Còn phần chưa xong')).toBeVisible();
-  await expect(page.getByText('Câu 1/4').first()).toBeVisible();
-  await page.locator('textarea').fill('Trò Magic: tung xúc xắc, ai về đích trước thì thắng. Phiên bản 1.');
+  await expect(page.getByText('Con trả lời một chút, hoặc bấm “Chưa biết” nhé.')).toBeVisible();
+  await questionNo(page, 1, 4);
+  await page.locator('textarea').fill('Hôm thứ Hai, con thấy bạn Minh ngồi một mình.');
   await next(page);
-  // L1F2 "Chưa biết" on a text question (6)
-  await page.locator('.option.dont-know').click();
-  await next(page);
-  // L1F3 "Khác" reveals a text field
+  // L1F3: "Khác" reveals a text field; the message only after trying to continue
   await page.getByRole('radio', { name: 'Khác' }).click();
-  await expect(page.locator('.part-message')).toHaveCount(0); // no red text before the child tries
+  await expect(page.locator('.part-message')).toHaveCount(0);
   await next(page);
   await expect(page.locator('.part-message')).toHaveText('Ghi thêm một chút nhé.');
   await page.getByPlaceholder('Ghi thêm một chút nhé.').fill('Vui hơn');
   await next(page);
-  // L1F4 SDG + why
-  await page.locator('.sdg-row').nth(2).click();
-  await expect(page.getByText('Ai cũng khỏe mạnh và vui vẻ.')).toBeVisible();
-  await page.locator('textarea').fill('Chơi cùng nhau thì vui');
+  // L1F4: the L1F3 choice is shown as context; "Chưa biết" on a text question (6)
+  await expect(page.locator('.context-box')).toContainText('Ở câu trước con chọn: Khác: Vui hơn');
+  await page.locator('.option.dont-know').click();
+  await next(page);
+  // L1F1 (16): players chosen, required text empty → asked for the text
+  await page.getByRole('radio', { name: '3–4 người' }).click();
+  await next(page);
+  await expect(page.locator('.part-message')).toHaveText('Phần này con chưa trả lời.');
+  await questionNo(page, 4, 4);
+  await page.locator('textarea').fill('Trò Magic: tung xúc xắc, ai về đích trước thì thắng. Phiên bản 1.');
   await next(page);
 
   await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
   await expect(page.getByText('Chưa biết')).toBeVisible();
-  await page.getByRole('button', { name: 'Nộp phiếu' }).click();
-  await expect(page.getByRole('heading', { name: 'Xong Màn 1!' })).toBeVisible();
+  await page.locator('.bottom-actions .btn').click(); // "Nộp phiếu thôi!"
+  await expect(page.getByRole('heading', { name: 'Hú hú! Xong Màn 1!' })).toBeVisible();
   await expect(page.getByText('Nhớ Bài về nhà nhé')).toBeVisible();
   await waitSaved(page);
   await page.locator('.btn', { hasText: 'Về bản đồ' }).click();
   await expect(page.getByText('Lần sau: Màn 2')).toBeVisible(); // finished a level today
-  await expect(page.locator('.map-node', { hasText: 'Màn 3:' })).toContainText('Xong Màn 2 thì mở');
-  await expect(page.locator('.map-node', { hasText: 'Màn 1:' })).toContainText('Chơi lại');
+  await expect(page.locator('.map-node', { hasText: 'Màn 3:' })).toContainText('Cửa này còn khóa! Con xong Màn 2 là mở nha.');
   await ctx.close();
 });
 
 test('2: stop mid-quiz on the phone, continue on a laptop', async ({ browser }) => {
   const phone = await kidPage(browser, 'Bình');
   await phone.page.locator('.map-node', { hasText: 'Màn 1:' }).click();
-  await phone.page.getByRole('button', { name: 'Bắt đầu' }).click();
+  await phone.page.locator('.bottom-actions .btn').click();
   for (let i = 0; i < 4; i++) await next(phone.page);
   await phone.page.locator('.option').first().click();
   await next(phone.page);
@@ -91,7 +95,7 @@ test('2: stop mid-quiz on the phone, continue on a laptop', async ({ browser }) 
   await phone.ctx.close();
 
   const laptop = await kidPage(browser, 'Bình', 'laptop');
-  await expect(laptop.page.locator('.map-node', { hasText: 'Màn 1:' })).toContainText('Chơi tiếp');
+  await expect(laptop.page.locator('.map-node', { hasText: 'Màn 1:' })).toContainText('Chơi tiếp nào!');
   await laptop.page.locator('.map-node', { hasText: 'Màn 1:' }).click();
   await expect(laptop.page.locator('h1.prompt')).toHaveText(prompt!);
   await expect(laptop.page.getByText('Câu 2/4').first()).toBeVisible();
@@ -101,10 +105,10 @@ test('2: stop mid-quiz on the phone, continue on a laptop', async ({ browser }) 
 test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept as a version', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'An');
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
-  await page.getByRole('button', { name: 'Chơi lại' }).click();
+  await page.locator('.bottom-actions .btn').click(); // "Chơi lại"
   for (let i = 0; i < 4; i++) await next(page);
   const replayOrder = await optionTexts(page);
-  expect(replayOrder.sort()).toEqual([...firstOrder].sort());
+  expect([...replayOrder].sort()).toEqual([...firstOrder].sort());
   expect(replayOrder.join('|')).not.toEqual(firstOrder.join('|'));
   await page.locator('.option', { hasText: L1Q1_CORRECT }).click();
   await next(page);
@@ -113,11 +117,11 @@ test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept a
     await next(page);
   }
   await next(page); // quiz end
-  await page.getByRole('button', { name: 'Bắt đầu' }).click();
-  // The child's own answers are back; change the first one.
+  await page.locator('.bottom-actions .btn').click();
+  for (let i = 0; i < 3; i++) await next(page); // the child's own answers are back
   await expect(page.locator('textarea')).toHaveValue(/Phiên bản 1/);
   await page.locator('textarea').fill('Trò Magic: phiên bản 2, ai gom đủ 3 thẻ phép thuật thì thắng.');
-  for (let i = 0; i < 4; i++) await next(page);
+  await next(page);
   await expect(page.getByText('Đã nộp. Con vẫn sửa được.')).toBeVisible();
   await waitSaved(page);
   await ctx.close();
@@ -134,11 +138,11 @@ test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept a
   await q.getByText('Xem các phiên bản').first().click();
   await expect(q.locator('.m-versions ol li')).toHaveCount(2);
   await m.page.goto('/mentor/compare');
-  await expect(m.page.locator('tr', { hasText: 'L1F1' })).toContainText('phiên bản 2');
+  await expect(m.page.locator('tr', { hasText: 'L1F1' }).first()).toContainText('phiên bản 2');
   await m.ctx.close();
 });
 
-test('5: a leading question gets gentle feedback once', async ({ browser }) => {
+test('5, 17: a leading question gets gentle feedback once; L3F3 rows without gaps', async ({ browser }) => {
   const m = await mentorPage(browser);
   await setLevel(m.page, 3, 'Chi', 'unlocked');
   await m.ctx.close();
@@ -147,25 +151,53 @@ test('5: a leading question gets gentle feedback once', async ({ browser }) => {
   await playToForm(page, 3);
   await dontKnowAndNext(page); // L3F1
   await page.getByRole('checkbox', { name: /Trò của tụi mình hay đúng không/ }).click();
-  await expect(page.getByText(/gợi ý sẵn câu trả lời/)).toBeVisible();
+  await expect(page.getByText(/gợi ý sẵn câu trả lời|chờ sẵn|gật đầu/).first()).toBeVisible();
   await page.getByRole('checkbox', { name: /Trò của tụi mình hay đúng không/ }).click();
   await page.getByRole('checkbox', { name: /Giờ ra chơi bạn thích làm gì/ }).click();
-  await expect(page.getByText(/gợi ý sẵn câu trả lời/)).toHaveCount(0);
+  await expect(page.locator('.gentle')).toHaveCount(0);
   await page.getByRole('checkbox', { name: /Bạn đã chơi board game nào chưa/ }).click();
   await next(page);
-  await expect(page.getByText('Câu 3/4').first()).toBeVisible();
+  // 17: three numbered rows show without "Thêm dòng"; fill rows 1 and 3 only
+  await questionNo(page, 3, 4);
+  await expect(page.locator('.card-row')).toHaveCount(3);
+  await expect(page.locator('.card-row').first()).toContainText('Thứ 1');
+  await page.getByLabel('Tên 1', { exact: true }).fill('Cờ vua');
+  await page.getByLabel('Hay ở chỗ… 1', { exact: true }).fill('vui');
+  await page.getByLabel('Chưa hay ở chỗ… 1').fill('lâu');
+  await page.getByLabel('Tên 3', { exact: true }).fill('Trốn tìm');
+  await page.getByLabel('Hay ở chỗ… 3', { exact: true }).fill('chạy nhảy');
+  await page.getByRole('checkbox', { name: 'Chơi cùng bạn bè được' }).click();
+  await next(page);
+  await questionNo(page, 4, 4);
+  await page.locator('textarea').first().fill('Đội mình giỏi vẽ.');
+  await next(page);
+  const review = page.locator('.review-item', { hasText: 'Nếu không chơi trò của đội' });
+  await expect(review).toContainText('1) Cờ vua (Hay ở chỗ… vui; Chưa hay ở chỗ… lâu) 2) Trốn tìm (Hay ở chỗ… chạy nhảy)');
+  await expect(review).not.toContainText('3)');
+  await waitSaved(page);
   await ctx.close();
 });
 
-test('4, 6: L6F4 must add up to 100; "Chưa biết" on a number question', async ({ browser }) => {
+test('4, 6, 18: L6F4 adds up to 100 and nudges "Vì sao" once; L5F3 amount is optional', async ({ browser }) => {
   const m = await mentorPage(browser);
+  await setLevel(m.page, 5, 'Chi', 'unlocked');
   await setLevel(m.page, 6, 'Chi', 'unlocked');
   await m.ctx.close();
 
   const { ctx, page } = await kidPage(browser, 'Chi');
+  // 18: tick one option, leave the amount empty, continue
+  await playToForm(page, 5);
+  await dontKnowAndNext(page); // L5F1
+  await dontKnowAndNext(page); // L5F2
+  await page.getByRole('checkbox', { name: 'In tờ quảng cáo' }).click();
+  await next(page);
+  await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
+  await waitSaved(page);
+  await page.goto('/play/home');
+
   await playToForm(page, 6);
   await expect(page.locator('.num-input').first()).toBeVisible(); // L6F1 has a number part
-  await dontKnowAndNext(page); // L6F1 number + text
+  await dontKnowAndNext(page); // L6F1 number + text (6)
   await dontKnowAndNext(page); // L6F2
   await dontKnowAndNext(page); // L6F3
   const keep = page.getByLabel('Giữ lại để làm tiếp');
@@ -174,20 +206,79 @@ test('4, 6: L6F4 must add up to 100; "Chưa biết" on a number question', async
   await good.fill('30');
   await next(page);
   await expect(page.getByText('Cộng lại phải đúng 100')).toBeVisible();
-  await expect(page.getByText('Câu 4/4').first()).toBeVisible(); // blocked
+  await questionNo(page, 4, 4);
   await keep.fill('50');
   await good.fill('50');
   await next(page);
+  await expect(page.getByText('Con nói thêm vì sao không?')).toBeVisible(); // one gentle nudge
+  await questionNo(page, 4, 4);
+  await next(page); // second tap goes through
   await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
   await waitSaved(page);
   await ctx.close();
 });
 
+test('19: L7F2 lists only the tasks ticked in L7F1; "how often" keeps its options', async ({ browser }) => {
+  const m = await mentorPage(browser);
+  await setLevel(m.page, 7, 'Chi', 'unlocked');
+  await m.ctx.close();
+  const { ctx, page } = await kidPage(browser, 'Chi');
+  await playToForm(page, 7);
+  await page.getByRole('checkbox', { name: 'Cắt, dán' }).click();
+  await page.getByRole('checkbox', { name: 'Quảng cáo' }).click();
+  await next(page);
+  await questionNo(page, 2, 4);
+  await expect(page.getByRole('radio', { name: 'Cắt, dán' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'Quảng cáo' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'Vẽ thẻ, bàn cờ' })).toHaveCount(0);
+  for (const o of ['Mỗi ngày', 'Mỗi tuần', 'Mỗi tháng', 'Chỉ một lần']) await expect(page.getByRole('radio', { name: o })).toBeVisible();
+  await ctx.close();
+});
+
+test('20: the mascot pop-up respects reduced motion and never blocks a tap', async ({ browser }) => {
+  // Reduced motion: no pop-up, explanation at once.
+  const reduced = await browser.newContext({ reducedMotion: 'reduce' });
+  const rp = await reduced.newPage();
+  await rp.goto('/');
+  await rp.locator('.profile-tile', { hasText: 'Dũng' }).click();
+  for (const d of '4444') await rp.getByRole('button', { name: d, exact: true }).click();
+  await rp.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  await rp.locator('.bottom-actions .btn').click();
+  for (let i = 0; i < 4; i++) await next(rp);
+  await rp.locator('.option').first().click();
+  await expect(rp.locator('.feedback')).toBeVisible();
+  await expect(rp.locator('.mascot-pop')).toHaveCount(0);
+  await waitSaved(rp);
+  await reduced.close();
+
+  // Normal motion: the pop-up appears, finishes within 2 s, and "Tiếp" works while it plays.
+  const { ctx, page } = await kidPage(browser, 'Dũng');
+  await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  await next(page); // resumes on the answered Q1
+  await page.locator('.option').first().click();
+  await expect(page.locator('.mascot-pop')).toBeVisible();
+  const prompt = await page.locator('h1.prompt').textContent();
+  await next(page); // tapped during the pop-up
+  await expect(page.locator('h1.prompt')).not.toHaveText(prompt!);
+  await page.locator('.option').first().click();
+  await expect(page.locator('.mascot-pop')).toBeVisible();
+  await expect(page.locator('.mascot-pop')).toHaveCount(0, { timeout: 2500 });
+  await expect(page.locator('.feedback p')).toBeVisible();
+  await ctx.close();
+});
+
 test('13: answers given offline are saved when the network returns', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'Dũng');
-  await playToForm(page, 1);
+  await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  for (let guard = 0; guard < 8 && !(await page.locator('h1.big-title', { hasText: 'Đến lượt đội con' }).isVisible()); guard++) {
+    if (await page.locator('.option:not([disabled])').count()) await page.locator('.option').first().click();
+    await next(page);
+  }
+  await page.locator('.bottom-actions .btn').click();
   await ctx.setOffline(true);
   await page.locator('textarea').fill('Viết lúc mất mạng, câu một');
+  await next(page);
+  await page.getByRole('radio', { name: 'Có thêm bạn' }).click();
   await next(page);
   await page.locator('textarea').fill('Viết lúc mất mạng, câu hai');
   await next(page);
@@ -208,7 +299,7 @@ test('12: a locked form can be read but not edited', async ({ browser }) => {
   const m = await mentorPage(browser);
   await setLevel(m.page, 2, 'Dũng', 'unlocked');
   const card = m.page.locator('.m-card', { hasText: 'Màn 2:' });
-  await card.locator('tr', { hasText: 'Dũng' }).getByLabel('Khoá phiếu').click(); // the box follows the server, so no .check()
+  await card.locator('tr', { hasText: 'Dũng' }).getByLabel('Khoá phiếu').click(); // the box follows the server
   await expect(card.locator('tr', { hasText: 'Dũng' }).getByLabel('Khoá phiếu')).toBeChecked();
   await m.ctx.close();
 
@@ -216,7 +307,8 @@ test('12: a locked form can be read but not edited', async ({ browser }) => {
   await playToForm(page, 2);
   await expect(page.getByText('Phiếu này đã khoá').first()).toBeVisible();
   await expect(page.locator('.option.dont-know').first()).toBeDisabled();
-  await expect(page.getByRole('button', { name: 'Tiếp', exact: true })).toBeEnabled();
+  await next(page);
+  await questionNo(page, 2, 4); // read-only: Tiếp goes on
   await ctx.close();
 });
 
@@ -242,6 +334,10 @@ test('8: different answers on L4F1 are flagged for the Zoom vote', async ({ brow
   await expect(m.page.locator('tr', { hasText: 'L4F1' }).first()).toBeVisible();
   await m.page.goto('/mentor/zoom');
   await expect(m.page.getByText('Đội bán gì? Vì sao?')).toBeVisible();
+  // FR-M-16: the submission view groups answers by template section
+  await m.page.goto('/mentor/submission');
+  await expect(m.page.getByRole('heading', { name: '3. Your idea' })).toBeVisible();
+  await expect(m.page.locator('section', { hasText: '3. Your idea' })).toContainText('Bộ trò chơi để mang về');
   await m.ctx.close();
 });
 
@@ -298,7 +394,7 @@ test('11: content upload is validated; a new level 8 appears locked', async ({ b
   const node = page.locator('.map-node', { hasText: 'Màn 8:' });
   await expect(node).toBeVisible();
   await expect(node).toBeDisabled();
-  await expect(node).toContainText('Xong Màn 7 thì mở');
+  await expect(node).toContainText('Cửa này còn khóa! Con xong Màn 7 là mở nha.');
   await ctx.close();
 });
 
@@ -323,4 +419,44 @@ test('15: deleting a profile offers an export first and removes the data', async
   await page.goto('/');
   await expect(page.locator('.profile-tile')).toHaveCount(4);
   await ctx.close();
+});
+
+test('FR-M-15: a trial-run reset clears answers and old devices cannot re-upload them', async ({ browser }) => {
+  // A device with a write queued offline before the reset…
+  const { ctx, page } = await kidPage(browser, 'Bình');
+  await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  // Walk to an open quiz question wherever the level resumes.
+  const open = page.locator('.option-list .option:not([disabled])');
+  await expect(page.locator('.topbar .title').first()).toContainText('Màn 1');
+  for (let guard = 0; guard < 10 && !(await open.count()); guard++) {
+    await page.locator('.bottom-actions .btn:not(.secondary):not([disabled])').click();
+    await page.waitForTimeout(100);
+  }
+  await ctx.setOffline(true);
+  await open.first().click();
+  await expect(page.locator('.save-pill').first()).toHaveText(/Chưa lưu được/, { timeout: 20_000 });
+
+  const m = await mentorPage(browser);
+  await m.page.goto('/mentor/settings');
+  await m.page.getByRole('button', { name: 'Xoá kết quả chạy thử…' }).click();
+  const dialog = m.page.locator('dialog[open]');
+  await expect(dialog.getByRole('button', { name: '2. Xoá kết quả' })).toBeDisabled();
+  await Promise.all([m.page.waitForEvent('download'), dialog.getByRole('button', { name: /Tải bản sao/ }).click()]);
+  await dialog.getByRole('button', { name: '2. Xoá kết quả' }).click();
+  await expect(m.page.locator('.m-toast')).toContainText('Đã xoá kết quả chạy thử');
+
+  // …comes back online: its old write is refused and the app reloads the fresh state.
+  await ctx.setOffline(false);
+  await waitSaved(page);
+  await page.goto('/play/home');
+  await expect(page.getByText('Hôm nay mình chơi: Màn 1')).toBeVisible();
+  await ctx.close();
+
+  await m.page.goto('/mentor/exports');
+  const [json] = await Promise.all([m.page.waitForEvent('download'), m.page.getByRole('button', { name: 'JSON' }).click()]);
+  const data = JSON.parse(readFileSync((await json.path())!, 'utf8'));
+  expect(data.answers).toHaveLength(0);
+  expect(data.attempts).toHaveLength(0);
+  expect(data.profiles.length).toBe(4);
+  await m.ctx.close();
 });

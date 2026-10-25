@@ -1,5 +1,10 @@
 # Plan: changes for RFP v1.1 and content 2026-10-25.9
 
+> **Status, 25 October:** built against content **2026-10-25.10** after the product owner's answers
+> (Q1 A: link fields in the master content; Q2 A: `submission` map in the content; Q3: corrected
+> Appendix B, text-only questions block when empty; Q4 A: Halloween on by default; Q5 A). All seven
+> steps are done; see README "Requirement coverage (RFP v1.1)".
+
 Inputs: `game-requirements.md` v1.1, `course-content.json` 2026-10-25.9 (currently in the repo root,
 not yet in `content/`). Current build: commit `0d0867b`, content 2026-10-25.3.
 

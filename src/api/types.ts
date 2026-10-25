@@ -100,8 +100,16 @@ export interface ActiveContent {
   content: CourseContent;
 }
 
+/** Team settings (DR-08 skin) plus the data epoch, which a trial-run reset bumps (FR-M-15). */
+export interface TeamSettings {
+  skin?: 'plain' | 'halloween';
+  dataEpoch: number;
+}
+
 /** Everything the player needs after unlocking a profile. */
 export interface PlayerState {
+  /** Writes must carry this epoch; older ones (from before a reset) are refused. */
+  dataEpoch: number;
   profile: PublicProfile;
   levels: LevelState[];
   answers: AnswerVersion[]; // latest version per (question, part)
@@ -112,6 +120,8 @@ export interface PlayerState {
 
 interface MutationBase {
   id: string;
+  /** Data epoch the write belongs to (FR-M-15). */
+  epoch: number;
   contentVersionId: string;
   deviceType: DeviceType;
   at: string;
@@ -144,11 +154,11 @@ export type Mutation = MutationBase &
   );
 
 /** Distributive Omit, so callers can build a Mutation without the queue-filled fields. */
-export type MutationInput = Mutation extends infer M ? (M extends Mutation ? Omit<M, 'id' | 'contentVersionId' | 'deviceType' | 'at'> : never) : never;
+export type MutationInput = Mutation extends infer M ? (M extends Mutation ? Omit<M, 'id' | 'epoch' | 'contentVersionId' | 'deviceType' | 'at'> : never) : never;
 
 export class ApiError extends Error {
   constructor(
-    public code: 'wrong_pin' | 'rate_limited' | 'not_found' | 'unauthorized' | 'locked' | 'invalid' | 'network' | 'unknown',
+    public code: 'wrong_pin' | 'rate_limited' | 'not_found' | 'unauthorized' | 'locked' | 'invalid' | 'stale' | 'network' | 'unknown',
     message?: string,
     public retryAfterMinutes?: number,
   ) {
@@ -166,6 +176,7 @@ export interface PlayerApi {
   login(profileId: string, pin: string, device: DeviceType): Promise<string>;
   logout(token: string): Promise<void>;
   activeContent(): Promise<ActiveContent>;
+  settings(): Promise<TeamSettings>;
   state(token: string): Promise<PlayerState>;
   write(token: string, m: Mutation): Promise<void>;
   reportError(token: string | null, message: string, context: Record<string, unknown>): Promise<void>;
@@ -221,6 +232,10 @@ export interface MentorApi {
 
   deleteProfile(id: string): Promise<void>;
   deleteTeamData(): Promise<void>;
+  /** FR-M-15: clear answers, attempts, timings and progress; keep profiles, PINs, locks, settings. */
+  resetTrialRun(): Promise<void>;
+  settings(): Promise<TeamSettings>;
+  updateSettings(patch: Partial<Omit<TeamSettings, 'dataEpoch'>>): Promise<void>;
 
   listMentors(): Promise<{ userId: string; email: string }[]>;
   addMentor(email: string): Promise<void>;

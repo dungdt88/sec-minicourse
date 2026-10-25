@@ -30,10 +30,10 @@ export const next = (page: Page) => page.getByRole('button', { name: 'Tiếp', e
 /** From the map: open level n and click through cards and quiz (first option each time) to the form's first question. */
 export async function playToForm(page: Page, order: number) {
   await page.locator('.map-node', { hasText: `Màn ${order}:` }).click();
-  await page.locator('.bottom-actions .btn', { hasText: /Bắt đầu|Chơi lại/ }).click();
+  await page.locator('.bottom-actions .btn').click(); // intro: start or replay
   for (let guard = 0; guard < 30; guard++) {
     const tt = (await title(page).textContent()) ?? '';
-    if (tt.includes('Thẻ khái niệm')) await next(page);
+    if (/Thẻ truyện|Thẻ khái niệm/.test(tt)) await next(page);
     else if (tt.includes('Câu đố')) {
       if (await page.getByText('Xong câu đố!').isVisible()) await next(page);
       else {
@@ -42,7 +42,7 @@ export async function playToForm(page: Page, order: number) {
         await next(page);
       }
     } else if (await page.locator('h1.big-title', { hasText: 'Đến lượt đội con' }).isVisible()) {
-      await page.getByRole('button', { name: 'Bắt đầu' }).click();
+      await page.locator('.bottom-actions .btn').click();
       await expect(page.locator('h1.prompt')).toBeVisible();
       return;
     } else throw new Error(`unexpected screen: ${tt}`);
@@ -50,12 +50,13 @@ export async function playToForm(page: Page, order: number) {
   throw new Error('did not reach the form');
 }
 
-/** Answer the current form question with "Chưa biết" on every part, then continue. */
+/** Answer the current form question "Chưa biết", then continue. */
 export async function dontKnowAndNext(page: Page) {
-  const buttons = page.locator('.option.dont-know[aria-checked="false"]');
-  while (await buttons.count()) await buttons.first().click();
+  await page.locator('.option.dont-know[aria-checked="false"]').click();
   await next(page);
 }
+
+export const questionNo = (page: Page, n: number, total: number) => expect(page.getByText(`Câu ${n}/${total}`).first()).toBeVisible();
 
 export async function waitSaved(page: Page) {
   await expect(page.locator('.save-pill')).toHaveText(/Đã lưu/, { timeout: 30_000 });

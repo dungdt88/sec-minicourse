@@ -2,6 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Sticker } from '../art/Sticker';
 import { Character } from '../art/Character';
+import { Pumpkin } from '../art/Halloween';
+import { useSkin } from '../art/skin';
 import { sortedLevels } from '../content/types';
 import { levelStatuses, todayLevel } from '../domain/progress';
 import { switchProfile } from './Entry';
@@ -24,6 +26,7 @@ export function finishedToday(completedAt: (string | null)[], now = new Date()):
 export function Home() {
   const { content, state, t, base, preview, levelState } = usePlayer();
   const navigate = useNavigate();
+  const skin = useSkin();
   const levels = sortedLevels(content);
   const statuses = levelStatuses(levels, state.levels);
   const today = todayLevel(levels, statuses);
@@ -75,7 +78,7 @@ export function Home() {
           // Say why a level is closed: the one before is not finished yet, or the mentor closed it.
           const lockedText =
             ls?.override === 'locked' || i === 0 ? t('lockedByMentor') : t('lockedAfter', { n: levels[i - 1].order });
-          const sub = status === 'done' ? t('replay') : status === 'locked' ? lockedText : resume ? t('continue') : t('start');
+          const sub = status === 'done' ? t('mapDone') : status === 'locked' ? lockedText : resume ? t('continue') : t('mapOpen');
           return (
             <button
               key={level.id}
@@ -89,6 +92,10 @@ export function Home() {
                   <Sticker order={level.order} image={level.sticker} size={56} label={t('stickerFor', { n: level.order })} />
                 ) : status === 'locked' ? (
                   <span aria-hidden="true">🔒</span>
+                ) : isToday && skin === 'halloween' ? (
+                  <span className="pumpkin-glow" aria-hidden="true">
+                    <Pumpkin size={52} />
+                  </span>
                 ) : (
                   level.order
                 )}

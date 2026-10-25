@@ -6,7 +6,7 @@ import { checkPart, checkQuestion, formatPart, withColon, type PartAnswer } from
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
-import { HintBanner, RichText } from './ui';
+import { HintBanner, ProgressDots, RichText } from './ui';
 
 const TEXT_DEBOUNCE_MS = 600;
 
@@ -120,12 +120,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
   return (
     <main className="screen">
       {top}
-      <div className="progress-dots" aria-label={t('questionOf', { n: index + 1, total })}>
-        {Array.from({ length: total }, (_, i) => (
-          <span key={i} className={`dot${i <= index ? ' on' : ''}`} />
-        ))}
-        <span style={{ marginLeft: 6 }}>{t('questionOf', { n: index + 1, total })}</span>
-      </div>
+      <ProgressDots index={index} total={total} label={t('questionOf', { n: index + 1, total })} />
       <div>
         <h1 className="prompt content-col" id={promptId}>
           <RichText text={question.prompt} />
@@ -172,7 +167,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
             fallbackLabelId={promptId}
           />
           {/* FR-P-24: under the first text field, a tip about the keyboard's microphone. */}
-          {!readOnly && part.id === firstTextPart && <HintBanner id="dictation" text={t('dictationTip')} />}
+          {!readOnly && part.id === firstTextPart && <HintBanner id="dictation" text={t('dictationTip')} line />}
         </Fragment>
       ))}
       {question.allowDontKnow && (

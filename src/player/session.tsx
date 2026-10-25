@@ -188,9 +188,14 @@ interface ProviderProps {
 }
 
 export function PlayerSessionProvider({ api, token, content, initialState, queue, base, children }: ProviderProps) {
-  const [state, setState] = useState(() =>
-    queue.pending(token).reduce((s, m) => applyLocal(s, m, content.content), initialState),
-  );
+  // Writes queued before a trial-run reset (older epoch) are dropped, not replayed (FR-M-15).
+  const epoch = initialState.dataEpoch ?? 0;
+  const [state, setState] = useState(() => {
+    queue.purge(token, epoch);
+    return queue.pending(token).reduce((s, m) => applyLocal(s, m, content.content), initialState);
+  });
+  const epochRef = useRef(epoch);
+  epochRef.current = state.dataEpoch ?? 0;
   const [notice, setNotice] = useState<string | null>(null);
   const device = useRef(deviceType()).current;
   const saveStatus = useSyncExternalStore(
@@ -203,6 +208,13 @@ export function PlayerSessionProvider({ api, token, content, initialState, queue
     queue.onPermanentError = (m: Mutation, e: ApiError) => {
       if (e.code === 'locked') setNotice(t('formLocked'));
       else if (e.code === 'unauthorized') setNotice(t('offlineStart'));
+      else if (e.code === 'stale') {
+        // The mentor reset the trial run since this device last loaded: start from the new state.
+        void api.state(token).then((fresh) => {
+          queue.purge(token, fresh.dataEpoch ?? 0);
+          setState(fresh);
+        }, () => {});
+      }
       // Only the kind and level go to the log, never the answer itself (NFR-12).
       void api.reportError(token, `write rejected: ${e.code}`, { kind: m.kind, levelId: m.levelId }).catch(() => {});
     };
@@ -210,7 +222,14 @@ export function PlayerSessionProvider({ api, token, content, initialState, queue
 
   const write = useCallback(
     (input: MutationInput) => {
-      const m = { ...input, id: uuid(), contentVersionId: content.id, deviceType: device, at: new Date().toISOString() } as Mutation;
+      const m = {
+        ...input,
+        id: uuid(),
+        epoch: epochRef.current,
+        contentVersionId: content.id,
+        deviceType: device,
+        at: new Date().toISOString(),
+      } as Mutation;
       setState((s) => applyLocal(s, m, content.content));
       queue.enqueue(token, m);
       return m.id;

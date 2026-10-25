@@ -24,6 +24,7 @@ import {
   type QuizAttempt,
   type SectionTiming,
   type TeamData,
+  type TeamSettings,
 } from './types';
 
 interface LocalDb {
@@ -41,6 +42,9 @@ interface LocalDb {
   mentors: { userId: string; email: string }[];
   mentorSession: MentorSession | null;
   errors: ErrorLogEntry[];
+  /** Added with RFP v1.1; absent in older saved databases. */
+  settings?: { skin?: 'plain' | 'halloween' };
+  epoch?: number;
 }
 
 const KEY = 'tvt.localdb.v1';
@@ -149,6 +153,8 @@ export class LocalStore {
   }
 
   applyMutation(db: LocalDb, profile: Profile, m: Mutation) {
+    // Same rule as player_write: writes from before a trial-run reset are refused for good.
+    if ((m.epoch ?? 0) !== (db.epoch ?? 0)) throw new ApiError('stale');
     const cv = db.contents.find((c) => c.id === m.contentVersionId) ?? db.contents.find((c) => c.isActive)!;
     const at = clientTime(m.at);
     switch (m.kind) {
@@ -300,9 +306,15 @@ export class LocalPlayerApi implements PlayerApi {
     return { id: c.id, content: c.content };
   }
 
+  async settings(): Promise<TeamSettings> {
+    const db = await this.store.load();
+    return { skin: 'halloween', ...db.settings, dataEpoch: db.epoch ?? 0 };
+  }
+
   async state(token: string): Promise<PlayerState> {
     const [db, p] = await this.profileFor(token);
     return {
+      dataEpoch: db.epoch ?? 0,
       profile: { id: p.id, displayName: p.displayName, avatar: p.avatar },
       levels: db.levelStates.filter((s) => s.profileId === p.id),
       answers: latestAnswers(db.answers.filter((a) => a.profileId === p.id)),
@@ -485,6 +497,33 @@ export class LocalMentorApi implements MentorApi {
     const db = await this.db();
     for (const p of [...db.profiles]) await this.deleteProfile(p.id);
     db.errors = [];
+    this.store.save();
+  }
+
+  async resetTrialRun() {
+    const db = await this.db();
+    db.attempts = [];
+    db.answers = [];
+    db.timings = [];
+    for (const s of db.levelStates) {
+      s.pointer = null;
+      s.submittedAt = null;
+      s.completedAt = null;
+      s.resetCount = 0;
+      s.updatedAt = now();
+    }
+    db.epoch = (db.epoch ?? 0) + 1;
+    this.store.save();
+  }
+
+  async settings(): Promise<TeamSettings> {
+    const db = await this.db();
+    return { skin: 'halloween', ...db.settings, dataEpoch: db.epoch ?? 0 };
+  }
+
+  async updateSettings(patch: Partial<Omit<TeamSettings, 'dataEpoch'>>) {
+    const db = await this.db();
+    db.settings = { ...db.settings, ...patch };
     this.store.save();
   }
 

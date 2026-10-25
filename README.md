@@ -95,28 +95,34 @@ Supabase Pro (USD 25/month) if that becomes a problem during the course.
 A new level (8, 9, …) is just another entry in `levels` with the next `order`; it appears on the map
 locked until the previous level is done or the mentor opens it.
 
-### Fields added to the content format
+### Content fields the app relies on
 
-All optional, all in the schema. They turn builder notes into data, so no question is special-cased in code.
+All optional and in the schema, so no question is special-cased in code. Since content
+`2026-10-25.10` they live in the mentor's master file (RFP v1.1, Appendix C).
 
-| Field | Where | What it does | Used in the supplied file |
+| Field | Where | What it does | Used in 2026-10-25.10 |
 | --- | --- | --- | --- |
-| `context: [{questionId, partId}]` | form question | shows the child's earlier answers read-only above the input | L5F2 (price from L4F2, cost from L5F1) |
-| `optionsFrom: {questionId, partId}` | `single_choice` part | lists only the options ticked (or added) in an earlier multi choice, plus "Khác" | L7F2 ← L7F1 |
-| `showAnswer: {questionId, partId}` | homework item | shows the child's earlier answer with the item, on screen and on the printed sheet | H2 ← L3F2 |
-| `required` | `text` part | not covered by the question's "Chưa biết" once other parts are answered | L1F4 "Vì sao?" |
-| `noPrice`, `showTotal`, `totalLabel` | `item_list` group / part | group without price boxes; running total of the prices | L6F2 |
-| `optional` | `sum_split` field | may stay empty, counts as 0 | L6F4 "Trả nợ" |
-| `rowLabel` | `repeat` part (homework) | row name with `{n}`, default "Lần {n}" | H2 "Bạn {n}", H3 "Ngày {n}" |
-| `homework.remindAfterLevels` | homework | levels after which the homework button and reminder are highlighted (default `[1, 3]`) | – |
-| `characters[].images`, `levels[].character`, `levels[].sticker`, `cards[].audio` | | real artwork, the intro character, sticker artwork, recorded read-aloud | – |
+| `placeholder` | any part | sentence starter in the empty field | L1F1a, L1F2, L1F4, L2F4b |
+| `required` / `optional` | any part | rules below | L1F1a required; L5F3b optional; L6F4 "Trả nợ" optional |
+| `context: [{questionId, partId}]` | form question | earlier answers shown above the input ("Ở câu trước con chọn: …") | L1F4 ← L1F3, L5F2 ← L4F2, L5F1 |
+| `optionsFrom: {questionId, partId}` | `single_choice` part | only the options ticked or added in an earlier multi choice, plus "Khác" | L7F2a ← L7F1 |
+| `copyFrom: {homeworkId, fieldId, groupId, toGroupId}` | `item_list` part | "Chép giá từ Bài về nhà" fills empty rows, never overwrites | L6F2 ← H4 materials |
+| `minRows`, extra text `fields` | `item_list` part | rows shown from the start; rows with extra fields are numbered cards; empty rows never saved | L3F3 |
+| `noPrice`, `showTotal`, `totalLabel` | `item_list` group / part | no price box; running total | L6F2 |
+| `showAnswer`, `rowLabel` | homework | earlier answer on the item; repeated row names | H2 ← L3F2; "Bạn {n}", "Ngày {n}" |
+| `submission[]` | top level | the competition template map for the console's "Bài nộp" view | 17 sections |
+| `ui.correctLines / wrongLines / cheers / oops` | `ui` | lists; one picked at random | quiz feedback and pop-up |
+| `levels[].minutes` | level | intro "khoảng N phút"; computed from the counts when absent | – |
+| `homework.remindAfterLevels`, `characters[].images`, `levels[].character / sticker`, `cards[].audio` | | reminders, real artwork, recorded read-aloud | – |
 
-These fields and the playtest fixes below are the only changes made to the supplied content file (see git history).
+**Form rules** (Appendix B, as corrected for .10): choice and number parts must be answered unless
+`optional`; a question made only of text parts needs at least one answer ("Con trả lời một chút,
+hoặc bấm “Chưa biết” nhé."); in a question that also has choices, text is optional unless
+`required`; an empty part labelled "Vì sao…" / "Lý do…" gets one nudge and the second tap goes
+through. One "Chưa biết" per question covers whatever is not answered yet.
 
-**Current content: the mentor's `2026-10-25.3`** plus this app's `context`, `optionsFrom`,
-`showAnswer` and `rowLabel` fields. Earlier: **content fixes after the 25 October playtest** (version `2026-10-25.1`): L6F1 unit "nghìn" → "bộ";
-L3Q2 and L6Q4 explanations no longer refer to options by letter (options are shuffled). Wording
-suggestions left for the mentor are in [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
+Content history: `2026-10-25` (supplied) → `.1` (playtest fixes) → `.3` (mentor) → `.10` (mentor, RFP
+v1.1). Wording notes from the playtests: [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
 
 ### Adding a new question type
 
@@ -138,7 +144,7 @@ src/
   api/       PlayerApi / MentorApi; supabase.ts, local.ts (in-browser), preview.ts (in-memory), queue.ts
   player/    profile picker, PIN, map, level flow, quiz, form, review, homework; parts/ = input types
   mentor/    console pages, derive.ts (compare, timings), exports.ts (PDF, CSV, JSON)
-  art/       placeholder SVG characters, stickers, SDG fallback tiles
+  art/       placeholder SVG characters and costumes, Drắc Nhí, candy, pumpkin, ghost, stickers; skin.tsx
 supabase/migrations/   tables, RLS, server functions
 ```
 
@@ -163,18 +169,27 @@ supabase/migrations/   tables, RLS, server functions
 - **Logging.** Uncaught client errors and refused writes go to the `error_log` table, shown in the
   console under Cài đặt, with the message, page and kind of write, never answer text. Nothing is
   sent to a third-party service.
+- **Seasonal skin (DR-08).** `teams.settings.skin` ("halloween" by default, switch in Cài đặt).
+  `<html data-skin>` swaps the colour tokens; costumes, mascot, candies, the glowing pumpkin, the
+  ghost on the progress dots and the quiz pop-up only appear with the skin on. The pop-up lasts
+  1.8 s, never takes a tap, and is skipped under reduced motion. The app stays light in OS dark mode.
+- **Trial-run reset (FR-M-15).** Cài đặt → "Xoá kết quả chạy thử": export first, then answers,
+  attempts, timings and progress are deleted; profiles, PINs, level locks and settings stay.
+  `teams.data_epoch` goes up by one; every write carries the epoch it was made in, and the server
+  refuses older ones, so a phone that was offline during the reset cannot upload old answers.
 - **Bundles.** Children download about 160 KB gzipped (app + Supabase client). The console and
   the PDF library load only at `/mentor`.
 
-## Requirement coverage
+## Requirement coverage (RFP v1.1)
 
 | Area | Status |
 | --- | --- |
-| FR-P-01 … 28 | All Must done. Should: test profile and preview (P-04/M-10), stickers (P-08), read-aloud with the device's Vietnamese voice or a recorded `audio` file (P-14), character reactions (P-18, no sound effects), context answers (P-23), homework capture (P-27). |
-| FR-M-01 … 13 | All Must done; Zoom sheet (M-11) and team-scoped data model (M-12) done. M-14 Google Sheet import not done (Could). |
-| FR-C-01 … 05 | Done. SDG icons: fallback tiles until the official Vietnamese files are added; licence notes in `public/assets/sdg/README.md`. |
-| DR-01 … 06 | Done with placeholder SVG characters (original, client-owned). Commissioned art can be dropped in via `images`. |
-| NFR | 01–03, 05, 06, 08, 09, 12 done. 07: free tier. 10: player strings externalised and overridable; mentor console strings are inline Vietnamese. 11: keyboard-operable, labelled controls, reduced-motion respected. 04 offline play of loaded levels (Could): writes queue offline, but reloading the app offline is not supported. |
+| FR-P-01 … 28 | All Must done. Should: test profile and preview (P-04/M-10), stickers (P-08), read-aloud (P-14), mascot reactions and pop-up (P-18, no sound), links between answers (P-23), homework capture (P-27). |
+| FR-M-01 … 16 | All Must done; Should: Zoom sheet (M-11), team-scoped data (M-12), trial-run reset (M-15), submission view (M-16). Not done: M-14 Google Sheet import (Could). |
+| FR-C-01 … 05 | Done. Art is SVG drawn in code, overridable by files. `sdg_picker` kept (Could); the children no longer see SDGs, the list is shown to the mentor in "Bài nộp". |
+| DR-01 … 08 | Done, including the Halloween skin (DR-08) with placeholder art (original, client-owned). |
+| NFR | 01–03, 05, 06, 08, 09, 12 done. 07: free tier. 10: player strings externalised and overridable; mentor console strings are inline Vietnamese. 11: keyboard-operable, labelled controls, reduced motion respected. 04 (Could): writes queue offline, but reloading the app offline is not supported. |
+| Acceptance | `e2e/acceptance.spec.ts` automates tests 1–13, 15–20 and FR-M-15. Test 14 (old Android over 4G) needs a real device. |
 
 ## Licences
 

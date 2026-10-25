@@ -11,7 +11,7 @@ import type { Pointer, Section } from '../api/types';
 import { FormQuestionScreen, FormReview } from './Form';
 import { QuizQuestionScreen, QuizEnd } from './Quiz';
 import { usePlayer } from './session';
-import { HintBanner, ReadAloud, RichText, SavePill } from './ui';
+import { HintBanner, ProgressDots, ReadAloud, RichText, SavePill } from './ui';
 
 function stepsOf(level: Level): Pointer[] {
   const steps: Pointer[] = [{ step: 'intro', index: 0 }];
@@ -31,6 +31,10 @@ const sectionOf = (p: Pointer): Section | null =>
   p.step === 'cards' ? 'cards' : p.step === 'quiz' || p.step === 'quizEnd' ? 'quiz' : p.step === 'form' || p.step === 'review' || p.step === 'formIntro' ? 'form' : null;
 
 const samePos = (a: Pointer, b: Pointer) => a.step === b.step && a.index === b.index;
+
+/** FR-P-10 estimate: about 45 s per card and quiz question, 90 s per form question. */
+export const levelMinutes = (level: Level) =>
+  level.minutes ?? Math.max(1, Math.round(level.cards.length * 0.75 + level.quiz.length * 0.75 + level.form.questions.length * 1.5));
 
 /** Section start/end timestamps for the mentor dashboard (FR-M-04). */
 function useSectionTiming(levelId: string, section: Section | null) {
@@ -164,12 +168,7 @@ export function LevelPlayer() {
 
   const cardProgress = (index: number, card: (typeof cards)[number]) => (
     <div className="topbar">
-      <div className="progress-dots" aria-label={t('cardOf', { n: index + 1, total: cards.length })}>
-        {cards.map((_, i) => (
-          <span key={i} className={`dot${i <= index ? ' on' : ''}`} />
-        ))}
-        <span style={{ marginLeft: 6 }}>{t('cardOf', { n: index + 1, total: cards.length })}</span>
-      </div>
+      <ProgressDots index={index} total={cards.length} label={t('cardOf', { n: index + 1, total: cards.length })} />
       <span className="spacer" />
       <ReadAloud card={card} />
     </div>
@@ -210,9 +209,13 @@ export function LevelPlayer() {
               “{character.catchphrase}”
             </p>
           )}
-          <p className="center muted" style={{ margin: 0 }}>
-            {t('levelContents', { cards: cards.length, quiz: quiz.length, form: level.form.questions.length })}
-          </p>
+          {/* FR-P-10: what is in the level and how long it takes */}
+          <ul className="chip-row" aria-label={level.name}>
+            <li className="info-chip">📖 {t('chipCards', { n: cards.length })}</li>
+            {quiz.length > 0 && <li className="info-chip">❓ {t('chipQuiz', { n: quiz.length })}</li>}
+            {level.form.questions.length > 0 && <li className="info-chip">✏️ {t('chipForm', { n: level.form.questions.length })}</li>}
+            <li className="info-chip">⏱️ {t('chipMinutes', { n: levelMinutes(level) })}</li>
+          </ul>
           {level.objectives.length > 0 && (
             <details className="objectives">
               <summary>{t('objectives')}</summary>
@@ -336,16 +339,21 @@ export function LevelPlayer() {
     case 'complete': {
       const remind = (content.homework.remindAfterLevels ?? [1, 3]).includes(level.order);
       const isLast = level.order === Math.max(...content.levels.map((l) => l.order));
+      const others = content.characters;
       return (
         <main className="screen center">
           {top(t('done'))}
           <div className="pop" style={{ marginTop: 24 }}>
             <Sticker order={level.order} image={level.sticker} size={150} label={t('stickerFor', { n: level.order })} />
           </div>
-          {/* "Hẹn mai nhé" does not fit after the last level. */}
-          <h1 className="big-title">{t(isLast ? 'lastLevelDone' : 'levelDone', { n: level.order })}</h1>
+          <h1 className="big-title">{t('levelDone', { n: level.order })}</h1>
           {isLast && <p className="notice">🎉 {t('courseDone', { n: content.levels.length })}</p>}
-          <Character character={character} expression="happy" size={110} decorative />
+          {/* FR-P-28: the characters cheering */}
+          <div className="cheer-row" aria-hidden="true">
+            {others.map((c) => (
+              <Character key={c.id} character={c} expression="happy" size={72} decorative />
+            ))}
+          </div>
           {remind && (
             <div className="notice">
               <strong>📝 {t('homeworkReminder')}</strong>

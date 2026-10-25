@@ -17,6 +17,7 @@ import {
   type Profile,
   type QuizAttempt,
   type SectionTiming,
+  type TeamSettings,
 } from './types';
 
 type Row = Record<string, unknown>;
@@ -24,7 +25,7 @@ type Row = Record<string, unknown>;
 function toApiError(e: { message?: string; code?: string } | null | undefined): ApiError {
   const msg = e?.message ?? '';
   if (/Failed to fetch|NetworkError|network|Load failed|fetch failed/i.test(msg)) return new ApiError('network', msg);
-  for (const code of ['wrong_pin', 'rate_limited', 'not_found', 'unauthorized', 'locked', 'invalid'] as const)
+  for (const code of ['wrong_pin', 'rate_limited', 'not_found', 'unauthorized', 'locked', 'invalid', 'stale'] as const)
     if (msg.includes(code)) return new ApiError(code, msg);
   if (e?.code === '28000' || e?.code === '42501') return new ApiError('unauthorized', msg);
   return new ApiError('unknown', msg);
@@ -78,6 +79,10 @@ export class SupabasePlayerApi implements PlayerApi {
     });
     if (!rows.length) throw new ApiError('not_found', 'No active content');
     return rows[0];
+  }
+
+  async settings() {
+    return (await rpc<TeamSettings | null>(this.client, 'public_team_settings', { p_team_slug: this.teamSlug })) ?? { dataEpoch: 0 };
   }
 
   async state(token: string) {
@@ -218,6 +223,18 @@ export class SupabaseMentorApi implements MentorApi {
 
   async deleteTeamData() {
     await rpc(this.client, 'mentor_delete_team_data', {});
+  }
+
+  async resetTrialRun() {
+    await rpc(this.client, 'mentor_reset_trial', {});
+  }
+
+  async settings() {
+    return rpc<TeamSettings>(this.client, 'mentor_settings', {});
+  }
+
+  async updateSettings(patch: Partial<Omit<TeamSettings, 'dataEpoch'>>) {
+    await rpc(this.client, 'mentor_update_settings', { p_patch: patch });
   }
 
   async listMentors() {

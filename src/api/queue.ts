@@ -48,6 +48,13 @@ export class WriteQueue {
     return this.items.filter((i) => i.token === token).map((i) => i.m);
   }
 
+  /** Drops this token's writes from another data epoch (queued before a trial-run reset). */
+  purge(token: string, epoch: number) {
+    const before = this.items.length;
+    this.items = this.items.filter((i) => i.token !== token || (i.m.epoch ?? 0) === epoch);
+    if (this.items.length !== before) this.persist();
+  }
+
   get size() {
     return this.items.length;
   }

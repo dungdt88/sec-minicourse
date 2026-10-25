@@ -1,6 +1,7 @@
 // Mentors of the team, the error log (NFR-12) and deleting all team data (FR-M-13).
 import { useEffect, useRef, useState } from 'react';
-import type { ErrorLogEntry } from '../../api/types';
+import type { ErrorLogEntry, TeamSettings } from '../../api/types';
+import { useSetSkin } from '../../art/skin';
 import { fmtTime } from '../derive';
 import { exportJson } from '../exports';
 import { useMentor } from '../MentorApp';
@@ -13,16 +14,84 @@ export function SettingsPage() {
   const [exported, setExported] = useState(false);
   const [typed, setTyped] = useState('');
   const dialog = useRef<HTMLDialogElement>(null);
+  const resetDialog = useRef<HTMLDialogElement>(null);
+  const [resetExported, setResetExported] = useState(false);
+  const [settings, setSettings] = useState<TeamSettings | null>(null);
+  const setSkin = useSetSkin();
 
   const load = () => {
     api.listMentors().then(setMentors, () => {});
     api.errorLog().then(setErrors, () => {});
+    api.settings().then(setSettings, () => {});
   };
+  const skinOn = (settings?.skin ?? 'halloween') === 'halloween';
   useEffect(load, [api]);
 
   return (
     <>
       <h1>Cài đặt</h1>
+      <h2>Giao diện mùa lễ</h2>
+      <div className="m-card">
+        <label className="m-row" style={{ gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={skinOn}
+            disabled={!settings}
+            onChange={async (e) => {
+              const skin = e.target.checked ? 'halloween' : 'plain';
+              if (await run(() => api.updateSettings({ skin }))) {
+                setSettings((s) => (s ? { ...s, skin } : s));
+                setSkin(skin);
+                notify(skin === 'halloween' ? 'Đã bật giao diện Halloween.' : 'Đã tắt giao diện Halloween.');
+              }
+            }}
+          />
+          <strong>Halloween</strong>: Drắc Nhí, kẹo, bí ngô, các con vật hoá trang
+        </label>
+        <p className="small-text muted">Tắt thì dùng giao diện sáng bình thường, cùng bố cục. Máy của các con đổi theo khi mở lại ứng dụng.</p>
+      </div>
+
+      <h2>Xoá kết quả chạy thử</h2>
+      <div className="m-card">
+        <p>
+          Xoá mọi câu trả lời, lượt đố và thời gian, và đưa các con về đầu khoá. Giữ lại hồ sơ, mã, các màn đã mở/khoá, phiếu đã khoá và cài đặt.
+          Máy nào còn câu trả lời cũ chưa gửi sẽ không gửi lại nữa.
+        </p>
+        <button className="m-btn danger" onClick={() => resetDialog.current?.showModal()}>
+          Xoá kết quả chạy thử…
+        </button>
+      </div>
+      <dialog ref={resetDialog} className="m-dialog" onClose={() => setResetExported(false)}>
+        <h2 style={{ marginTop: 0 }}>Xoá kết quả chạy thử?</h2>
+        <p>Không lấy lại được. Hãy tải bản sao trước.</p>
+        <button
+          className="m-btn"
+          onClick={() => {
+            exportJson(data);
+            setResetExported(true);
+          }}
+        >
+          1. Tải bản sao (JSON)
+        </button>
+        <div className="m-row" style={{ marginTop: 12 }}>
+          <button
+            className="m-btn danger"
+            disabled={!resetExported}
+            onClick={async () => {
+              if (await run(() => api.resetTrialRun())) {
+                notify('Đã xoá kết quả chạy thử. Các con bắt đầu lại từ Màn 1.');
+                resetDialog.current?.close();
+                load();
+              }
+            }}
+          >
+            2. Xoá kết quả
+          </button>
+          <button className="m-btn" onClick={() => resetDialog.current?.close()}>
+            Thôi
+          </button>
+        </div>
+      </dialog>
       <h2>Người hướng dẫn</h2>
       <div className="m-card">
         <ul>
