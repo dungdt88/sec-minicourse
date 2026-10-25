@@ -8,7 +8,7 @@ import { compareRows } from '../src/mentor/derive';
 import { voteSheetText } from '../src/mentor/pages/Compare';
 import { makeT } from '../src/content/strings';
 import type { CourseContent } from '../src/content/types';
-import { finishedToday, homeworkHighlighted } from '../src/player/Home';
+import { homeworkHighlighted, remindLevels } from '../src/player/Home';
 
 const content = JSON.parse(readFileSync('content/course-content.json', 'utf8')) as CourseContent;
 
@@ -60,16 +60,11 @@ describe('level statuses', () => {
     expect(st.get('L5')).toBe('available');
     expect(st.get('L1')).toBe('locked');
   });
-  it('says "Lần sau" only when a level was finished today (local time)', () => {
-    const now = new Date(2026, 9, 26, 19, 0);
-    expect(finishedToday([new Date(2026, 9, 26, 8, 30).toISOString()], now)).toBe(true);
-    expect(finishedToday([new Date(2026, 9, 25, 20, 0).toISOString(), null], now)).toBe(false);
-    expect(finishedToday([], now)).toBe(false);
-  });
-  it('homework is highlighted on day 1 and after level 3', () => {
-    expect(homeworkHighlighted([1, 3], [])).toBe(true);
-    expect(homeworkHighlighted([1, 3], [1, 2])).toBe(false);
-    expect(homeworkHighlighted([1, 3], [1, 2, 3])).toBe(true);
+  it('the optional playtest is highlighted right after level 3 (content .12)', () => {
+    expect(homeworkHighlighted(remindLevels(undefined), [])).toBe(false);
+    expect(homeworkHighlighted(remindLevels(undefined), [1, 2])).toBe(false);
+    expect(homeworkHighlighted(remindLevels(undefined), [1, 2, 3])).toBe(true);
+    expect(homeworkHighlighted(remindLevels(undefined), [1, 2, 3, 4])).toBe(false);
   });
 });
 
@@ -150,5 +145,23 @@ describe('Zoom vote sheet as text', () => {
     expect(text).toContain('- Bộ trò chơi để mang về (An): ___ phiếu');
     expect(text).toContain('- Vé chơi tại chỗ (Bình): ___ phiếu');
     expect(text).toContain('- Cả hai: ___ phiếu');
+  });
+});
+
+describe('answers for homework items the content no longer has (.12 dropped H1, H3, H4, H5)', () => {
+  it('exports and the compare view still work', async () => {
+    const { teamCsvFiles } = await import('../src/mentor/exports');
+    const old = {
+      id: 'x', teamId: 't', profileId: 'p1', contentVersionId: 'gone', levelId: 'HW', questionId: 'H4', partId: 'prices',
+      value: { groups: { materials: [{ name: 'Bìa', price: 20 }] } }, dontKnow: false, version: 1, editSession: 's',
+      deviceType: 'phone' as const, createdAt: '', updatedAt: '',
+    };
+    const data: TeamData = {
+      profiles: [{ id: 'p1', teamId: 't', displayName: 'An', avatar: '', archivedAt: null, createdAt: '' }],
+      levelStates: [], attempts: [], timings: [], contentVersions: [], answers: [old] as TeamData['answers'],
+    };
+    const files = teamCsvFiles(data, new Map(), content);
+    expect(files['answers.csv']).toContain('H4');
+    expect(() => compareRows(content, data)).not.toThrow();
   });
 });

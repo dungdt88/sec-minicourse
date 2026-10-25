@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25.11",
+  "contentVersion": "2026-10-25.12",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -157,7 +157,7 @@
     "parentReads": "Bố mẹ đọc thẻ cho con nghe nhé",
     "parentTypes": "Con nói, bố mẹ gõ cũng được",
     "levelDone": "Hú hú! Xong Màn {n}!",
-    "homeworkReminder": "Nhớ Bài về nhà nhé",
+    "homeworkReminder": "Khi đội có bản nháp, giờ ra chơi rủ 3 bạn chơi thử nhé. Không bắt buộc đâu!",
     "objectives": "Mục tiêu (cho bố mẹ)",
     "locked": "Chưa mở",
     "chooseProfile": "Ai tới chơi đây?",
@@ -759,7 +759,7 @@
             "allowDontKnow": true
           }
         ],
-        "note": "Cần đồ gì và làm mất bao lâu thì con trả lời sau khi làm bản nháp (Bài về nhà, việc 1)."
+        "note": "Cần đồ gì và làm mất bao lâu thì đội trả lời sau khi làm bản nháp bằng giấy."
       }
     },
     {
@@ -1003,7 +1003,7 @@
             ],
             "allowDontKnow": true,
             "hint": "chọn 2",
-            "note": "The two chosen questions are shown again on the homework sheet (item 2). Feedback on a leading option is shown once, gently; the child may keep the choice."
+            "note": "The two chosen questions are shown again on the playtest sheet (homework H2). Feedback on a leading option is shown once, gently; the child may keep the choice."
           },
           {
             "id": "L3F3",
@@ -1096,7 +1096,7 @@
             "hint": "2 câu ngắn"
           }
         ],
-        "note": "Hai câu con chọn ở câu 2 là hai câu để hỏi bạn trong Bài về nhà."
+        "note": "Hai câu con chọn ở câu 2 là hai câu để hỏi bạn khi chơi thử."
       }
     },
     {
@@ -1530,7 +1530,7 @@
               }
             ],
             "allowDontKnow": true,
-            "hint": "xem Bài về nhà; chưa có thì chọn \"Chưa biết\""
+            "hint": "bố mẹ xem giá giúp; chưa có thì chọn \"Chưa biết\""
           },
           {
             "id": "L5F2",
@@ -1817,17 +1817,11 @@
                 ],
                 "maxItemsPerGroup": 10,
                 "showTotal": true,
-                "totalLabel": "Tiền cần có để bắt đầu",
-                "copyFrom": {
-                  "homeworkId": "H4",
-                  "fieldId": "prices",
-                  "groupId": "materials",
-                  "toGroupId": "materials"
-                }
+                "totalLabel": "Tiền cần có để bắt đầu"
               }
             ],
             "allowDontKnow": true,
-            "hint": "xem Bài về nhà, bố mẹ giúp"
+            "hint": "bố mẹ xem giá giúp"
           },
           {
             "id": "L6F3",
@@ -2258,66 +2252,20 @@
     }
   ],
   "homework": {
-    "title": "Bài về nhà",
-    "intro": "Năm việc nhỏ, làm cùng bố mẹ trong tuần này. Việc 1 làm ngay. Việc 2 làm sau Màn 3, khi con đã chọn hai câu hỏi.",
+    "title": "Chơi thử với bạn",
+    "intro": "Không bắt buộc, làm ở trường giờ ra chơi, khi đội đã có bản nháp bằng giấy. Con chỉ cần đánh dấu. Chỗ nào cần ghi thì bố mẹ ghi giúp.",
     "items": [
       {
-        "id": "H1",
-        "order": 1,
-        "text": "Làm một bản nháp của trò chơi bằng giấy: thẻ, bàn cờ hoặc cuốn từ điển phép thuật vẽ tay, và luật chơi ngắn. Chưa nghĩ xong thì làm thử phần đã nghĩ ra. Ghi lại: cần những đồ gì, và làm mất bao lâu."
-      },
-      {
         "id": "H2",
-        "order": 2,
-        "text": "Cho 3 bạn không ở trong đội chơi thử bản nháp. Trong lúc các bạn chơi, con đánh dấu: cười · chơi hết ván · muốn chơi lại · chỗ nào bị rối. Chơi xong, hỏi mỗi bạn hai câu con đã chọn ở Màn 3, và ghi lại câu trả lời.",
+        "order": 1,
+        "text": "Rủ 3 bạn không ở trong đội chơi thử bản nháp. Trong lúc các bạn chơi, con đánh dấu: cười · chơi hết ván · muốn chơi lại. Kịp thì hỏi thêm hai câu con chọn ở Màn 3.",
         "showAnswer": {
           "questionId": "L3F2",
           "partId": "a"
         }
-      },
-      {
-        "id": "H3",
-        "order": 3,
-        "text": "Giờ ra chơi, nhìn một lượt quanh sân và đánh dấu vào tờ có 5 hình: chạy nhảy · nói chuyện · chơi cờ, bài, trò trên bàn · ngồi một mình · khác. Làm hai ngày khác nhau, rủ một bạn làm cùng. Không ghi tên ai, không chụp ảnh."
-      },
-      {
-        "id": "H4",
-        "order": 4,
-        "text": "Xem giá 1–2 bộ board game ở nhà sách hoặc trên mạng, và giá từng thứ để làm một bộ (bìa, giấy, bút, hộp, photo và đóng thành cuốn…). Ghi tên chỗ xem giá."
-      },
-      {
-        "id": "H5",
-        "order": 5,
-        "text": "Sau khi xem các bạn chơi và nghe các bạn trả lời, con muốn đổi gì ở trò chơi, giá hoặc cách bán?"
       }
     ],
     "capture": {
-      "H1": [
-        {
-          "id": "materials",
-          "type": "item_list",
-          "groups": [
-            {
-              "id": "all",
-              "label": "Đồ cần để làm một bộ"
-            }
-          ],
-          "fields": [
-            {
-              "id": "name",
-              "type": "text",
-              "label": "Tên đồ",
-              "maxLength": 80
-            }
-          ]
-        },
-        {
-          "id": "minutes",
-          "type": "number",
-          "label": "Làm mất bao lâu (phút)",
-          "unit": "phút"
-        }
-      ],
       "H2": [
         {
           "id": "friends",
@@ -2351,95 +2299,23 @@
               "id": "answer1",
               "type": "text",
               "label": "Trả lời câu hỏi 1",
-              "maxLength": 200
+              "maxLength": 200,
+              "pickIndex": 1
             },
             {
               "id": "answer2",
               "type": "text",
               "label": "Trả lời câu hỏi 2",
-              "maxLength": 200
+              "maxLength": 200,
+              "pickIndex": 2
             }
           ],
           "rowLabel": "Bạn {n}"
-        }
-      ],
-      "H3": [
-        {
-          "id": "day",
-          "type": "repeat",
-          "label": "Mỗi ngày",
-          "min": 1,
-          "max": 2,
-          "fields": [
-            {
-              "id": "run",
-              "type": "tally",
-              "label": "Chạy nhảy"
-            },
-            {
-              "id": "talk",
-              "type": "tally",
-              "label": "Nói chuyện"
-            },
-            {
-              "id": "board",
-              "type": "tally",
-              "label": "Chơi cờ, bài, trò trên bàn"
-            },
-            {
-              "id": "alone",
-              "type": "tally",
-              "label": "Ngồi một mình"
-            },
-            {
-              "id": "other",
-              "type": "tally",
-              "label": "Khác"
-            }
-          ],
-          "rowLabel": "Ngày {n}"
-        }
-      ],
-      "H4": [
-        {
-          "id": "prices",
-          "type": "item_list",
-          "groups": [
-            {
-              "id": "games",
-              "label": "Bộ board game ở nhà sách hoặc trên mạng"
-            },
-            {
-              "id": "materials",
-              "label": "Đồ để làm một bộ"
-            }
-          ],
-          "fields": [
-            {
-              "id": "name",
-              "type": "text",
-              "label": "Tên",
-              "maxLength": 80
-            },
-            {
-              "id": "price",
-              "type": "number",
-              "label": "Giá (nghìn đồng)"
-            },
-            {
-              "id": "source",
-              "type": "text",
-              "label": "Chỗ xem giá",
-              "maxLength": 80
-            }
-          ]
-        }
-      ],
-      "H5": [
+        },
         {
           "id": "change",
           "type": "text",
-          "label": "Con muốn đổi gì?",
+          "label": "Chơi xong, con muốn đổi gì ở trò chơi? (bố mẹ ghi giúp)",
           "maxLength": 400
         }
       ]
@@ -2450,12 +2326,12 @@
     "title": "Buổi Zoom",
     "intro": "Buổi Zoom dài 30 phút, Trí dẫn, bố chỉ hỏi. Chỉ bỏ phiếu những điều mà phiếu của các con trả lời khác nhau, nhiều nhất 5–6 lần. Các lựa chọn hiện trên màn hình, mỗi bạn nói ý mình trước rồi giơ ngón tay để bỏ phiếu, chụp màn hình mỗi lần bỏ phiếu để làm bằng chứng các con tự quyết.",
     "agenda": [
-      "5 phút: mỗi bạn kể một điều bất ngờ từ Bài về nhà.",
+      "5 phút: mỗi bạn kể một điều bất ngờ lúc các bạn chơi thử (nếu đội đã chơi thử).",
       "20 phút: bỏ phiếu, chọn trong số này: tên trò chơi; bán bộ, vé chơi, hay cả hai; giá bán; chia tiền lời; các nhóm việc và bao lâu đổi vai.",
       "5 phút: mỗi bạn nói một điều bên ngoài có thể giúp đội, và một điều có thể làm khó đội (hai ô còn lại của SWOT)."
     ],
     "after": [
-      "Sau Zoom, Trí và bố cộng tiền (doanh thu, hai loại chi phí, lời gộp, lời ròng) và điền bảng việc từ phiếu Màn 7; những việc này không cần bỏ phiếu. Việc cần làm ngay tuần này: hỏi cô giáo về chữ ký cho Thỏa thuận chia lợi nhuận, và hỏi trường có cho bán không. Khi nộp, kèm ảnh các phiếu, Bài về nhà và ảnh chụp các lần bỏ phiếu.",
+      "Sau Zoom, Trí và bố cộng tiền (doanh thu, hai loại chi phí, lời gộp, lời ròng) và điền bảng việc từ phiếu Màn 7; những việc này không cần bỏ phiếu. Việc cần làm ngay tuần này: hỏi cô giáo về chữ ký cho Thỏa thuận chia lợi nhuận, và hỏi trường có cho bán không. Khi nộp, kèm ảnh các phiếu, ảnh lúc chơi thử và ảnh chụp các lần bỏ phiếu.",
       "Mục tiêu Toàn cầu (SDG): bố mẹ chọn giúp, dựa vào câu trả lời Màn 1 (trò chơi giúp các bạn điều gì, và vì sao). Các con không cần học về SDG."
     ],
     "inApp": false
@@ -2486,10 +2362,7 @@
         "L1F3",
         "L1F4"
       ],
-      "homeworkIds": [
-        "H3"
-      ],
-      "note": "The mentor ticks the SDG from L1F3 and L1F4."
+      "note": "The mentor ticks the SDG from L1F3 and L1F4. The problem rests on what the child saw (L1F2)."
     },
     {
       "part": "Business Idea",
@@ -2513,9 +2386,7 @@
         "L6F2",
         "L6F3"
       ],
-      "homeworkIds": [
-        "H4"
-      ]
+      "note": "Prices are checked by parents."
     },
     {
       "part": "Business Idea",
@@ -2534,10 +2405,9 @@
         "L2F1"
       ],
       "homeworkIds": [
-        "H2",
-        "H3",
-        "H5"
-      ]
+        "H2"
+      ],
+      "note": "H2 is optional; without it, research is the children's views (L2F1, L3F1) and the Zoom call."
     },
     {
       "part": "Business Plan",
@@ -2563,10 +2433,7 @@
         "L7F1",
         "L7F2"
       ],
-      "homeworkIds": [
-        "H1"
-      ],
-      "note": "Who and rotation are voted in the Zoom call."
+      "note": "Who and rotation are voted in the Zoom call. How long tasks take is filled in by adults."
     },
     {
       "part": "Business Plan",
@@ -2607,11 +2474,7 @@
         "L5F1",
         "L5F3"
       ],
-      "homeworkIds": [
-        "H1",
-        "H4"
-      ],
-      "note": "Income = L6F1 × L4F2. Direct costs = L5F1 × L6F1. Adults sort direct from indirect and convert to USD."
+      "note": "Income = L6F1 × L4F2. Direct costs = L5F1 × L6F1. Prices are checked by parents; adults sort direct from indirect and convert to USD."
     },
     {
       "part": "Business Plan",
@@ -2619,9 +2482,7 @@
       "questionIds": [
         "L6F2"
       ],
-      "homeworkIds": [
-        "H4"
-      ]
+      "note": "Prices are checked by parents."
     },
     {
       "part": "Teacher section",

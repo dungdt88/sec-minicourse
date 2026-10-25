@@ -28,6 +28,25 @@ function useEarlierAnswer(item: HomeworkItem): { lines: string[] } | { fromLevel
   return { lines: [formatPart(part, a, content, t)] };
 }
 
+/**
+ * Capture parts for an item, with repeat fields that carry `pickIndex` kept only when the earlier
+ * answer (showAnswer) has that pick, and labelled with it (H2: one answer box per L3F2 question).
+ */
+function usePartsWithPicks(item: HomeworkItem, parts: Part[]): Part[] {
+  const earlier = useEarlierAnswer(item);
+  const picks = earlier && 'lines' in earlier ? earlier.lines : [];
+  return parts.map((p) =>
+    p.type !== 'repeat'
+      ? p
+      : {
+          ...p,
+          fields: p.fields
+            .filter((f) => !f.pickIndex || picks[f.pickIndex - 1])
+            .map((f) => (f.pickIndex ? { ...f, label: `${f.label}: ${picks[f.pickIndex - 1]}` } : f)),
+        },
+  );
+}
+
 function EarlierAnswer({ item, print }: { item: HomeworkItem; print?: boolean }) {
   const { t } = usePlayer();
   const earlier = useEarlierAnswer(item);
@@ -77,16 +96,20 @@ function Capture({ item, parts }: { item: HomeworkItem; parts: Part[] }) {
   );
 }
 
-function ItemCard({ item }: { item: HomeworkItem }) {
+function ItemCard({ item, single }: { item: HomeworkItem; single: boolean }) {
   const { content, t } = usePlayer();
   const [open, setOpen] = useState(false);
-  const parts = content.homework.capture?.[item.id];
+  const raw = content.homework.capture?.[item.id];
+  const parts = usePartsWithPicks(item, raw ?? []);
   return (
     <section className="panel">
       <div className="hw-item">
-        <span className="num" aria-hidden="true">
-          {item.order}
-        </span>
+        {/* FR-P-26: no number badge when there is only one item */}
+        {!single && (
+          <span className="num" aria-hidden="true">
+            {item.order}
+          </span>
+        )}
         <div style={{ flex: 1 }}>
           <p style={{ margin: 0 }} id={`hw-${item.id}`}>
             {item.text}
@@ -94,7 +117,7 @@ function ItemCard({ item }: { item: HomeworkItem }) {
           <EarlierAnswer item={item} />
         </div>
       </div>
-      {parts && (
+      {raw && (
         <>
           <button className="btn secondary small" style={{ marginTop: 12 }} aria-expanded={open} onClick={() => setOpen(!open)}>
             {open ? t('close') : `✏️ ${t('capture')}`}
@@ -195,21 +218,23 @@ function PrintableSheet({ name }: { name: string }) {
       </p>
       <p style={{ margin: '0 0 10px' }}>{hw.intro}</p>
       {byOrder(hw.items).map((item) => (
-        <PrintItem key={item.id} item={item} />
+        <PrintItem key={item.id} item={item} single={hw.items.length === 1} />
       ))}
     </div>
   );
 }
 
-function PrintItem({ item }: { item: HomeworkItem }) {
+function PrintItem({ item, single }: { item: HomeworkItem; single: boolean }) {
   const { content } = usePlayer();
+  const parts = usePartsWithPicks(item, content.homework.capture?.[item.id] ?? []);
   return (
     <section>
       <p style={{ margin: '0 0 4px' }}>
-        <strong>{item.order}.</strong> {item.text}
+        {!single && <strong>{item.order}. </strong>}
+        {item.text}
       </p>
       <EarlierAnswer item={item} print />
-      {(content.homework.capture?.[item.id] ?? []).map((p) => (
+      {parts.map((p) => (
         <PrintPart key={p.id} part={p} />
       ))}
     </section>
@@ -239,7 +264,7 @@ export function Homework() {
           </button>
         )}
         {byOrder(hw.items).map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard key={item.id} item={item} single={hw.items.length === 1} />
         ))}
       </main>
       <PrintableSheet name={state.profile.displayName} />

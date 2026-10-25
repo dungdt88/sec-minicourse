@@ -1189,3 +1189,8 @@ html[data-skin='halloween'] .today-tag {
   font-size: 16px;
   cursor: pointer;
 }
+
+.btn.big {
+  min-height: 68px;
+  font-size: 23px;
+}

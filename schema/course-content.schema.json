@@ -1012,6 +1012,11 @@
               "maxLength": {
                 "type": "integer",
                 "minimum": 1
+              },
+              "pickIndex": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Show this field only when the item's showAnswer has a pick at this position (1-based), labelled with that pick."
               }
             },
             "additionalProperties": false

@@ -3,6 +3,7 @@
 // anywhere resumes there on any device (FR-P-07).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { remindLevels } from './Home';
 import { Character, levelCharacter } from '../art/Character';
 import { Sticker } from '../art/Sticker';
 import { byOrder, type Level } from '../content/types';
@@ -68,10 +69,15 @@ function useSectionTiming(levelId: string, section: Section | null) {
   }, [close]);
 }
 
+/** Keyed by level, so "Chơi tiếp: Màn n+1" starts the next level with fresh state. */
 export function LevelPlayer() {
   const { levelId = '' } = useParams();
+  return <LevelScreen key={levelId} levelId={levelId} />;
+}
+
+function LevelScreen({ levelId }: { levelId: string }) {
   const player = usePlayer();
-  const { content, state, levelState, write, base, preview, t } = player;
+  const { content, state, levelState, write, base, preview, t, saveStatus, flush } = player;
   const navigate = useNavigate();
   const level = content.levels.find((l) => l.id === levelId);
   const steps = useMemo(() => (level ? stepsOf(level) : []), [level]);
@@ -337,9 +343,12 @@ export function LevelPlayer() {
       );
 
     case 'complete': {
-      const remind = (content.homework.remindAfterLevels ?? [1, 3]).includes(level.order);
-      const isLast = level.order === Math.max(...content.levels.map((l) => l.order));
-      const others = content.characters;
+      // FR-P-28 "play on": the next level leads; the map is the quiet way out.
+      const nextLevel = byOrder(content.levels).find((l) => l.order > level.order);
+      const nextStatus = nextLevel ? levelStatuses(content.levels, state.levels).get(nextLevel.id) : undefined;
+      const canPlayOn = !!nextLevel && (preview || nextStatus === 'available' || nextStatus === 'done');
+      const remind = content.homework.items.length > 0 && remindLevels(content.homework.remindAfterLevels).includes(level.order);
+      const unsaved = !preview && saveStatus !== 'saved';
       return (
         <main className="screen center">
           {top(t('done'))}
@@ -347,25 +356,36 @@ export function LevelPlayer() {
             <Sticker order={level.order} image={level.sticker} size={150} label={t('stickerFor', { n: level.order })} />
           </div>
           <h1 className="big-title">{t('levelDone', { n: level.order })}</h1>
-          {isLast && <p className="notice">🎉 {t('courseDone', { n: content.levels.length })}</p>}
-          {/* FR-P-28: the characters cheering */}
+          {!nextLevel && <p className="notice">🎉 {t('courseDone', { n: content.levels.length })}</p>}
+          {/* the characters cheering */}
           <div className="cheer-row" aria-hidden="true">
-            {others.map((c) => (
+            {content.characters.map((c) => (
               <Character key={c.id} character={c} expression="happy" size={72} decorative />
             ))}
           </div>
-          {remind && (
-            <div className="notice">
-              <strong>📝 {t('homeworkReminder')}</strong>
-            </div>
-          )}
+          {canPlayOn && <p style={{ margin: 0 }}>{t('nextOpen', { n: nextLevel.order })}</p>}
           <div className="bottom-actions" style={{ flexDirection: 'column' }}>
-            {remind && (
-              <button className="btn secondary" onClick={() => navigate(`${base}/homework`)}>
-                {t('homework')}
+            {canPlayOn && (
+              <button className="btn big" onClick={() => navigate(`${base}/level/${nextLevel.id}`)}>
+                ▶ {t('playOn', { n: nextLevel.order })}
               </button>
             )}
-            <button className="btn" onClick={home}>
+            {unsaved && (
+              <button className="btn secondary" onClick={() => void flush()}>
+                📤 {t('sendNow')}
+              </button>
+            )}
+            {remind && (
+              <>
+                <p className="hint" style={{ margin: '4px 0 0' }}>
+                  {t('homeworkReminder')}
+                </p>
+                <button className="btn secondary" onClick={() => navigate(`${base}/homework`)}>
+                  🎲 {content.homework.title}
+                </button>
+              </>
+            )}
+            <button className={canPlayOn ? 'btn quiet' : 'btn'} onClick={home}>
               {t('backHome')}
             </button>
           </div>

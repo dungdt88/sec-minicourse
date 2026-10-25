@@ -252,3 +252,12 @@ describe('L1F3 became a multi choice in content 2026-10-25.11', () => {
     expect(pickedTexts(p, dontKnow, content, t)).toEqual([]);
   });
 });
+
+describe('homework .12: H2 answer boxes follow the L3F2 picks', () => {
+  it('binds answer1/answer2 to pick 1/2', () => {
+    const fields = content.homework.capture!.H2[0];
+    expect(fields.type).toBe('repeat');
+    const byId = Object.fromEntries((fields as Extract<Part, { type: 'repeat' }>).fields.map((f) => [f.id, f.pickIndex]));
+    expect(byId).toMatchObject({ answer1: 1, answer2: 2, laughed: undefined });
+  });
+});

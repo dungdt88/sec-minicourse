@@ -35,7 +35,6 @@ export const APP_STRINGS: UiStrings = {
   addOwn: 'Thêm của con',
   // App additions
   cardOf: 'Thẻ {n}/{total}',
-  nextTime: 'Lần sau: Màn {n}',
   lockedAfter: 'Cửa này còn khóa! Con xong Màn {n} là mở nha.',
   lockedByMentor: 'Chưa mở',
   notMe: 'Không phải {name}?',
@@ -52,6 +51,9 @@ export const APP_STRINGS: UiStrings = {
   writeHere: 'Viết vào đây…',
   tooLong: 'Hơi dài rồi: {n}/{max}',
   negativeToggle: 'Bị lỗ (số âm)',
+  playOn: 'Chơi tiếp: Màn {n}',
+  nextOpen: 'Màn {n} đã mở. Chơi tiếp luôn, hay để mai cũng được!',
+  sendNow: 'Gửi bài',
   courseDone: 'Con đã xong cả {n} màn! Cảm ơn con đã cùng đội nghĩ về trò chơi.',
   rowN: 'Lần {n}',
   thousandAsk: 'Con muốn ghi {k} nghìn phải không?',

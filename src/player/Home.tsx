@@ -10,17 +10,13 @@ import { switchProfile } from './Entry';
 import { usePlayer } from './session';
 import { SavePill } from './ui';
 
+/** Levels after which the (optional) homework is suggested; content can override. */
+export const remindLevels = (remindAfterLevels: number[] | undefined) => remindAfterLevels ?? [3];
+
+/** The homework button is highlighted right after a level that suggests it (level 3 by default). */
 export function homeworkHighlighted(remindAfter: number[], completedOrders: number[]): boolean {
-  if (completedOrders.length === 0) return true; // day 1
-  const latest = Math.max(...completedOrders);
-  return remindAfter.includes(latest);
-}
-
-const localDay = (iso: string) => new Date(iso).toDateString();
-
-/** True if any level was finished today (local time): the map then says "Lần sau", not "Hôm nay". */
-export function finishedToday(completedAt: (string | null)[], now = new Date()): boolean {
-  return completedAt.some((c) => c != null && localDay(c) === now.toDateString());
+  if (completedOrders.length === 0) return false;
+  return remindAfter.includes(Math.max(...completedOrders));
 }
 
 export function Home() {
@@ -31,10 +27,9 @@ export function Home() {
   const statuses = levelStatuses(levels, state.levels);
   const today = todayLevel(levels, statuses);
   const completedOrders = levels.filter((l) => statuses.get(l.id) === 'done').map((l) => l.order);
-  const remindAfter = content.homework.remindAfterLevels ?? [1, 3];
-  const hwHighlight = homeworkHighlighted(remindAfter, completedOrders);
+  const hwHighlight = homeworkHighlighted(remindLevels(content.homework.remindAfterLevels), completedOrders);
+  const hasHomework = content.homework.items.length > 0;
   const allDone = completedOrders.length === levels.length;
-  const playedToday = finishedToday(state.levels.map((s) => s.completedAt));
 
   return (
     <main className="screen">
@@ -47,9 +42,12 @@ export function Home() {
         {preview ? <span className="save-pill saving">{t('preview')}</span> : <SavePill />}
       </div>
       <div className="topbar">
-        <button className={`icon-btn${hwHighlight ? ' highlight' : ''}`} onClick={() => navigate(`${base}/homework`)}>
-          <span aria-hidden="true">📝</span> {t('homework')}
-        </button>
+        {/* FR-P-09: labelled with the homework title, hidden when the content has none */}
+        {hasHomework && (
+          <button className={`icon-btn${hwHighlight ? ' highlight' : ''}`} onClick={() => navigate(`${base}/homework`)}>
+            <span aria-hidden="true">🎲</span> {content.homework.title}
+          </button>
+        )}
         <span className="spacer" />
         {!preview && (
           <button className="icon-btn" onClick={() => switchProfile(navigate)}>
@@ -60,7 +58,7 @@ export function Home() {
 
       {today && (
         <div className="center">
-          <span className="today-tag">{t(playedToday ? 'nextTime' : 'today', { n: today.order })}</span>
+          <span className="today-tag">{t('today', { n: today.order })}</span>
         </div>
       )}
       {allDone && (

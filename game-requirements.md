@@ -3,7 +3,7 @@
 Request for proposal — version 1.1, October 25, 2026 (replaces version 1.0)
 Owner: Richard Dam (parent mentor of the team). Contact: [email / Zalo]
 Proposals due by: [date]. Questions are welcome before then.
-Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.11)
+Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.12)
 Also supplied: `submission-map.md`, which shows which answers feed which part of the competition submission (used by FR-M-16).
 Confidential: shared for quotation only. The course content and the children's business idea belong to the team; please do not reuse or publish them.
 
@@ -11,7 +11,7 @@ Confidential: shared for quotation only. The course content and the children's b
 
 We ran the course ourselves, recorded one child explaining the idea, and checked every form question against the submission template. Please re-quote against this version.
 
-**Content (2026-10-25 → 2026-10-25.11)**
+**Content (2026-10-25 → 2026-10-25.12)**
 - **Plain language:** every card, quiz and form was rewritten in short, everyday Vietnamese. Terms such as SWOT, lời gộp/ròng, đối thủ and khả thi are gone.
 - **No SDG for the children:** they no longer see or pick a Sustainable Development Goal; the mentor picks it from their Level 1 answers. The `sdg_picker` type and the 17 SDG icons are no longer needed (now Could).
 - **Logic first:** every quiz is a situation and a decision with a visible result. The story is consistent across levels.
@@ -29,6 +29,8 @@ We ran the course ourselves, recorded one child explaining the idea, and checked
 - **Links between answers in the content file (from .10):** `context`, `optionsFrom`, `copyFrom`, `showAnswer` and `rowLabel` (Appendix C), so no link is tied to a question id in code.
 - **Submission map in the content file (from .10):** a top-level `submission` list (FR-M-16, Appendix F). Version .10 is version .9 plus these fields; the children see no difference.
 - **L1F3 is a multiple choice (from .11):** "giúp các bạn những điều gì?", 1–3 picks out of 8 options plus "Khác". L1F4 now asks why for "những điều đó"; its `context` shows all picks.
+- **Homework reduced to one optional task (from .12):** the children have enough school homework. Only H2 remains: playtest the paper draft with 3 friends at school, ticks only, with an optional "what to change" box for parents. Its title, "Chơi thử với bạn", replaces "Bài về nhà" in the UI. H1, H3, H4 and H5 and the L6F2 `copyFrom` link are gone; parents check prices themselves.
+- **Play on after a level (from .12):** the level complete screen leads with a big "Chơi tiếp: Màn n+1" button (FR-P-28).
 
 **Look and feel**
 - **Light theme:** a soft, light pastel theme that stays light when the phone is in dark mode.
@@ -90,9 +92,9 @@ The data model should allow more than one team (see FR-M-12), because other team
 
 ## 5. Scope
 
-**In scope (MVP, "Must").** Player app for 7 levels with cards, quiz, forms; profiles and PINs; progress saved and resumable; homework sheet view and print; mentor console with progress, answers, compare view, exports; content loaded from the JSON file; hosting set up on the client's account; handover of source code and documentation.
+**In scope (MVP, "Must").** Player app for 7 levels with cards, quiz, forms; profiles and PINs; progress saved and resumable; optional playtest sheet view and print; mentor console with progress, answers, compare view, exports; content loaded from the JSON file; hosting set up on the client's account; handover of source code and documentation.
 
-**Should.** In-app capture of homework results; read-aloud audio for cards; stickers and small rewards; content preview mode; Zoom vote-sheet generator.
+**Should.** In-app capture of playtest results; read-aloud audio for cards; stickers and small rewards; content preview mode; Zoom vote-sheet generator.
 
 **Could.** Offline (PWA) play; multi-team UI; a second UI language; Google Sheet import for content.
 
@@ -109,7 +111,7 @@ Source of truth: `content/course-content.json`. The numbers below describe versi
 | Concept cards | 28 (4 per level) | Short sentences (about 7 words). Several cards have a bullet list and/or a footer line. Key terms carry the English word in brackets. The UI calls them "Thẻ truyện". |
 | Quiz questions | 28 (4 per level) | 3 options, exactly one correct, one explanation. Correct answer positions in the file: a 7, b 13, c 8. The app must shuffle option order on every play. |
 | Form questions ("Đến lượt đội con") | 27 (3–4 per level) | 7 input types in use, see Appendix B. Every question has a "Chưa biết" (don't know) escape. |
-| Homework items | 5 | One printable sheet handed out on day 1. Optional in-app capture (Should). |
+| Homework items | 1 | One optional task, "Chơi thử với bạn" (playtest with 3 friends at school, ticks only). Printable; optional in-app capture (Should). The app handles any number of items. |
 | Characters | 4 + mascot | Sóc Hạt Dẻ (squirrel, maker), Gấu Mật (bear, keeps the money, loves honey), Thỏ Bông (rabbit, seller), Cú Mèo (owl, "what if…?"). The mascot Drắc Nhí is UI art only and does not appear in the story (DR-08). |
 | SDG list | 17 | Titles and captions stay in the file for the mentor's reference. The children never see them; no icons are needed. |
 | UI strings | 31 | Vietnamese, supplied in the file, including four lists of short feedback lines to pick from at random. The vendor may propose additions. |
@@ -139,7 +141,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-06 | The next available level is visually highlighted ("Hôm nay: Màn 3"). | M |
 | FR-P-07 | Progress is saved server-side per profile at the granularity of a single card, quiz question or form question, so a child who stops mid-level resumes at the same place on any device. The two-sitting pattern (cards + quiz today, form tomorrow) must work. | M |
 | FR-P-08 | Each completed level awards a sticker or badge shown on the map. No points, no lives, no timers, no "game over", no comparison between children. | S |
-| FR-P-09 | A persistent, small "Bài về nhà" button opens the homework sheet (FR-P-26). It is highlighted on day 1 and after level 3. | M |
+| FR-P-09 | A small button on the map, labelled with `homework.title` ("Chơi thử với bạn"), opens the homework (FR-P-26). Hidden if the content has no homework. | M |
 
 ### 7.3 Level intro and cards
 
@@ -168,12 +170,12 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-20 | One question per screen, with the level's intro line where the content provides one, and the hint text in smaller type. Multi-part questions (e.g. a choice plus "Vì sao?") show their parts on one screen in order. | M |
 | FR-P-21 | The eight input types in Appendix B are implemented with the validation rules given there. Every question has a "Chưa biết" option that satisfies the question; it is always the last option and visually quieter. | M |
 | FR-P-22 | Each answer is autosaved on change with a timestamp. A review screen at the end lists all answers of the level with an "Sửa" (edit) link per question, then "Nộp phiếu". After submission the child can still edit until the mentor locks the level; every edit is kept as a new version. | M |
-| FR-P-23 | Links between answers, driven by content fields (Appendix C), never by question ids in code. In the current content: `context` makes L1F4 show the choice from L1F3 ("Ở câu trước con chọn: …") and L5F2 show the price from L4F2 and the cost from L5F1, read-only. `copyFrom` makes L6F2 offer to copy the material prices from homework H4 (filling empty rows only, never overwriting). `optionsFrom` makes L7F2a list only the tasks ticked or added in L7F1 (plus "Khác"). `showAnswer` makes homework H2 show the two questions chosen in L3F2. | S |
+| FR-P-23 | Links between answers, driven by content fields (Appendix C), never by question ids in code. In the current content: `context` makes L1F4 show the picks from L1F3 ("Ở câu trước con chọn: …", hidden when there are none) and L5F2 show the price from L4F2 and the cost from L5F1, read-only. `copyFrom` (offer to copy homework rows into an item list, filling empty rows only) stays supported but is unused since .12. `optionsFrom` makes L7F2a list only the tasks ticked or added in L7F1 (plus "Khác"). `showAnswer` makes homework H2 show the two questions chosen in L3F2. | S |
 | FR-P-24 | Text inputs accept the device's own Vietnamese keyboard and dictation; no custom keyboard. Maximum lengths from the content file are enforced softly (counter), not with a blocking error. Under the first text field of each question, a one-line tip tells parents to use the keyboard's microphone for voice typing. A part's `placeholder` (a sentence starter) is shown in the empty field. | M |
 | FR-P-25 | The app never prefills, suggests, ranks or autocompletes form answers, and never shows another child's answers to a child. | M |
-| FR-P-26 | Homework sheet: a screen that renders the five items from the content file, plus a "In" (print or save as PDF) action producing an A4 sheet with tick boxes for items 2 and 3 and a price table for item 4. | M |
-| FR-P-27 | In-app homework capture using the `capture` definitions in the content file (item list, repeat groups, checkboxes, tallies, text). Saved per profile like form answers. | S |
-| FR-P-28 | Level complete screen: sticker, `ui.levelDone` ("Hú hú! Xong Màn {n}!"), the characters cheering, and a homework reminder after levels 1 and 3. | M |
+| FR-P-26 | Homework screen: renders the items from the content file (currently one; no number badge when there is only one), plus an "In" (print or save as PDF) action producing an A4 sheet with a tick table per friend and lines for "what to change". | M |
+| FR-P-27 | In-app homework capture using the `capture` definitions in the content file (repeat groups, checkboxes, text; item lists and tallies stay supported). The two answer boxes per friend appear only for the questions the child chose in L3F2 (`showAnswer`); the ticks work without them. Saved per profile like form answers. | S |
+| FR-P-28 | Level complete screen: sticker, `ui.levelDone` ("Hú hú! Xong Màn {n}!"), the characters cheering, and the line "Màn n+1 đã mở. Chơi tiếp luôn, hay để mai cũng được!". The first and largest button is "Chơi tiếp: Màn n+1", which opens the next level's intro. It is followed by "Gửi bài" when answers are only on the device, the optional playtest (`ui.homeworkReminder`, after level 3 only), and "Về bản đồ". After the last level, "Về bản đồ" is the main button. | M |
 
 ## 8. Functional requirements — mentor console
 
@@ -314,14 +316,14 @@ We will score proposals as follows:
 ## Appendix A — Screen flow
 
 ```
-Profile picker → PIN → Home (level map, homework button)
+Profile picker → PIN → Home (level map, "Chơi thử với bạn" button)
   → Level intro (objectives collapsed)
     → Card 1 … Card n (Next/Back, read-aloud)
     → Quiz Q1 … Qn (tap → feedback + explanation → Next)
     → Quiz end (candies)
     → Form intro (if any) → Form Q1 … Qn (autosave) → Review → Submit
-    → Level complete (sticker, homework reminder) → Home
-Homework sheet (view, print, optional capture)
+    → Level complete (sticker) → "Chơi tiếp: Màn n+1" → next level intro, or → Home
+"Chơi thử với bạn" (optional playtest: view, print, capture)
 Mentor console: Login → Dashboard → Profiles | Levels | Quiz results | Form answers | Compare | Exports | Content | Settings
 ```
 
@@ -338,18 +340,18 @@ Common to all parts:
 - **A question made only of text parts** cannot be passed empty: at least one must be filled, or the question answered "Chưa biết". The app says so with a short message ("Con trả lời một chút, hoặc bấm \"Chưa biết\" nhé.").
 - **Every question** therefore ends up with an answer or a "Chưa biết"; nothing is skipped silently.
 
-| Type | Behaviour and validation | Used in (content 2026-10-25.11) |
+| Type | Behaviour and validation | Used in (content 2026-10-25.12) |
 | --- | --- | --- |
 | `text` | Text area; `maxLength` soft limit with counter; device keyboard and dictation. | L1F1a (required, placeholder), L1F2 (placeholder), L1F4 (placeholder), L2F1b, L2F3a, L2F4b (placeholder), L3F4a, L3F4b, L4F1b, L4F2b, L6F1b, L6F3b, L6F4b, L7F2b, L7F3a, L7F3b |
 | `single_choice` | Large option tiles; exactly one; an option with `allowText: true` ("Khác") reveals a short text field. | L1F1b, L2F1a, L2F3b, L3F1a, L3F1b, L4F1a, L7F2a, L7F2c |
 | `multi_choice` | Tick tiles; `min` and optional `max` enforced with a clear message ("Chọn nhiều nhất 2"); `allowAddOwn` lets the child add their own options as removable chips. | L1F3 (max 3), L2F2, L2F4a (add own), L3F3edge (add own), L4F3, L4F4, L5F3a, L6F3a (max 2), L7F1 (add own), L7F4 |
 | `number` | Numeric keypad; integer; unit label ("nghìn đồng"); `min`/`max`. Negative allowed only where `min` is negative (L5F2, with a +/− toggle). Amounts typed as full đồng (e.g. 12000) trigger a hint offering 12 nghìn. | L4F2a, L5F1, L5F2, L5F3b (optional), L6F1a |
-| `pick_n` | Tick exactly `n` options; options may carry `leading: true` with a `feedback` string shown once, gently, when ticked; the child may keep the choice. The chosen texts are reused on the homework sheet. | L3F2 |
+| `pick_n` | Tick exactly `n` options; options may carry `leading: true` with a `feedback` string shown once, gently, when ticked; the child may keep the choice. The chosen texts are reused on the playtest sheet. | L3F2 |
 | `item_list` | Grouped list of rows. A row has a `name`, an optional `price` (with a running total if `showTotal`), and any further `fields` as short text inputs. A row with extra fields is shown as its own numbered card ("Thứ 1"). `minRows` rows are shown from the start. Add/remove rows up to `maxItemsPerGroup`. Rows are stored without gaps; empty rows are ignored in review and exports. | L3F3list (name, good, bad; minRows 3), L6F2 (3 groups, price, total) |
 | `sum_split` | Numeric fields that must add up to `total`; running total shown; continue disabled until exact; a field with `allowText` has a short text beside it ("Ghi tên việc"). | L6F4a |
 | `sdg_picker` | Grid of 17 goals; one selection. Not used by the current content; keep only if it costs nothing (Could). | — |
 
-Homework capture (Should) adds `repeat`, `checkbox` and `tally` field types as defined in `homework.capture`.
+Homework capture (Should) adds `repeat`, `checkbox` and `tally` field types as defined in `homework.capture` (the current content uses `repeat`, `checkbox` and `text`).
 
 ## Appendix C — Content file overview
 
@@ -371,10 +373,12 @@ levels[]       {id, order, title, name, objectives[2–3], cards[], quiz[], form
       context[]     {questionId, partId}: earlier answers shown above the question
       (on a part) optionsFrom {questionId, partId}: offer only the options chosen there
       (on a part) copyFrom {homeworkId, fieldId, groupId, toGroupId}: offer to copy homework rows
+                    (supported; not used since .12)
 homework.items[].showAnswer {questionId, partId}: show that answer on the item
 homework.capture.*[].rowLabel   label of repeated rows, {n} = row number ("Bạn {n}")
 submission[]  {part, section, questionIds[], homeworkIds[]?, note?}: the submission map (FR-M-16)
-homework{}     {title, intro, items[5]{id, order, text}, capture{H1..H5}, printable}
+homework{}     {title, intro, items[]{id, order, text, showAnswer?}, capture{<item id>: [...]}, printable}
+               (since .12: one item, H2 "Chơi thử với bạn")
 zoom{}         informational only (agenda for the mentor); inApp: false
 ```
 
@@ -419,7 +423,7 @@ Provided in `ui{}` of the content file. The main ones:
 - **Navigation:** Tiếp · Quay lại · Vào màn thôi! · Chơi tiếp nào! · Chơi lại.
 - **Choices and forms:** Chưa biết · Khác · Nộp phiếu thôi! · Đã lưu · Đến lượt đội con · Thêm của con.
 - **Sections:** Thẻ truyện · Câu đố.
-- **Parent hints:** Bố mẹ đọc thẻ cho con nghe nhé · Con nói, bố mẹ gõ cũng được · Nhớ Bài về nhà nhé · Mục tiêu (cho bố mẹ).
+- **Parent hints:** Bố mẹ đọc thẻ cho con nghe nhé · Con nói, bố mẹ gõ cũng được · Khi đội có bản nháp, giờ ra chơi rủ 3 bạn chơi thử nhé (`homeworkReminder`) · Mục tiêu (cho bố mẹ).
 - **Titles:** Hú hú! Xong Màn {n}! · Ai tới chơi đây? · Nhập mã bí mật của con.
 - **Validation:** Cộng lại phải đúng {total} · Chọn đúng {n} câu.
 - **Feedback lists:**
@@ -443,7 +447,7 @@ Strings the app adds itself, in the same register:
 | Câu đố | Quiz question; 3 options, one correct, explanation |
 | Đến lượt đội con | "Your team's turn": the per-level form about the children's own game |
 | Chưa biết | "Don't know yet": the escape option on every form question |
-| Bài về nhà | The homework sheet: paper prototype, playtest, recess tick sheet, prices, what to change |
+| Chơi thử với bạn | The one optional homework task: 3 friends play the paper draft at school; the child ticks laughed / finished / wants to play again |
 | Drắc Nhí | The mascot: a friendly baby Dracula who reacts to quiz answers (seasonal skin) |
 | Mentor | The parent who runs the course and writes up the submission |
 | SDG | UN Sustainable Development Goals; one is ticked on the submission by the mentor, not by the children |
@@ -455,16 +459,16 @@ Strings the app adds itself, in the same register:
 | Template section | Question ids |
 | --- | --- |
 | Idea | L1F1, L2F4, L4F1, L3F1 |
-| Problem or need | L1F2, L1F3, L1F4, H3 |
+| Problem or need | L1F2, L1F3, L1F4 |
 | Why it will work | L2F1, L2F2, L2F3, L3F4a, L5F2, L6F2, H2 |
-| Start-up capital and budget | L6F2, L6F3, H4 |
+| Start-up capital and budget | L6F2, L6F3 (prices checked by parents) |
 | Profit sharing (and use of money) | L6F4 |
-| Customers and research | L3F1, L3F2, L2F1, H2, H3, H5 |
+| Customers and research | L3F1, L3F2, L2F1, H2 (optional) |
 | Competitors (at least 3) | L3F3 |
 | SWOT | L3F4, L2F2, L7F3 (+ Zoom) |
-| Operational plan, organogram, rotation | L7F1, L7F2, H1 (+ Zoom) |
+| Operational plan, organogram, rotation | L7F1, L7F2 (+ Zoom) |
 | 4Ps | Product L1F1, L2F4, L4F1 · Price L4F2 · Place L4F3 · Promotion L4F4 |
-| Financial plan | L6F1, L4F2, L5F1, L5F3, H1, H4 |
+| Financial plan | L6F1, L4F2, L5F1, L5F3 |
 | Safety (teacher section) | L7F4, L2F3a |
 
 From content .10 the same map is in the content file as the top-level `submission` list; FR-M-16 reads it from there, so a new template only needs a content upload.

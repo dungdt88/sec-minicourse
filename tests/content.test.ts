@@ -21,7 +21,7 @@ describe('content validation', () => {
     expect(original.levels.flatMap((l) => l.cards)).toHaveLength(28);
     expect(original.levels.flatMap((l) => l.quiz)).toHaveLength(28);
     expect(original.levels.flatMap((l) => l.form.questions)).toHaveLength(27);
-    expect(original.homework.items).toHaveLength(5);
+    expect(original.homework.items).toHaveLength(1); // .12: only the optional playtest (H2)
     expect(original.sdg).toHaveLength(17);
   });
 
@@ -74,7 +74,7 @@ describe('content validation', () => {
 
   it('rejects homework capture for an item that does not exist', () => {
     const c = copy();
-    c.homework.capture!.H9 = c.homework.capture!.H5;
+    c.homework.capture!.H9 = c.homework.capture!.H2;
     expect(errorsOf(c).some((e) => e.id === 'H9')).toBe(true);
   });
 

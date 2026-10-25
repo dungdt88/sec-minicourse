@@ -76,10 +76,15 @@ test('1, 6, 16: a child completes level 1 on a phone', async ({ browser }) => {
   await expect(page.getByText('Chưa biết')).toBeVisible();
   await page.locator('.bottom-actions .btn').click(); // "Nộp phiếu thôi!"
   await expect(page.getByRole('heading', { name: 'Hú hú! Xong Màn 1!' })).toBeVisible();
-  await expect(page.getByText('Nhớ Bài về nhà nhé')).toBeVisible();
+  // FR-P-28: play on — the next level leads, the map is the quiet way out
+  await expect(page.getByText('Màn 2 đã mở. Chơi tiếp luôn, hay để mai cũng được!')).toBeVisible();
+  await expect(page.locator('.bottom-actions .btn').first()).toHaveText(/Chơi tiếp: Màn 2/);
   await waitSaved(page);
-  await page.locator('.btn', { hasText: 'Về bản đồ' }).click();
-  await expect(page.getByText('Lần sau: Màn 2')).toBeVisible(); // finished a level today
+  await page.getByRole('button', { name: /Chơi tiếp: Màn 2/ }).click();
+  await expect(page.locator('h1.big-title')).toContainText('Màn 2');
+  await expect(page.locator('.info-chip').first()).toBeVisible(); // a fresh intro, not the done screen
+  await page.getByRole('button', { name: 'Về bản đồ' }).first().click();
+  await expect(page.getByText('Hôm nay mình chơi: Màn 2')).toBeVisible();
   await expect(page.locator('.map-node', { hasText: 'Màn 3:' })).toContainText('Cửa này còn khóa! Con xong Màn 2 là mở nha.');
   await ctx.close();
 });
@@ -177,6 +182,26 @@ test('5, 17: a leading question gets gentle feedback once; L3F3 rows without gap
   await expect(review).not.toContainText('3)');
   await waitSaved(page);
   await ctx.close();
+});
+
+test('FR-P-26/27: the one optional playtest; answer boxes only for the questions picked in L3F2', async ({ browser }) => {
+  // Chi picked two questions in L3F2 (test 5 above).
+  const chi = await kidPage(browser, 'Chi');
+  await chi.page.getByRole('button', { name: 'Chơi thử với bạn' }).click();
+  await expect(chi.page.locator('.hw-item .num')).toHaveCount(0); // a single item has no number badge
+  await expect(chi.page.locator('.context-box')).toContainText('Giờ ra chơi bạn thích làm gì?');
+  await chi.page.getByRole('button', { name: /Ghi kết quả/ }).click();
+  await expect(chi.page.getByLabel(/Trả lời câu hỏi 1: .*Giờ ra chơi bạn thích làm gì/)).toBeVisible();
+  await expect(chi.page.getByLabel(/Trả lời câu hỏi 2: .*board game/)).toBeVisible();
+  await expect(chi.page.getByRole('checkbox', { name: 'Cười' })).toBeVisible();
+  await chi.ctx.close();
+  // Dũng has not reached Level 3: ticks show, answer boxes do not.
+  const dung = await kidPage(browser, 'Dũng');
+  await dung.page.getByRole('button', { name: 'Chơi thử với bạn' }).click();
+  await dung.page.getByRole('button', { name: /Ghi kết quả/ }).click();
+  await expect(dung.page.getByRole('checkbox', { name: 'Cười' })).toBeVisible();
+  await expect(dung.page.getByLabel(/Trả lời câu hỏi/)).toHaveCount(0);
+  await dung.ctx.close();
 });
 
 test('4, 6, 18: L6F4 adds up to 100 and nudges "Vì sao" once; L5F3 amount is optional', async ({ browser }) => {

@@ -157,6 +157,8 @@ export interface RepeatField {
   type: 'checkbox' | 'tally' | 'text' | 'number';
   label: string;
   maxLength?: number;
+  /** Shown only when the item's showAnswer has a pick at this position (H2 answer boxes ← L3F2). */
+  pickIndex?: number;
 }
 
 /** Homework capture only. */
