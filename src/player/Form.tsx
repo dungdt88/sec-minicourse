@@ -6,7 +6,7 @@ import { checkPart, formatPart, withColon, type PartAnswer } from '../domain/ans
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
-import { RichText } from './ui';
+import { HintBanner, RichText } from './ui';
 
 const TEXT_DEBOUNCE_MS = 600;
 
@@ -133,6 +133,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         </h1>
         {question.hint && <p className="hint">{question.hint}</p>}
       </div>
+      {!readOnly && question.parts.some((p) => p.type === 'text') && <HintBanner id="dictation" text={t('dictationTip')} />}
       {readOnly && <p className="notice lock">{t('formLocked')}</p>}
       {notice && (
         <p className="notice lock" role="alert" onClick={clearNotice}>

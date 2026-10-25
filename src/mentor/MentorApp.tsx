@@ -137,7 +137,7 @@ const NAV: [string, string][] = [
 ];
 
 function Shell({ children }: { children: React.ReactNode }) {
-  const { session, api } = useMentor();
+  const { session, api, refresh } = useMentor();
   return (
     <div className="m-shell">
       <nav className="m-nav" aria-label="Mentor">
@@ -147,6 +147,9 @@ function Shell({ children }: { children: React.ReactNode }) {
             {label}
           </NavLink>
         ))}
+        <button className="m-btn" style={{ margin: '8px 10px 0', alignSelf: 'flex-start' }} onClick={() => void refresh()}>
+          ↻ Làm mới
+        </button>
         <div className="who">
           {session.email}
           <br />
@@ -200,6 +203,15 @@ export default function MentorApp() {
 
   useEffect(() => {
     if (session) void refresh();
+  }, [session, refresh]);
+
+  // The console is not live: reload when the mentor comes back to the tab (e.g. after the
+  // children played), and from the "Làm mới" button.
+  useEffect(() => {
+    if (!session) return;
+    const onVisible = () => document.visibilityState === 'visible' && void refresh();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [session, refresh]);
 
   if (error) return <main className="m-login"><p className="m-error">{error}</p></main>;

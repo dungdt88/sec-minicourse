@@ -76,6 +76,7 @@ function vietnameseVoice(): SpeechSynthesisVoice | null {
 export function ReadAloud({ card }: { card: Card }) {
   const { t } = usePlayer();
   const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(vietnameseVoice);
   const audio = useRef<HTMLAudioElement | null>(null);
 
@@ -107,7 +108,10 @@ export function ReadAloud({ card }: { card: Card }) {
       audio.current ??= new Audio(`/${card.audio}`);
       audio.current.onended = () => setPlaying(false);
       audio.current.currentTime = 0;
-      void audio.current.play();
+      audio.current.play().catch(() => {
+        setPlaying(false);
+        setFailed(true);
+      });
     } else if (voice) {
       const text = [card.title, card.body, ...(card.bullets ?? []), card.footer ?? ''].join('. ');
       const u = new SpeechSynthesisUtterance(text);
@@ -115,12 +119,23 @@ export function ReadAloud({ card }: { card: Card }) {
       u.lang = voice.lang;
       u.rate = 0.9;
       u.onend = () => setPlaying(false);
+      u.onerror = () => {
+        setPlaying(false);
+        setFailed(true);
+      };
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     }
     setPlaying(true);
   };
 
+  if (failed) {
+    return (
+      <span className="small-text muted" role="status" style={{ maxWidth: 220, textAlign: 'right' }}>
+        {t('readAloudFailed')}
+      </span>
+    );
+  }
   return (
     <button className="icon-btn" onClick={playing ? stop : play} aria-pressed={playing}>
       <span aria-hidden="true">{playing ? '⏸' : '🔊'}</span> {playing ? t('pause') : t('readAloud')}

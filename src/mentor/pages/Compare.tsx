@@ -2,7 +2,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatPart, isComparable } from '../../domain/answers';
-import { activeProfiles, asPartAnswer, compareRows, voteLines } from '../derive';
+import type { Profile } from '../../api/types';
+import type { Translate } from '../../content/strings';
+import type { CourseContent } from '../../content/types';
+import { activeProfiles, asPartAnswer, compareRows, voteLines, type CompareRow } from '../derive';
 import { useMentor } from '../MentorApp';
 
 export function ComparePage() {
@@ -64,8 +67,19 @@ export function ComparePage() {
   );
 }
 
+/** Plain-text vote list for pasting into Zoom chat, Zalo or meeting notes. */
+export function voteSheetText(rows: CompareRow[], profiles: Profile[], content: CourseContent, t: Translate): string {
+  return rows
+    .map((r, i) => {
+      const head = `${i + 1}. ${r.question.prompt}${r.part.label ? ` (${r.part.label})` : ''}`;
+      const lines = voteLines(r, profiles, content, t).map((l) => `   - ${l.label}${l.who.length ? ` (${l.who.join(', ')})` : ''}: ___ phiếu`);
+      return [head, ...lines].join('\n');
+    })
+    .join('\n\n');
+}
+
 export function ZoomSheetPage() {
-  const { data, active, t } = useMentor();
+  const { data, active, t, notify } = useMentor();
   const profiles = activeProfiles(data);
   const flagged = compareRows(active, data).filter((r) => r.flagged);
   return (
@@ -76,6 +90,20 @@ export function ZoomSheetPage() {
         </Link>
         <button className="m-btn primary" onClick={() => window.print()}>
           🖨️ In
+        </button>
+        <button
+          className="m-btn"
+          disabled={!flagged.length}
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(voteSheetText(flagged, profiles, active, t));
+              notify('Đã sao chép. Dán vào khung chat Zoom hoặc Zalo.');
+            } catch {
+              notify('Trình duyệt không cho sao chép. Hãy chọn và sao chép bằng tay.');
+            }
+          }}
+        >
+          📋 Sao chép nội dung bỏ phiếu
         </button>
       </div>
       <h1>Tờ bỏ phiếu</h1>

@@ -979,3 +979,19 @@ details.objectives summary {
   align-items: center;
   justify-content: center;
 }
+
+/* Laptops: frame the phone-width column like a page of a picture book. */
+@media screen and (min-width: 900px) {
+  html,
+  body {
+    background: #f1e6d3;
+  }
+  .screen {
+    margin: 24px auto;
+    min-height: calc(100dvh - 48px);
+    background: var(--paper);
+    border-radius: 28px;
+    box-shadow: 0 2px 0 rgba(59, 47, 42, 0.06), 0 16px 48px rgba(59, 47, 42, 0.14);
+    padding: 20px 28px 28px;
+  }
+}

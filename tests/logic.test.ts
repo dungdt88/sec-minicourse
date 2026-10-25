@@ -5,6 +5,8 @@ import { levelStatuses, todayLevel } from '../src/domain/progress';
 import { WriteQueue } from '../src/api/queue';
 import { ApiError, type LevelState, type Mutation, type PlayerApi, type TeamData } from '../src/api/types';
 import { compareRows } from '../src/mentor/derive';
+import { voteSheetText } from '../src/mentor/pages/Compare';
+import { makeT } from '../src/content/strings';
 import type { CourseContent } from '../src/content/types';
 import { finishedToday, homeworkHighlighted } from '../src/player/Home';
 
@@ -128,5 +130,25 @@ describe('compare view', () => {
   it('does not flag agreement or a single answer', () => {
     expect(row(data([answer('p1', { optionId: 'a' }), answer('p2', { optionId: 'a' })])).flagged).toBe(false);
     expect(row(data([answer('p1', { optionId: 'a' })])).flagged).toBe(false);
+  });
+});
+
+describe('Zoom vote sheet as text', () => {
+  it('lists each flagged question with its options, who chose them and a blank for votes', () => {
+    const answer = (profileId: string, optionId: string) => ({
+      id: profileId, teamId: 't', profileId, contentVersionId: 'c', levelId: 'L4', questionId: 'L4F1', partId: 'a',
+      value: { optionId }, dontKnow: false, version: 1, editSession: 's', deviceType: 'phone' as const, createdAt: '', updatedAt: '',
+    });
+    const data: TeamData = {
+      profiles: ['An', 'Bình'].map((id, i) => ({ id, teamId: 't', displayName: id, avatar: '', archivedAt: null, createdAt: String(i) })),
+      levelStates: [], attempts: [], timings: [], contentVersions: [],
+      answers: [answer('An', 'a'), answer('Bình', 'b')] as TeamData['answers'],
+    };
+    const flagged = compareRows(content, data).filter((r) => r.flagged);
+    const text = voteSheetText(flagged, data.profiles, content, makeT(content.ui));
+    expect(text).toContain('1. Đội bán gì? Vì sao?');
+    expect(text).toContain('- Bộ trò chơi để mang về (An): ___ phiếu');
+    expect(text).toContain('- Vé chơi tại chỗ (Bình): ___ phiếu');
+    expect(text).toContain('- Cả hai: ___ phiếu');
   });
 });

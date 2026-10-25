@@ -54,6 +54,8 @@ export const APP_STRINGS: UiStrings = {
   thousandNo: 'Không, là {v} nghìn',
   rereadCards: 'Xem lại thẻ',
   backToForm: 'Về phiếu',
+  readAloudFailed: 'Máy chưa đọc được tiếng Việt. Bố mẹ đọc cho con nghe nhé.',
+  dictationTip: 'Mẹo cho bố mẹ: bấm nút micro 🎤 trên bàn phím điện thoại, con nói và máy tự gõ.',
   missingPart: 'Phần này con chưa trả lời.',
   requiredHint: 'Con viết thêm phần “{label}” nhé.',
   missingHint: 'Còn phần chưa xong. Không biết thì chọn “Chưa biết” nhé.',
