@@ -180,7 +180,6 @@ supabase/migrations/   tables, RLS, server functions
   purpose: no ranking, no per-child scores or order, never another child's answers (FR-P-25). Only
   names, avatars, completed levels and the team's candy total leave the server
   (`player_team_progress`). The mentor can switch it off in Cài đặt (`teams.settings.teamProgress`).
-  This relaxes FR-P-08 ("no comparison between children") in a limited way; see the note below.
 - **Trial-run reset (FR-M-15).** Cài đặt → "Xoá kết quả chạy thử": export first, then answers,
   attempts, timings and progress are deleted; profiles, PINs, level locks and settings stay.
   `teams.data_epoch` goes up by one; every write carries the epoch it was made in, and the server
