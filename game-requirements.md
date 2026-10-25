@@ -3,7 +3,7 @@
 Request for proposal — version 1.1, October 25, 2026 (replaces version 1.0)
 Owner: Richard Dam (parent mentor of the team). Contact: [email / Zalo]
 Proposals due by: [date]. Questions are welcome before then.
-Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.13)
+Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.14)
 Also supplied: `submission-map.md`, which shows which answers feed which part of the competition submission (used by FR-M-16).
 Confidential: shared for quotation only. The course content and the children's business idea belong to the team; please do not reuse or publish them.
 
@@ -11,7 +11,7 @@ Confidential: shared for quotation only. The course content and the children's b
 
 We ran the course ourselves, recorded one child explaining the idea, and checked every form question against the submission template. Please re-quote against this version.
 
-**Content (2026-10-25 → 2026-10-25.13)**
+**Content (2026-10-25 → 2026-10-25.14)**
 - **Plain language:** every card, quiz and form was rewritten in short, everyday Vietnamese. Terms such as SWOT, lời gộp/ròng, đối thủ and khả thi are gone.
 - **No SDG for the children:** they no longer see or pick a Sustainable Development Goal; the mentor picks it from their Level 1 answers. The `sdg_picker` type and the 17 SDG icons are no longer needed (now Could).
 - **Logic first:** every quiz is a situation and a decision with a visible result. The story is consistent across levels.
@@ -175,7 +175,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-24 | Text inputs accept the device's own Vietnamese keyboard and dictation; no custom keyboard. Maximum lengths from the content file are enforced softly (counter), not with a blocking error. Under the first text field of each question, a one-line tip tells parents to use the keyboard's microphone for voice typing. A part's `placeholder` (a sentence starter) is shown in the empty field. | M |
 | FR-P-25 | The app never prefills, suggests, ranks or autocompletes form answers, and never shows another child's answers to a child. | M |
 | FR-P-26 | Homework screen: renders the items from the content file (currently one; no number badge when there is only one), plus an "In" (print or save as PDF) action producing an A4 sheet with a tick table per friend and lines for "what to change". | M |
-| FR-P-27 | In-app homework capture using the `capture` definitions in the content file (repeat groups, checkboxes, text; item lists and tallies stay supported). The two answer boxes per friend appear only for the questions the child chose in L3F2 (`showAnswer`); the ticks work without them. Saved per profile like form answers. | S |
+| FR-P-27 | In-app homework capture using the `capture` definitions in the content file (repeat groups, checkboxes, text; item lists and tallies stay supported). The answer boxes per friend carry `pickIndex` and appear only for the questions the child chose in L3F2 (`showAnswer`); the ticks work without them. Saved per profile like form answers. | S |
 | FR-P-28 | Level complete screen: sticker, `ui.levelDone` ("Hú hú! Xong Màn {n}!"), the characters cheering, and the line "Màn n+1 đã mở. Chơi tiếp luôn, hay để mai cũng được!". The first and largest button is "Chơi tiếp: Màn n+1", which opens the next level's intro. It is followed by "Gửi bài" when answers are only on the device, the optional playtest (`ui.homeworkReminder`, after level 3 only), and "Về bản đồ". After the last level, "Về bản đồ" is the main button. | M |
 
 ## 8. Functional requirements — mentor console
@@ -341,7 +341,7 @@ Common to all parts:
 - **A question made only of text parts** cannot be passed empty: at least one must be filled, or the question answered "Chưa biết". The app says so with a short message ("Con trả lời một chút, hoặc bấm \"Chưa biết\" nhé.").
 - **Every question** therefore ends up with an answer or a "Chưa biết"; nothing is skipped silently.
 
-| Type | Behaviour and validation | Used in (content 2026-10-25.13) |
+| Type | Behaviour and validation | Used in (content 2026-10-25.14) |
 | --- | --- | --- |
 | `text` | Text area; `maxLength` soft limit with counter; device keyboard and dictation. | L1F1a (required, placeholder), L1F2 (placeholder), L1F4 (placeholder), L2F1b, L2F3a, L2F4b (placeholder), L3F4a, L3F4b, L4F1b, L4F2b, L6F1b, L6F3b, L6F4b, L7F2b, L7F3a, L7F3b |
 | `single_choice` | Large option tiles; exactly one; an option with `allowText: true` ("Khác") reveals a short text field. | L1F1b, L2F1a, L2F3b, L3F1a, L3F1b, L4F1a, L7F2a, L7F2c |
@@ -377,6 +377,8 @@ levels[]       {id, order, title, name, objectives[2–3], cards[], quiz[], form
                     (supported; not used since .12)
 homework.items[].showAnswer {questionId, partId}: show that answer on the item
 homework.capture.*[].rowLabel   label of repeated rows, {n} = row number ("Bạn {n}")
+homework.capture.*[].fields[].pickIndex   n: show this field only if the item's showAnswer has an n-th pick;
+               label it "Trả lời câu hỏi n: <that question>" (from .14)
 submission[]  {part, section, questionIds[], homeworkIds[]?, note?}: the submission map (FR-M-16)
 homework{}     {title, intro, items[]{id, order, text, showAnswer?}, capture{<item id>: [...]}, printable}
                (since .12: one item, H2 "Chơi thử với bạn")
