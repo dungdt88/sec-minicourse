@@ -4,7 +4,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // Local Supabase behind the dev server, so phones on the same Wi-Fi reach it through one
+    // address (VITE_SUPABASE_URL=/sb in .env.development).
+    proxy: { '/sb': { target: 'http://127.0.0.1:54321', changeOrigin: true, rewrite: (p) => p.replace(/^\/sb/, '') } },
+  },
   build: {
     rollupOptions: {
       output: {

@@ -25,7 +25,8 @@ async function supabaseClient() {
   const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
   if (!url || !key) throw new Error('VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set (see .env.example)');
-  return makeClient(url, key);
+  // A path such as "/sb" means "through this server" (the dev proxy), whatever address it is opened on.
+  return makeClient(new URL(url, location.origin).toString().replace(/\/$/, ''), key);
 }
 
 export function playerApi(): Promise<PlayerApi> {
