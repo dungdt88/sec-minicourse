@@ -120,7 +120,14 @@ function LevelScreen({ levelId }: { levelId: string }) {
       go({ step: 'review', index: 0 });
     } else go(steps[Math.min(pos + 1, steps.length - 1)]);
   };
-  const back = () => go(steps[Math.max(pos - 1, 0)]);
+  // Editing one answer from the review: both Back and Next lead back to the review, never into
+  // the quiz (which would add attempts).
+  const back = () => {
+    if (returnToReview.current && pointer.step === 'form') {
+      returnToReview.current = false;
+      go({ step: 'review', index: 0 });
+    } else go(steps[Math.max(pos - 1, 0)]);
+  };
   const home = () => navigate(`${base}/home`);
   const character = levelCharacter(content.characters, level);
   const cards = byOrder(level.cards);
@@ -241,10 +248,18 @@ function LevelScreen({ levelId }: { levelId: string }) {
               </ul>
             </details>
           )}
-          <div className="bottom-actions">
+          {/* FR-P-22: a finished level's worksheet is one tap away, to fix an answer without
+              replaying the cards and the quiz (which would add quiz attempts). A form the mentor
+              locked opens read-only. */}
+          <div className="bottom-actions" style={status === 'done' && level.form.questions.length ? { flexDirection: 'column' } : undefined}>
             <button className="btn" onClick={next}>
               {status === 'done' ? t('replay') : t('start')}
             </button>
+            {status === 'done' && level.form.questions.length > 0 && (
+              <button className="btn secondary" onClick={() => go({ step: 'review', index: 0 })}>
+                <span aria-hidden="true">📝</span> {t('review')}
+              </button>
+            )}
           </div>
         </main>
       );

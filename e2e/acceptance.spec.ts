@@ -191,7 +191,7 @@ test('21: team progress — a friend’s avatar, news and the shared jar; no ans
 test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept as a version', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'An');
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
-  await page.locator('.bottom-actions .btn').click(); // "Chơi lại"
+  await page.getByRole('button', { name: 'Chơi lại' }).click();
   for (let i = 0; i < 4; i++) await next(page);
   const replayOrder = await optionTexts(page);
   expect([...replayOrder].sort()).toEqual([...firstOrder].sort());
@@ -224,6 +224,39 @@ test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept a
   await expect(q.locator('.m-versions ol li')).toHaveCount(2);
   await m.page.goto('/mentor/compare');
   await expect(m.page.locator('tr', { hasText: 'L1F1' }).first()).toContainText('phiên bản 2');
+  await m.ctx.close();
+});
+
+test("FR-P-22: a finished level's worksheet opens from its intro, without the quiz; read-only when locked", async ({ browser }) => {
+  // An finished Level 1 (test 1) and replayed it (test 3, 7).
+  const { ctx, page } = await kidPage(browser, 'An');
+  await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  await page.getByRole('button', { name: 'Xem lại phiếu' }).click();
+  await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sửa 4' }).click();
+  await expect(page.locator('textarea')).toHaveValue(/phiên bản 2/);
+  await page.locator('textarea').fill('Trò Magic: phiên bản 3, sửa từ phiếu.');
+  await page.getByRole('button', { name: 'Quay lại' }).click(); // back to the review, not into the quiz
+  await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
+  await expect(page.locator('.review-item').nth(3)).toContainText('phiên bản 3');
+  await waitSaved(page);
+  await ctx.close();
+
+  const m = await mentorPage(browser);
+  await m.page.goto('/mentor/quiz');
+  await expect(m.page.locator('tr', { hasText: 'L1Q1' })).toContainText('2 lượt'); // no new attempts
+  await m.page.goto('/mentor/levels');
+  const row = m.page.locator('.m-card', { hasText: 'Màn 1:' }).locator('tr', { hasText: 'An' });
+  await row.getByLabel('Khoá phiếu').click();
+  await expect(row.getByLabel('Khoá phiếu')).toBeChecked();
+  const kid = await kidPage(browser, 'An');
+  await kid.page.locator('.map-node', { hasText: 'Màn 1:' }).click();
+  await kid.page.getByRole('button', { name: 'Xem lại phiếu' }).click();
+  await expect(kid.page.getByText('Phiếu này đã khoá').first()).toBeVisible();
+  await expect(kid.page.getByRole('button', { name: /^Sửa/ })).toHaveCount(0);
+  await kid.ctx.close();
+  await row.getByLabel('Khoá phiếu').click(); // open it again for the tests after this one
+  await expect(row.getByLabel('Khoá phiếu')).not.toBeChecked();
   await m.ctx.close();
 });
 
