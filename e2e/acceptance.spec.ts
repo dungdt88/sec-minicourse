@@ -52,15 +52,16 @@ test('1, 6, 16: a child completes level 1 on a phone', async ({ browser }) => {
   await questionNo(page, 1, 4);
   await page.locator('textarea').fill('Hôm thứ Hai, con thấy bạn Minh ngồi một mình.');
   await next(page);
-  // L1F3: "Khác" reveals a text field; the message only after trying to continue
-  await page.getByRole('radio', { name: 'Khác' }).click();
+  // L1F3 (multi choice since .11): "Khác" reveals a text field; the message only after trying to continue
+  await page.getByRole('checkbox', { name: 'Có thêm bạn mới' }).click();
+  await page.getByRole('checkbox', { name: 'Khác' }).click();
   await expect(page.locator('.part-message')).toHaveCount(0);
   await next(page);
   await expect(page.locator('.part-message')).toHaveText('Ghi thêm một chút nhé.');
   await page.getByPlaceholder('Ghi thêm một chút nhé.').fill('Vui hơn');
   await next(page);
-  // L1F4: the L1F3 choice is shown as context; "Chưa biết" on a text question (6)
-  await expect(page.locator('.context-box')).toContainText('Ở câu trước con chọn: Khác: Vui hơn');
+  // L1F4: every L1F3 pick is shown as context; "Chưa biết" on a text question (6)
+  await expect(page.locator('.context-box')).toContainText('Ở câu trước con chọn: Có thêm bạn mới · Khác: Vui hơn');
   await page.locator('.option.dont-know').click();
   await next(page);
   // L1F1 (16): players chosen, required text empty → asked for the text
@@ -278,7 +279,7 @@ test('13: answers given offline are saved when the network returns', async ({ br
   await ctx.setOffline(true);
   await page.locator('textarea').fill('Viết lúc mất mạng, câu một');
   await next(page);
-  await page.getByRole('radio', { name: 'Có thêm bạn' }).click();
+  await page.getByRole('checkbox', { name: 'Có thêm bạn mới' }).click();
   await next(page);
   await page.locator('textarea').fill('Viết lúc mất mạng, câu hai');
   await next(page);

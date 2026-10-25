@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { MultiChoicePart, PickNPart, SingleChoicePart } from '../../content/types';
-import { visibleOptions, type ChoiceValue, type MultiValue, type PickValue } from '../../domain/answers';
+import { asMultiValue, visibleOptions, type ChoiceValue, type MultiValue, type PickValue } from '../../domain/answers';
 import { RichText } from '../ui';
 import { current, set, type PartProps } from './types';
 
@@ -60,7 +60,7 @@ export function SingleChoiceInput({ part, answer, onChange, readOnly, t, lookup,
 }
 
 export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId }: PartProps<MultiChoicePart>) {
-  const value = current<MultiValue>(answer) ?? { optionIds: [] };
+  const value = asMultiValue(current<MultiValue>(answer));
   const own = value.own ?? [];
   const count = value.optionIds.length + own.filter((s) => s.trim()).length;
   const [blocked, setBlocked] = useState(false);

@@ -2,7 +2,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormQuestion, Level, Part } from '../content/types';
 import { findQuestion } from '../content/types';
-import { checkPart, checkQuestion, formatPart, withColon, type PartAnswer } from '../domain/answers';
+import { checkPart, checkQuestion, formatPart, pickedTexts, withColon, type PartAnswer } from '../domain/answers';
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
@@ -111,10 +111,11 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
     const found = findQuestion(content, ref.questionId);
     const part = found?.question.parts.find((p) => p.id === ref.partId);
     const label = part?.label ?? found?.question.prompt ?? ref.questionId;
-    const value = part ? formatPart(part, answer(ref.questionId, ref.partId), content, t) : '';
+    // All picks, joined with " · "; a link with nothing picked (or "Chưa biết") shows no line.
+    const value = part ? pickedTexts(part, answer(ref.questionId, ref.partId), content, t).join(' · ') : '';
     const chose = !!part && ['single_choice', 'multi_choice', 'pick_n', 'sdg_picker'].includes(part.type);
-    return { key: `${ref.questionId}/${ref.partId}`, label, value: value || t('noAnswer'), chose };
-  });
+    return { key: `${ref.questionId}/${ref.partId}`, label, value, chose };
+  }).filter((r) => r.value);
   const firstTextPart = question.parts.find((p) => p.type === 'text')?.id;
 
   return (

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25.10",
+  "contentVersion": "2026-10-25.11",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -344,23 +344,45 @@
           },
           {
             "id": "L1F3",
-            "prompt": "Theo con, trò chơi của đội giúp các bạn điều gì nhất?",
+            "prompt": "Theo con, trò chơi của đội giúp các bạn những điều gì?",
             "parts": [
               {
                 "id": "a",
-                "type": "single_choice",
+                "type": "multi_choice",
+                "min": 1,
+                "max": 3,
                 "options": [
                   {
                     "id": "a",
-                    "text": "Có thêm bạn"
+                    "text": "Có thêm bạn mới"
+                  },
+                  {
+                    "id": "c",
+                    "text": "Chơi cùng nhau, thân nhau hơn"
                   },
                   {
                     "id": "b",
                     "text": "Bớt chán lúc rảnh"
                   },
                   {
-                    "id": "c",
-                    "text": "Chơi cùng nhau, thân nhau hơn"
+                    "id": "d",
+                    "text": "Bớt dùng điện thoại, máy tính bảng"
+                  },
+                  {
+                    "id": "e",
+                    "text": "Học thêm từ mới, đọc giỏi hơn"
+                  },
+                  {
+                    "id": "f",
+                    "text": "Nghĩ nhanh hơn, nhớ giỏi hơn"
+                  },
+                  {
+                    "id": "g",
+                    "text": "Biết chờ lượt, chơi công bằng"
+                  },
+                  {
+                    "id": "h",
+                    "text": "Bạn nhút nhát cũng dễ chơi cùng"
                   },
                   {
                     "id": "other",
@@ -371,11 +393,11 @@
               }
             ],
             "allowDontKnow": true,
-            "hint": "chọn 1"
+            "hint": "chọn 1 đến 3 điều"
           },
           {
             "id": "L1F4",
-            "prompt": "Vì sao con nghĩ trò chơi giúp được điều đó?",
+            "prompt": "Vì sao con nghĩ trò chơi giúp được những điều đó?",
             "parts": [
               {
                 "id": "a",

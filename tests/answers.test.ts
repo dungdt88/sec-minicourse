@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { checkPart, checkQuestion, compareKey, formatPart, itemListTotal, visibleOptions, withColon, type ItemListValue, type PartAnswer } from '../src/domain/answers';
+import { checkPart, checkQuestion, compareKey, formatPart, itemListTotal, pickedTexts, visibleOptions, withColon, type ItemListValue, type PartAnswer } from '../src/domain/answers';
 import { inThousands } from '../src/player/parts/ThousandCheck';
 import { makeT } from '../src/content/strings';
 import { findQuestion, type CourseContent, type Part } from '../src/content/types';
@@ -33,7 +33,8 @@ describe('text', () => {
 });
 
 describe('single_choice', () => {
-  const p = part('L1F3');
+  const p = part('L7F2'); // part a: tasks plus "Khác"
+
   it('needs one option', () => {
     expect(check(p, ans({ optionId: 'a' })).complete).toBe(true);
     expect(check(p, ans({ optionId: 'zzz' })).complete).toBe(false);
@@ -229,5 +230,25 @@ describe('question rules (Appendix B, RFP v1.1)', () => {
     expect(run('L3F3', { list, edge: ans({ optionIds: ['b'] }) }).complete).toBe(true);
     const p = q('L3F3').parts[0];
     expect(formatPart(p, list, content, t)).toBe('Thứ các bạn có thể chơi thay: 1) Cờ vua (Hay ở chỗ… vui; Chưa hay ở chỗ… lâu) 2) Bóng đá (Hay ở chỗ… khoẻ)');
+  });
+});
+
+describe('L1F3 became a multi choice in content 2026-10-25.11', () => {
+  const p = part('L1F3');
+  it('allows 1 to 3 picks', () => {
+    expect(check(p, ans({ optionIds: [] })).complete).toBe(false);
+    expect(check(p, ans({ optionIds: ['a', 'c', 'h'] })).complete).toBe(true);
+    expect(check(p, ans({ optionIds: ['a', 'b', 'c', 'd'] })).message).toBe('Chọn nhiều nhất 3');
+  });
+  it('still reads an answer saved in the old single-choice shape', () => {
+    const old = ans({ optionId: 'other', text: 'Vui hơn' });
+    expect(check(p, old).complete).toBe(true);
+    expect(formatPart(p, old, content, t)).toBe('Khác: Vui hơn');
+    expect(compareKey(p, old)).toBe('other');
+  });
+  it('L1F4 context lists every pick, and nothing when nothing is picked', () => {
+    expect(pickedTexts(p, ans({ optionIds: ['a', 'other'], texts: { other: 'Vui hơn' } }), content, t).join(' · ')).toBe('Có thêm bạn mới · Khác: Vui hơn');
+    expect(pickedTexts(p, ans({ optionIds: [] }), content, t)).toEqual([]);
+    expect(pickedTexts(p, dontKnow, content, t)).toEqual([]);
   });
 });

@@ -104,7 +104,7 @@ All optional and in the schema, so no question is special-cased in code. Since c
 | --- | --- | --- | --- |
 | `placeholder` | any part | sentence starter in the empty field | L1F1a, L1F2, L1F4, L2F4b |
 | `required` / `optional` | any part | rules below | L1F1a required; L5F3b optional; L6F4 "Trả nợ" optional |
-| `context: [{questionId, partId}]` | form question | earlier answers shown above the input ("Ở câu trước con chọn: …") | L1F4 ← L1F3, L5F2 ← L4F2, L5F1 |
+| `context: [{questionId, partId}]` | form question | earlier answers shown above the input ("Ở câu trước con chọn: a · b"); hidden when nothing was picked | L1F4 ← L1F3, L5F2 ← L4F2, L5F1 |
 | `optionsFrom: {questionId, partId}` | `single_choice` part | only the options ticked or added in an earlier multi choice, plus "Khác" | L7F2a ← L7F1 |
 | `copyFrom: {homeworkId, fieldId, groupId, toGroupId}` | `item_list` part | "Chép giá từ Bài về nhà" fills empty rows, never overwrites | L6F2 ← H4 materials |
 | `minRows`, extra text `fields` | `item_list` part | rows shown from the start; rows with extra fields are numbered cards; empty rows never saved | L3F3 |
@@ -122,7 +122,7 @@ hoặc bấm “Chưa biết” nhé."); in a question that also has choices, te
 through. One "Chưa biết" per question covers whatever is not answered yet.
 
 Content history: `2026-10-25` (supplied) → `.1` (playtest fixes) → `.3` (mentor) → `.10` (mentor, RFP
-v1.1). Wording notes from the playtests: [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
+v1.1) → `.11` (L1F3 becomes a multi choice, 1–3 picks). Wording notes from the playtests: [`docs/playtest-2026-10-25.md`](docs/playtest-2026-10-25.md).
 
 ### Adding a new question type
 

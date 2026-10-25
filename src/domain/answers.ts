@@ -50,6 +50,31 @@ export type PartValue =
   | SumSplitValue
   | RepeatValue;
 
+/**
+ * A multi-choice value, also accepting the single-choice shape: when content turns a single choice
+ * into a multi choice (L1F3 in 2026-10-25.11), answers saved earlier still read correctly.
+ */
+export function asMultiValue(v: PartValue | null | undefined): MultiValue {
+  if (v && typeof v === 'object' && 'optionIds' in v && Array.isArray(v.optionIds)) return v as MultiValue;
+  if (v && typeof v === 'object' && 'optionId' in v && typeof v.optionId === 'string') {
+    const c = v as ChoiceValue;
+    return { optionIds: [c.optionId], texts: c.text ? { [c.optionId]: c.text } : undefined };
+  }
+  return { optionIds: [] };
+}
+
+/** The picked texts of a choice answer, one per pick (for "Ở câu trước con chọn: a · b"). */
+export function pickedTexts(part: Part, answer: PartAnswer | undefined, content: CourseContent, t: T): string[] {
+  if (!answer || answer.dontKnow || answer.value == null) return [];
+  if (part.type === 'multi_choice') {
+    const m = asMultiValue(answer.value);
+    const one = (id: string) => formatPart(part, { value: { optionIds: [id], texts: m.texts }, dontKnow: false }, content, t);
+    return [...m.optionIds.map(one), ...(m.own ?? []).filter((s) => !isBlank(s))].filter(Boolean);
+  }
+  const text = formatPart(part, answer, content, t);
+  return text ? [text] : [];
+}
+
 export interface PartAnswer {
   value: PartValue | null;
   dontKnow: boolean;
@@ -86,7 +111,7 @@ export function checkPart(part: Part, answer: PartAnswer | undefined, t: T): Par
     }
 
     case 'multi_choice': {
-      const m = v as MultiValue;
+      const m = asMultiValue(v);
       const count = m.optionIds.length + (m.own?.filter((s) => !isBlank(s)).length ?? 0);
       const min = part.min ?? 1;
       if (part.max != null && count > part.max) return { complete: false, message: t('pickAtMost', { n: part.max }) };
@@ -186,7 +211,7 @@ export function visibleOptions(
 ): { id: string; text: string; allowText?: boolean }[] {
   if (!part.optionsFrom) return part.options;
   const src = lookup(part.optionsFrom.questionId, part.optionsFrom.partId);
-  const m = src && !src.dontKnow ? (src.value as MultiValue | null) : null;
+  const m = src && !src.dontKnow && src.value != null ? asMultiValue(src.value) : null;
   const chosen = new Set(m?.optionIds ?? []);
   const own = (m?.own ?? []).filter((s) => !isBlank(s));
   if (chosen.size === 0 && own.length === 0) return part.options;
@@ -211,7 +236,7 @@ export function formatPart(part: Part, answer: PartAnswer | undefined, content: 
       return opt?.allowText && c.text ? `${text}: ${c.text}` : text;
     }
     case 'multi_choice': {
-      const m = v as MultiValue;
+      const m = asMultiValue(v);
       const picked = m.optionIds.map((id) => {
         const o = part.options.find((x) => x.id === id);
         const text = o?.text ?? id;
@@ -300,7 +325,7 @@ export function compareKey(part: Part, answer: PartAnswer | undefined): string |
     case 'single_choice':
       return (v as ChoiceValue).optionId;
     case 'multi_choice':
-      return [...(v as MultiValue).optionIds].sort().join(',');
+      return [...asMultiValue(v).optionIds].sort().join(',');
     case 'pick_n':
       return [...(v as PickValue).optionIds].sort().join(',');
     case 'number':

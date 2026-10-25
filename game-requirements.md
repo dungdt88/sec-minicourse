@@ -3,7 +3,7 @@
 Request for proposal — version 1.1, October 25, 2026 (replaces version 1.0)
 Owner: Richard Dam (parent mentor of the team). Contact: [email / Zalo]
 Proposals due by: [date]. Questions are welcome before then.
-Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.10)
+Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.11)
 Also supplied: `submission-map.md`, which shows which answers feed which part of the competition submission (used by FR-M-16).
 Confidential: shared for quotation only. The course content and the children's business idea belong to the team; please do not reuse or publish them.
 
@@ -11,7 +11,7 @@ Confidential: shared for quotation only. The course content and the children's b
 
 We ran the course ourselves, recorded one child explaining the idea, and checked every form question against the submission template. Please re-quote against this version.
 
-**Content (2026-10-25 → 2026-10-25.10)**
+**Content (2026-10-25 → 2026-10-25.11)**
 - **Plain language:** every card, quiz and form was rewritten in short, everyday Vietnamese. Terms such as SWOT, lời gộp/ròng, đối thủ and khả thi are gone.
 - **No SDG for the children:** they no longer see or pick a Sustainable Development Goal; the mentor picks it from their Level 1 answers. The `sdg_picker` type and the 17 SDG icons are no longer needed (now Could).
 - **Logic first:** every quiz is a situation and a decision with a visible result. The story is consistent across levels.
@@ -28,6 +28,7 @@ We ran the course ourselves, recorded one child explaining the idea, and checked
 - **Feedback lines in the content file:** funny quiz feedback lines are now content (`ui.correctLines`, `ui.wrongLines`, `ui.cheers`, `ui.oops`).
 - **Links between answers in the content file (from .10):** `context`, `optionsFrom`, `copyFrom`, `showAnswer` and `rowLabel` (Appendix C), so no link is tied to a question id in code.
 - **Submission map in the content file (from .10):** a top-level `submission` list (FR-M-16, Appendix F). Version .10 is version .9 plus these fields; the children see no difference.
+- **L1F3 is a multiple choice (from .11):** "giúp các bạn những điều gì?", 1–3 picks out of 8 options plus "Khác". L1F4 now asks why for "những điều đó"; its `context` shows all picks.
 
 **Look and feel**
 - **Light theme:** a soft, light pastel theme that stays light when the phone is in dark mode.
@@ -337,11 +338,11 @@ Common to all parts:
 - **A question made only of text parts** cannot be passed empty: at least one must be filled, or the question answered "Chưa biết". The app says so with a short message ("Con trả lời một chút, hoặc bấm \"Chưa biết\" nhé.").
 - **Every question** therefore ends up with an answer or a "Chưa biết"; nothing is skipped silently.
 
-| Type | Behaviour and validation | Used in (content 2026-10-25.9) |
+| Type | Behaviour and validation | Used in (content 2026-10-25.11) |
 | --- | --- | --- |
 | `text` | Text area; `maxLength` soft limit with counter; device keyboard and dictation. | L1F1a (required, placeholder), L1F2 (placeholder), L1F4 (placeholder), L2F1b, L2F3a, L2F4b (placeholder), L3F4a, L3F4b, L4F1b, L4F2b, L6F1b, L6F3b, L6F4b, L7F2b, L7F3a, L7F3b |
-| `single_choice` | Large option tiles; exactly one; an option with `allowText: true` ("Khác") reveals a short text field. | L1F1b, L1F3, L2F1a, L2F3b, L3F1a, L3F1b, L4F1a, L7F2a, L7F2c |
-| `multi_choice` | Tick tiles; `min` and optional `max` enforced with a clear message ("Chọn nhiều nhất 2"); `allowAddOwn` lets the child add their own options as removable chips. | L2F2, L2F4a (add own), L3F3edge (add own), L4F3, L4F4, L5F3a, L6F3a (max 2), L7F1 (add own), L7F4 |
+| `single_choice` | Large option tiles; exactly one; an option with `allowText: true` ("Khác") reveals a short text field. | L1F1b, L2F1a, L2F3b, L3F1a, L3F1b, L4F1a, L7F2a, L7F2c |
+| `multi_choice` | Tick tiles; `min` and optional `max` enforced with a clear message ("Chọn nhiều nhất 2"); `allowAddOwn` lets the child add their own options as removable chips. | L1F3 (max 3), L2F2, L2F4a (add own), L3F3edge (add own), L4F3, L4F4, L5F3a, L6F3a (max 2), L7F1 (add own), L7F4 |
 | `number` | Numeric keypad; integer; unit label ("nghìn đồng"); `min`/`max`. Negative allowed only where `min` is negative (L5F2, with a +/− toggle). Amounts typed as full đồng (e.g. 12000) trigger a hint offering 12 nghìn. | L4F2a, L5F1, L5F2, L5F3b (optional), L6F1a |
 | `pick_n` | Tick exactly `n` options; options may carry `leading: true` with a `feedback` string shown once, gently, when ticked; the child may keep the choice. The chosen texts are reused on the homework sheet. | L3F2 |
 | `item_list` | Grouped list of rows. A row has a `name`, an optional `price` (with a running total if `showTotal`), and any further `fields` as short text inputs. A row with extra fields is shown as its own numbered card ("Thứ 1"). `minRows` rows are shown from the start. Add/remove rows up to `maxItemsPerGroup`. Rows are stored without gaps; empty rows are ignored in review and exports. | L3F3list (name, good, bad; minRows 3), L6F2 (3 groups, price, total) |
