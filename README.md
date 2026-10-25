@@ -173,7 +173,7 @@ supabase/migrations/   tables, RLS, server functions
   `<html data-skin>` swaps the colour tokens; costumes, mascot, candies, the glowing pumpkin, the
   ghost on the progress dots and the quiz pop-up only appear with the skin on. The pop-up lasts
   1.8 s, never takes a tap, and is skipped under reduced motion. The app stays light in OS dark mode.
-- **Team progress (added at the owner's request, not in RFP v1.1).** The map shows each friend's
+- **Team progress (FR-P-29).** The map shows each friend's
   avatar beside the level they are on, one shared candy jar for the team (each quiz question right
   first time is a candy; the jar grows with the furthest level reached), and "Bình vừa xong Màn 2!"
   news for two days; the done screen says "Cả đội: 2/4 bạn đã xong Màn 1". It is cooperative on
@@ -197,8 +197,8 @@ supabase/migrations/   tables, RLS, server functions
 | FR-C-01 … 05 | Done. Art is SVG drawn in code, overridable by files. `sdg_picker` kept (Could); the children no longer see SDGs, the list is shown to the mentor in "Bài nộp". |
 | DR-01 … 08 | Done, including the Halloween skin (DR-08) with placeholder art (original, client-owned). |
 | NFR | 01–03, 05, 06, 08, 09, 12 done. 07: free tier. 10: player strings externalised and overridable; mentor console strings are inline Vietnamese. 11: keyboard-operable, labelled controls, reduced motion respected. 04 (Could): writes queue offline, but reloading the app offline is not supported. |
-| Beyond the RFP | Team progress (see "How it works"). It relaxes FR-P-08's "no comparison between children" to progress-only, cooperative views, with a mentor switch; leaderboards (out of scope, section 5) are still not built. |
-| Acceptance | `e2e/acceptance.spec.ts` automates tests 1–13, 15–20 and FR-M-15. Test 14 (old Android over 4G) needs a real device. |
+| FR-P-29 | Team progress (Should, added in RFP v1.1 at the owner's request; FR-P-08 amended): done as described in "How it works", with the mentor switch. The optional finishing-order line (Could) is not built. Leaderboards stay out of scope. |
+| Acceptance | `e2e/acceptance.spec.ts` automates tests 1–13, 15–21 and FR-M-15. Test 14 (old Android over 4G) needs a real device. |
 
 ## Licences
 

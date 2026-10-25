@@ -40,8 +40,8 @@ We ran the course ourselves, recorded one child explaining the idea, and checked
 
 **Requirements**
 - **Changed:** FR-P-10, FR-P-16, FR-P-18, FR-P-19, FR-P-23, FR-P-24, FR-P-28, FR-C-05, DR-01 to DR-05.
-- **New:** FR-M-15 (reset answers for a trial run), FR-M-16 (answers grouped by submission section), DR-08 (seasonal skin).
-- **Acceptance tests:** tests 16 to 20 added.
+- **New:** FR-M-15 (reset answers for a trial run), FR-M-16 (answers grouped by submission section), DR-08 (seasonal skin), FR-P-29 (cooperative team progress, with FR-P-08 relaxed to allow it).
+- **Acceptance tests:** tests 16 to 21 added.
 - **Appendices:** B, C and D rewritten; Appendix F added (submission map).
 
 **For reference:** we built our own version while waiting for quotes. Ask us for a link if seeing the intended behaviour would help. It is a reference, not a design to copy.
@@ -141,7 +141,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-05 | Home shows the 7 levels as a path or map with three states: done, available, locked. Levels unlock in order; the mentor can unlock any level manually. A completed level can always be replayed. | M |
 | FR-P-06 | The next available level is visually highlighted ("Hôm nay: Màn 3"). | M |
 | FR-P-07 | Progress is saved server-side per profile at the granularity of a single card, quiz question or form question, so a child who stops mid-level resumes at the same place on any device. The two-sitting pattern (cards + quiz today, form tomorrow) must work. | M |
-| FR-P-08 | Each completed level awards a sticker or badge shown on the map. No points, no lives, no timers, no "game over", no comparison between children. | S |
+| FR-P-08 | Each completed level awards a sticker or badge shown on the map. No points, no lives, no timers, no "game over". No ranking table and no per-child quiz scores; children may see each other's progress (levels completed) as described in FR-P-29. | S |
 | FR-P-09 | A small button on the map, labelled with `homework.title` ("Chơi thử với bạn"), opens the homework (FR-P-26). Hidden if the content has no homework. | M |
 
 ### 7.3 Level intro and cards
@@ -177,6 +177,13 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-26 | Homework screen: renders the items from the content file (currently one; no number badge when there is only one), plus an "In" (print or save as PDF) action producing an A4 sheet with a tick table per friend and lines for "what to change". | M |
 | FR-P-27 | In-app homework capture using the `capture` definitions in the content file (repeat groups, checkboxes, text; item lists and tallies stay supported). The answer boxes per friend carry `pickIndex` and appear only for the questions the child chose in L3F2 (`showAnswer`); the ticks work without them. Saved per profile like form answers. | S |
 | FR-P-28 | Level complete screen: sticker, `ui.levelDone` ("Hú hú! Xong Màn {n}!"), the characters cheering, and the line "Màn n+1 đã mở. Chơi tiếp luôn, hay để mai cũng được!". The first and largest button is "Chơi tiếp: Màn n+1", which opens the next level's intro. It is followed by "Gửi bài" when answers are only on the device, the optional playtest (`ui.homeworkReminder`, after level 3 only), and "Về bản đồ". After the last level, "Về bản đồ" is the main button. | M |
+| FR-P-29 | Team progress (asked for by the client, to keep children engaged), as a cooperative view, never a ranking:
+- On the map, each friend's avatar sits beside the level they are on, and friends who have finished everything have a 🏁 row.
+- One candy jar for the whole team: each first-try right answer adds a candy. The jar's goal may grow with the furthest level reached, so it fills rather than looking empty.
+- A short news line when a friend finishes a level ("Bình vừa xong Màn 2!"), kept for about two days.
+- On the level complete screen, how many friends have finished this level ("Cả đội: 2/4 bạn đã xong Màn 1").
+
+It shows only names, avatars, completed levels and the team's candy total, never another child's answers (FR-P-25) or a child's own score. The mentor can switch it off in the console (default on). Optional (Could): a friendly finishing-order line, "Con là người đầu tiên của đội xong Màn 1!" or "…bạn thứ 2…", where the last child to finish sees "Cả đội đã cùng xong Màn 1!" instead of a rank. | S |
 
 ## 8. Functional requirements — mentor console
 
@@ -269,6 +276,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 18. On L5F3, tick one option and leave the amount empty: the child can continue.
 19. On L7F2, the task list shows only tasks ticked in L7F1, while "Bao lâu làm một lần?" still shows its four options.
 20. With the OS set to reduce motion, answer a quiz question: no pop-up appears and the explanation shows at once. With it off, the pop-up finishes within 2 s and buttons stay tappable throughout.
+21. With two children, finish level 1 as one: the other's map shows their avatar at level 2 and a news line, the team jar grows by that child's first-try right answers, and no answers or per-child scores are visible. Switch team progress off in the console: it disappears for both.
 
 ## 13. Timeline
 
