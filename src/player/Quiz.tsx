@@ -1,13 +1,13 @@
 // Quiz question and quiz end (FR-P-15 … FR-P-19).
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Character } from '../art/Character';
 import type { Character as CharacterData, Level, QuizQuestion } from '../content/types';
 import { newOptionOrder } from '../domain/shuffle';
 import { usePlayer } from './session';
 import { Candy, Mascot } from '../art/Halloween';
-import { useSkin } from '../art/skin';
+import { prefersReducedMotion, useSkin } from '../art/skin';
 import { MascotPopup } from './MascotPopup';
-import { ProgressDots, RichText } from './ui';
+import { RichText, StepProgress } from './ui';
 
 interface QuestionProps {
   level: Level;
@@ -46,6 +46,12 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
   const line = (ok: boolean) => (content.ui[ok ? 'correctLines' : 'wrongLines'] ? t(ok ? 'correctLines' : 'wrongLines') : t(ok ? 'correct' : 'wrong'));
   const [heading, setHeading] = useState(() => (saved ? line(saved.correct) : ''));
   const [fresh, setFresh] = useState(false); // answered on this screen just now (not a reload)
+  // On a phone the explanation lands below the fold: bring it into view once, right after the
+  // answer (the attempt is saved by then, so this keys on `fresh`, not on the saved attempt).
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (fresh) feedbackRef.current?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  }, [fresh]);
 
   const choose = (id: string) => {
     if (answered) return; // locked after the first tap (FR-P-16)
@@ -67,15 +73,16 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
   return (
     <main className="screen">
       {top}
-      <ProgressDots index={index} total={total} label={t('questionOf', { n: index + 1, total })} />
+      <StepProgress index={index} total={total} label={t('questionOf', { n: index + 1, total })} />
       <h1 className="prompt content-col">
         <RichText text={question.prompt} />
       </h1>
       <div className="option-list" role="group" aria-label={question.prompt}>
         {options.map((o, i) => {
           const isChosen = chosen === o.id;
+          // After the answer, the options that are neither picked nor right step back.
           const cls =
-            (!answered ? '' : o.id === correctId ? ' correct' : isChosen ? ' wrong' : '') +
+            (!answered ? '' : o.id === correctId ? ' correct' : isChosen ? ' wrong' : ' faded') +
             (fresh && isChosen ? (right ? ' bounce' : ' wobble') : '');
           return (
             <button
@@ -100,10 +107,7 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
           className={`feedback ${right ? 'good' : 'bad'} pop`}
           role="status"
           aria-live="polite"
-          ref={(el) => {
-            // On a phone the explanation lands below the fold; bring it into view once.
-            if (el && !saved) el.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-          }}
+          ref={feedbackRef}
         >
           {skin === 'halloween' ? (
             <Mascot expression={right ? 'happy' : 'oops'} size={64} />
@@ -119,7 +123,7 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
         </div>
       )}
       {fresh && skin === 'halloween' && <MascotPopup right={right} word={t(right ? 'cheers' : 'oops')} key={chosen} />}
-      <div className="bottom-actions">
+      <div className="bottom-actions sticky">
         <button className="btn" onClick={onNext} disabled={!answered}>
           {t('next')}
         </button>
@@ -155,11 +159,15 @@ export function QuizEnd({
       <h1 className="big-title" style={{ marginTop: 24 }}>
         {t('quizDone')}
       </h1>
-      {skin === 'halloween' ? <Mascot expression="happy" size={130} /> : <Character character={character} expression="happy" size={130} />}
+      <div className="hero">
+        {skin === 'halloween' ? <Mascot expression="happy" size={130} /> : <Character character={character} expression="happy" size={130} />}
+      </div>
       {/* FR-P-19: one candy per question right first time, an empty wrapper otherwise. */}
       <div className="candies" role="img" aria-label={t('candyLabel', { n: firstTryRight, total: level.quiz.length })}>
         {level.quiz.map((q, i) => (
-          <Candy key={q.id} empty={i >= firstTryRight} size={48} />
+          <span key={q.id} className="candy-pop" style={{ animationDelay: `${i * 120}ms` }}>
+            <Candy empty={i >= firstTryRight} size={48} />
+          </span>
         ))}
       </div>
       <p className="content-col" style={{ margin: '0 auto' }}>

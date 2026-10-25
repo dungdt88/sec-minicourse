@@ -248,21 +248,24 @@ export function Homework() {
   return (
     <>
       <main className="screen no-print">
-        <div className="topbar">
-          <button className="icon-btn" onClick={() => navigate(`${base}/home`)} aria-label={t('backHome')}>
-            🗺️
+        <div className="topbar level-top">
+          <button className="map-btn" onClick={() => navigate(`${base}/home`)} aria-label={t('backHome')}>
+            <span aria-hidden="true">🗺️</span>
           </button>
-          <span className="title">{hw.title}</span>
-          <span className="spacer" />
+          {/* the big title below names the page */}
+          <span className="title" />
           {!preview && <SavePill />}
         </div>
-        <h1 className="big-title">{hw.title}</h1>
+        <div className="title-row">
+          <h1 className="big-title">{hw.title}</h1>
+          {/* Printing is for the parent, so it is a small button beside the title. */}
+          {hw.printable !== false && (
+            <button className="icon-btn small" onClick={() => window.print()}>
+              <span aria-hidden="true">🖨️</span> {t('print')}
+            </button>
+          )}
+        </div>
         <p style={{ margin: 0 }}>{hw.intro}</p>
-        {hw.printable !== false && (
-          <button className="btn secondary" onClick={() => window.print()}>
-            🖨️ {t('print')}
-          </button>
-        )}
         {byOrder(hw.items).map((item) => (
           <ItemCard key={item.id} item={item} single={hw.items.length === 1} />
         ))}

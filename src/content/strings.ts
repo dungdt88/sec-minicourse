@@ -38,6 +38,7 @@ export const APP_STRINGS: UiStrings = {
   lockedAfter: 'Cửa này còn khóa! Con xong Màn {n} là mở nha.',
   lockedByMentor: 'Chưa mở',
   notMe: 'Không phải {name}?',
+  hello: 'Chào {name}!',
   characterSays: '{name} nói:',
   chipCards: '{n} thẻ',
   chipQuiz: '{n} câu đố',

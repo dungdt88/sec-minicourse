@@ -6,6 +6,7 @@ import { WriteQueue } from '../api/queue';
 import { ApiError, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
 import { makeT } from '../content/strings';
 import { DEFAULT_SKIN, useSetSkin } from '../art/skin';
+import { Character } from '../art/Character';
 import { deviceType } from '../domain/progress';
 import { PlayerSessionProvider, deviceTokens, loadContent } from './session';
 
@@ -85,15 +86,19 @@ export function ProfilePicker() {
 
   return (
     <main className="screen">
-      <h1 className="big-title center" style={{ marginTop: 24 }}>
-        {t('chooseProfile')}
-      </h1>
+      {/* The four shop friends greet the children (decorative). */}
+      <div className="picker-hero" aria-hidden="true">
+        {boot.content.content.characters.map((c) => (
+          <Character key={c.id} character={c} size={64} expression="happy" decorative />
+        ))}
+      </div>
+      <h1 className="big-title center">{t('chooseProfile')}</h1>
       <p className="center muted small-text" style={{ margin: 0 }}>
         {boot.content.content.title}
       </p>
       <div className="profile-grid">
-        {profiles.map((p) => (
-          <button key={p.id} className="profile-tile" onClick={() => pick(p)}>
+        {profiles.map((p, i) => (
+          <button key={p.id} className={`profile-tile tint-${i % 4}`} onClick={() => pick(p)}>
             <span className="avatar" aria-hidden="true">
               {p.avatar}
             </span>
@@ -180,7 +185,7 @@ export function PinEntry() {
             ← {t('back')}
           </button>
         </div>
-        <div style={{ fontSize: 72, lineHeight: 1 }} aria-hidden="true">
+        <div className="pin-avatar" aria-hidden="true">
           {profile.avatar}
         </div>
         <h1 className="big-title">{profile.displayName}</h1>
@@ -196,7 +201,7 @@ export function PinEntry() {
         </button>
       </div>
       <div className="center">
-        <div style={{ fontSize: 72, lineHeight: 1 }} aria-hidden="true">
+        <div className="pin-avatar" aria-hidden="true">
           {profile?.avatar}
         </div>
         <h1 className="big-title">{profile?.displayName}</h1>

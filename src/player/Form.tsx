@@ -6,7 +6,7 @@ import { checkPart, checkQuestion, formatPart, pickedTexts, withColon, type Part
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
-import { HintBanner, ProgressDots, RichText } from './ui';
+import { HintBanner, RichText, StepProgress } from './ui';
 
 const TEXT_DEBOUNCE_MS = 600;
 
@@ -60,9 +60,11 @@ interface QuestionProps {
   onBack: () => void;
   onNext: () => void;
   top: React.ReactNode;
+  /** "Xem lại thẻ", shown on the right of the progress row. */
+  reread?: React.ReactNode;
 }
 
-export function FormQuestionScreen({ level, question, index, total, readOnly, onBack, onNext, top }: QuestionProps) {
+export function FormQuestionScreen({ level, question, index, total, readOnly, onBack, onNext, top, reread }: QuestionProps) {
   const { content, t, answer, notice, clearNotice } = usePlayer();
   const { drafts, change, flushAll } = useAutosave(level.id, question.id, question.parts, readOnly);
   const lookup = (q: string, p: string) => (q === question.id ? drafts[p] : answer(q, p));
@@ -121,7 +123,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
   return (
     <main className="screen">
       {top}
-      <ProgressDots index={index} total={total} label={t('formOf', { label: t('yourTurn'), n: index + 1, total })} />
+      <StepProgress index={index} total={total} label={t('formOf', { label: t('yourTurn'), n: index + 1, total })} action={reread} />
       {/* The level's own intro line (L1), once, now that the quiz-end screen leads straight here. */}
       {index === 0 && level.form.intro && (
         <p className="muted small-text" style={{ margin: 0 }}>
@@ -190,7 +192,7 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
           {check.textOnlyEmpty ? t('textOnlyMissing') : t('missingHint')}
         </p>
       )}
-      <div className="bottom-actions">
+      <div className="bottom-actions sticky">
         <button
           className="btn secondary"
           onClick={() => {
@@ -215,9 +217,10 @@ interface ReviewProps {
   onEdit: (index: number) => void;
   onSubmit: () => void;
   top: React.ReactNode;
+  reread?: React.ReactNode;
 }
 
-export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top }: ReviewProps) {
+export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top, reread }: ReviewProps) {
   const { content, t, answer, flush, saveStatus } = usePlayer();
   const [busy, setBusy] = useState(false);
   const rows = level.form.questions.map((q) => {
@@ -232,17 +235,20 @@ export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top }
   return (
     <main className="screen">
       {top}
-      <h1 className="big-title">{t('review')}</h1>
+      <div className="title-row">
+        <h1 className="big-title">{t('review')}</h1>
+        {reread}
+      </div>
       {readOnly ? <p className="notice lock">{t('formLocked')}</p> : submitted && <p className="notice">{t('submitted')}</p>}
       <div className="review-list">
         {rows.map(({ q, parts, complete }, i) => (
           <section className="review-item" key={q.id}>
             <div className="row">
               <p className="q">
-                {i + 1}. <RichText text={q.prompt} />
+                <span className="q-no">{i + 1}.</span> <RichText text={q.prompt} />
               </p>
               {!readOnly && (
-                <button className="icon-btn" onClick={() => onEdit(i)} aria-label={`${t('edit')} ${i + 1}`}>
+                <button className="icon-btn small edit-btn" onClick={() => onEdit(i)} aria-label={`${t('edit')} ${i + 1}`}>
                   ✏️ {t('edit')}
                 </button>
               )}
@@ -263,7 +269,7 @@ export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top }
           {level.form.note}
         </p>
       )}
-      <div className="bottom-actions">
+      <div className="bottom-actions sticky">
         <button
           className="btn"
           disabled={(!allComplete && !readOnly) || busy}

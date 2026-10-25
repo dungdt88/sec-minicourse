@@ -14,7 +14,7 @@ import type { Pointer, Section } from '../api/types';
 import { FormQuestionScreen, FormReview } from './Form';
 import { QuizQuestionScreen, QuizEnd } from './Quiz';
 import { usePlayer } from './session';
-import { HintBanner, ProgressDots, ReadAloud, RichText, SavePill } from './ui';
+import { HintBanner, ReadAloud, RichText, SavePill, StepProgress } from './ui';
 
 function stepsOf(level: Level): Pointer[] {
   const steps: Pointer[] = [{ step: 'intro', index: 0 }];
@@ -128,31 +128,38 @@ function LevelScreen({ levelId }: { levelId: string }) {
   const formLocked = !!ls?.formLocked && !preview;
 
   const onWorksheet = pointer.step === 'formIntro' || pointer.step === 'form' || pointer.step === 'review';
+  // One calm row: map button, "Màn 1" and where the child is, and the save tick.
   const top = (label: string) => (
-    <>
-      <div className="topbar no-print">
-        <button className="icon-btn" onClick={home} aria-label={t('backHome')}>
-          🗺️
-        </button>
-        <span className="title">
-          {t('levelLabel', { n: level.order })} · {label}
-        </span>
-        <span className="spacer" />
-        {preview ? <span className="save-pill saving">{t('preview')}</span> : <SavePill />}
-      </div>
-      {onWorksheet && peek == null && (
-        <div className="topbar no-print" style={{ minHeight: 0, marginTop: -8 }}>
-          <span className="spacer" />
-          <button className="icon-btn" onClick={() => setPeek(0)}>
-            📖 {t('rereadCards')}
-          </button>
-        </div>
-      )}
-    </>
+    <div className="topbar level-top no-print">
+      <button className="map-btn" onClick={home} aria-label={t('backHome')}>
+        <span aria-hidden="true">🗺️</span>
+      </button>
+      <span className="title">
+        <span className="level-pill">{t('levelLabel', { n: level.order })}</span>
+        {label && (
+          <>
+            <span className="visually-hidden"> · </span>
+            <span className="title-text">{label}</span>
+          </>
+        )}
+      </span>
+      {preview ? <span className="save-pill saving">{t('preview')}</span> : <SavePill />}
+    </div>
   );
+  // On the worksheet the cards stay one tap away (a side trip that saves nothing).
+  const reread =
+    onWorksheet && peek == null ? (
+      <button className="icon-btn small no-print" onClick={() => setPeek(0)}>
+        <span aria-hidden="true">📖</span> {t('rereadCards')}
+      </button>
+    ) : null;
 
   const cardArticle = (card: (typeof cards)[number]) => (
     <article className="panel concept-card content-col">
+      {/* The level's character peeks over the card; it never moves while the child reads (DR-05). */}
+      <span className="card-peeker" aria-hidden="true">
+        <Character character={character} expression="neutral" size={64} decorative />
+      </span>
       <h2>
         <RichText text={card.title} />
       </h2>
@@ -177,11 +184,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
   );
 
   const cardProgress = (index: number, card: (typeof cards)[number]) => (
-    <div className="topbar">
-      <ProgressDots index={index} total={cards.length} label={t('cardOf', { n: index + 1, total: cards.length })} />
-      <span className="spacer" />
-      <ReadAloud card={card} />
-    </div>
+    <StepProgress index={index} total={cards.length} label={t('cardOf', { n: index + 1, total: cards.length })} action={<ReadAloud card={card} />} />
   );
 
   if (peek != null && onWorksheet) {
@@ -192,7 +195,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
         {top(t('cards'))}
         {cardProgress(peek, card)}
         {cardArticle(card)}
-        <div className="bottom-actions">
+        <div className="bottom-actions sticky">
           <button className="btn secondary" onClick={() => (peek === 0 ? setPeek(null) : setPeek(peek - 1))}>
             {peek === 0 ? t('backToForm') : t('back')}
           </button>
@@ -208,11 +211,13 @@ function LevelScreen({ levelId }: { levelId: string }) {
     case 'intro':
       return (
         <main className="screen">
-          {top(level.name)}
+          {top('')}
           <h1 className="big-title center">{level.title}</h1>
-          <Character character={character} expression="happy" size={150} />
+          <div className="hero">
+            <Character character={character} expression="happy" size={150} />
+          </div>
           {character && (
-            <p className="center speech" style={{ margin: '0 auto' }}>
+            <p className="center speech">
               <span className="muted" style={{ fontWeight: 700 }}>
                 {t('characterSays', { name: character.name })}
               </span>{' '}
@@ -252,7 +257,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
           {pointer.index === 0 && <HintBanner id="parentReads" text={t('parentReads')} />}
           {cardProgress(pointer.index, card)}
           {cardArticle(card)}
-          <div className="bottom-actions">
+          <div className="bottom-actions sticky">
             <button className="btn secondary" onClick={back}>
               {t('back')}
             </button>
@@ -292,7 +297,9 @@ function LevelScreen({ levelId }: { levelId: string }) {
         <main className="screen">
           {top(t('yourTurn'))}
           <h1 className="big-title center">{t('yourTurn')}</h1>
-          <Character character={character} expression="thinking" size={130} />
+          <div className="hero">
+            <Character character={character} expression="thinking" size={130} />
+          </div>
           <p className="center content-col" style={{ margin: '0 auto', fontWeight: 700 }}>
             {t('toFormHint', { n: level.form.questions.length })}
           </p>
@@ -317,6 +324,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
           onBack={back}
           onNext={next}
           top={top(t('yourTurn'))}
+          reread={reread}
         />
       );
 
@@ -335,6 +343,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
             go({ step: 'complete', index: 0 });
           }}
           top={top(t('review'))}
+          reread={reread}
         />
       );
 
@@ -348,7 +357,7 @@ function LevelScreen({ levelId }: { levelId: string }) {
       return (
         <main className="screen center">
           {top(t('done'))}
-          <div className="pop" style={{ marginTop: 24 }}>
+          <div className="pop sticker-stage">
             <Sticker order={level.order} image={level.sticker} size={150} label={t('stickerFor', { n: level.order })} />
           </div>
           <h1 className="big-title">{t('levelDone', { n: level.order })}</h1>

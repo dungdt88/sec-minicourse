@@ -58,7 +58,7 @@ export function PartField(
   const dontKnow = !!answer?.dontKnow;
   const message = missing ? (check.message ?? t('missingPart')) : null;
   return (
-    <div className="part" id={domId}>
+    <div className={message ? 'part missing' : 'part'} id={domId}>
       {part.label && part.type !== 'repeat' && (
         <div className="part-label" id={labelId}>
           <RichText text={part.label} />

@@ -1,5 +1,5 @@
 // Small shared pieces of the player screens.
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Ghost } from '../art/Halloween';
 import { useSkin } from '../art/skin';
 import { usePlayer } from './session';
@@ -25,10 +25,17 @@ export function RichText({ text }: { text: string }) {
 
 export function SavePill() {
   const { saveStatus, t } = usePlayer();
-  const label = saveStatus === 'saved' ? `✓ ${t('saved')}` : saveStatus === 'saving' ? t('saving') : t('unsaved');
+  // Saved is the usual state, so it is a quiet green tick; saving and offline spell it out.
+  if (saveStatus === 'saved')
+    return (
+      <span className="save-pill saved" role="status" aria-live="polite" title={t('saved')}>
+        <span aria-hidden="true">✓</span>
+        <span className="visually-hidden">{t('saved')}</span>
+      </span>
+    );
   return (
     <span className={`save-pill ${saveStatus}`} role="status" aria-live="polite">
-      {label}
+      {saveStatus === 'saving' ? t('saving') : t('unsaved')}
     </span>
   );
 }
@@ -66,17 +73,7 @@ export function HintBanner({ id, text, line }: { id: string; text: string; /** o
     <div className="hint-banner" role="note">
       <span aria-hidden="true">👨‍👩‍👧</span>
       <p>{text}</p>
-      <button
-        className="icon-btn"
-        onClick={() => {
-          setHidden(true);
-          try {
-            localStorage.setItem(key, '1');
-          } catch {
-            /* ignore */
-          }
-        }}
-      >
+      <button className="icon-btn" onClick={dismiss}>
         {t('hideHint')}
       </button>
     </div>
@@ -162,22 +159,25 @@ export function ReadAloud({ card }: { card: Card }) {
   );
 }
 
-/** "Thẻ 2/4" / "Câu 2/4" dots; with the Halloween skin a small ghost rides the current dot (DR-08). */
-export function ProgressDots({ index, total, label }: { index: number; total: number; label: string }) {
+/**
+ * "Thẻ 2/4" / "Câu 2/4" with a short progress bar; with the Halloween skin a small ghost rides the
+ * end of the bar (DR-08). `action` sits on the right of the row (read aloud, re-read the cards).
+ */
+export function StepProgress({ index, total, label, action }: { index: number; total: number; label: string; action?: React.ReactNode }) {
   const skin = useSkin();
+  const pct = total ? Math.round(((index + 1) / total) * 100) : 0;
   return (
-    <div className="progress-dots" aria-label={label}>
-      {Array.from({ length: total }, (_, i) => (
-        <Fragment key={i}>
-          <span className={`dot${i <= index ? ' on' : ''}`} />
-          {skin === 'halloween' && i === index && (
-            <span className="progress-ghost" aria-hidden="true">
-              <Ghost size={24} />
-            </span>
-          )}
-        </Fragment>
-      ))}
-      <span style={{ marginLeft: 6 }}>{label}</span>
+    <div className="step-row">
+      <div className="step-progress" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={index + 1} aria-valuetext={label}>
+        <span className="step-track" aria-hidden="true">
+          <span className="step-fill" style={{ width: `${pct}%` }} />
+          <span className="step-rider" style={{ left: `${pct}%` }}>
+            {skin === 'halloween' ? <Ghost size={26} /> : <span className="step-knob" />}
+          </span>
+        </span>
+        <span className="step-label">{label}</span>
+      </div>
+      {action}
     </div>
   );
 }
