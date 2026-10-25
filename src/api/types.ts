@@ -19,6 +19,8 @@ export interface PublicProfile {
   id: string;
   displayName: string;
   avatar: string;
+  /** false: created without a code; with codes on, the child needs the mentor to set one. */
+  pinSet?: boolean;
 }
 
 export interface Profile extends PublicProfile {

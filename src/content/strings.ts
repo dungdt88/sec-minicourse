@@ -85,6 +85,7 @@ export const APP_STRINGS: UiStrings = {
   mapDone: 'Xong rồi!',
   homework: 'Bài về nhà',
   print: 'In',
+  noCodeYet: 'Con chưa có mã. Bố mẹ nhờ người hướng dẫn đặt mã cho con nhé.',
   wrongPin: 'Ối, sai mã rồi. Thử lại nhé!',
   tooManyTries: 'Thử nhiều quá rồi. Đợi {min} phút rồi thử lại nhé.',
   quizDone: 'Xong câu đố! Thu kẹo nào!',

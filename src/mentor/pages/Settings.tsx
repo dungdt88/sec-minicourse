@@ -64,7 +64,14 @@ export function SettingsPage() {
               const requirePin = e.target.checked;
               if (await run(() => api.updateSettings({ requirePin }))) {
                 setSettings((s) => (s ? { ...s, requirePin } : s));
-                notify(requirePin ? 'Các con cần nhập mã 4 số khi vào.' : 'Các con chạm vào hình là vào, không cần mã.');
+                const missing = data.profiles.filter((x) => !x.archivedAt && x.pinSet === false).map((x) => x.displayName);
+                notify(
+                  !requirePin
+                    ? 'Các con chạm vào hình là vào, không cần mã.'
+                    : missing.length
+                      ? `Đã bật mã. ${missing.join(', ')} chưa có mã nên chưa vào được: đặt mã ở “Các con”.`
+                      : 'Các con cần nhập mã 4 số khi vào.',
+                );
               }
             }}
           />

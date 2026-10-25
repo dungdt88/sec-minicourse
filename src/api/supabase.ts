@@ -56,7 +56,7 @@ export class SupabasePlayerApi implements PlayerApi {
 
   async listProfiles() {
     const rows = await rpc<Row[]>(this.client, 'public_profiles', { p_team_slug: this.teamSlug });
-    return rows.map((r) => ({ id: r.id as string, displayName: r.display_name as string, avatar: r.avatar as string }));
+    return rows.map((r) => ({ id: r.id as string, displayName: r.display_name as string, avatar: r.avatar as string, pinSet: r.pin_set !== false }));
   }
 
   async login(profileId: string, pin: string, device: DeviceType) {

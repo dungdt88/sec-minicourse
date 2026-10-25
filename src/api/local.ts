@@ -273,7 +273,7 @@ export class LocalPlayerApi implements PlayerApi {
 
   async listProfiles(): Promise<PublicProfile[]> {
     const db = await this.store.load();
-    return db.profiles.filter((p) => !p.archivedAt).map(({ id, displayName, avatar }) => ({ id, displayName, avatar }));
+    return db.profiles.filter((p) => !p.archivedAt).map(({ id, displayName, avatar, pinSet }) => ({ id, displayName, avatar, pinSet: pinSet !== false }));
   }
 
   async login(profileId: string, pin: string, _device: DeviceType): Promise<string> {
@@ -455,6 +455,7 @@ export class LocalMentorApi implements MentorApi {
       avatar: input.avatar,
       archivedAt: null,
       createdAt: now(),
+      pinSet: !!input.pin,
     };
     db.profiles.push(p);
     db.pins[p.id] = await hashPin(pin);
@@ -478,6 +479,8 @@ export class LocalMentorApi implements MentorApi {
     if (!/^\d{4}$/.test(pin)) throw new ApiError('invalid', 'Mã gồm 4 chữ số');
     db.pins[id] = await hashPin(pin);
     db.pinFailures[id] = [];
+    const prof = db.profiles.find((x) => x.id === id);
+    if (prof) prof.pinSet = true;
     for (const [t, pid] of Object.entries(db.sessions)) if (pid === id) delete db.sessions[t];
     this.store.save();
   }

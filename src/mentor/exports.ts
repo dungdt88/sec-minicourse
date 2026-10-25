@@ -99,8 +99,11 @@ export function exportCsv(d: TeamData, contents: Map<string, CourseContent>, act
   for (const [file, text] of Object.entries(teamCsvFiles(d, contents, active))) download(`${stamp()}-${file}`, text, 'text/csv;charset=utf-8');
 }
 
+/** Exports carry nothing about codes, not even whether one is set (acceptance test 10). */
+const withoutCodeInfo = ({ pinSet: _pinSet, ...p }: TeamData['profiles'][number]) => p;
+
 export function teamJson(d: TeamData): string {
-  return JSON.stringify({ exportedAt: new Date().toISOString(), ...d }, null, 2);
+  return JSON.stringify({ exportedAt: new Date().toISOString(), ...d, profiles: d.profiles.map(withoutCodeInfo) }, null, 2);
 }
 
 export function exportJson(d: TeamData, filename = `${stamp()}-team-data.json`) {
@@ -112,7 +115,7 @@ export function profileJson(d: TeamData, profileId: string): string {
   return JSON.stringify(
     {
       exportedAt: new Date().toISOString(),
-      profile: d.profiles.find((p) => p.id === profileId),
+      profile: d.profiles.filter((p) => p.id === profileId).map(withoutCodeInfo)[0],
       levelStates: only(d.levelStates),
       attempts: only(d.attempts),
       answers: only(d.answers),

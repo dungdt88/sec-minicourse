@@ -41,7 +41,8 @@ We ran the course ourselves, recorded one child explaining the idea, and checked
 **Requirements**
 - **Changed:** FR-P-10, FR-P-16, FR-P-18, FR-P-19, FR-P-23, FR-P-24, FR-P-28, FR-C-05, DR-01 to DR-05.
 - **New:** FR-M-15 (reset answers for a trial run), FR-M-16 (answers grouped by submission section), DR-08 (seasonal skin), FR-P-29 (cooperative team progress, with FR-P-08 relaxed to allow it).
-- **Acceptance tests:** tests 16 to 21 added.
+- **Children's codes optional (client's decision):** FR-P-02 now makes the 4-digit PIN a mentor setting, off by default; FR-M-02, NFR-05 and acceptance test 1 are adjusted.
+- **Acceptance tests:** tests 16 to 22 added.
 - **Appendices:** B, C and D rewritten; Appendix F added (submission map).
 
 **For reference:** we built our own version while waiting for quotes. Ask us for a link if seeing the intended behaviour would help. It is a reference, not a design to copy.
@@ -84,7 +85,7 @@ We will send this document to more than one vendor. Please answer each numbered 
 
 | Role | Who | Count now | Device | Notes |
 | --- | --- | --- | --- | --- |
-| Child (player) | 8-year-olds, read Vietnamese slowly, type slowly | 4 | Parent's phone or tablet, sometimes a laptop | Profile picked by picture, 4-digit PIN. No email, no password. |
+| Child (player) | 8-year-olds, read Vietnamese slowly, type slowly | 4 | Parent's phone or tablet, sometimes a laptop | Profile picked by picture; a 4-digit PIN only if the mentor turns codes on (FR-P-02). No email, no password. |
 | Parent (helper) | Reads cards aloud, types what the child says | 4 | Same device as the child | No separate login. The app addresses the parent in a few hints ("Bố mẹ đọc thẻ cho con nghe nhé"). |
 | Mentor (admin) | Runs the course, reads and exports answers, manages content | 1–3 | Laptop | Email + password or magic link. |
 | Reviewer / judge | Reads the exported PDF | — | — | Not a user of the app. |
@@ -130,7 +131,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-P-01 | The app opens on a profile picker: one large tile per child showing the child's chosen avatar and given name or nickname. No email, no username. | M |
-| FR-P-02 | A profile is unlocked with a 4-digit PIN set by the mentor. The PIN is remembered on the device so the child does not retype it daily; "switch profile" is available. | M |
+| FR-P-02 | Children's codes are optional, a team setting the mentor controls ("Cần mã khi vào"), and off by default (client's decision). With codes off, a child taps their picture and goes straight to the map. With codes on, a profile is unlocked with its 4-digit PIN, remembered on the device so the child does not retype it daily. Every profile always has a stored (hashed) PIN, random if the mentor set none, so turning codes on never leaves a profile open. "Switch profile" is available. | M |
 | FR-P-03 | Profiles, avatars and PINs are created and changed only in the mentor console. Children cannot create profiles. | M |
 | FR-P-04 | A "test" profile exists for the mentor to play through content without recording data (see FR-M-10). | S |
 
@@ -190,7 +191,7 @@ It shows only names, avatars, completed levels and the team's candy total, never
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-M-01 | Mentor login with email and password or magic link; at least 3 mentor accounts per team. All console pages are inaccessible without login. | M |
-| FR-M-02 | Profiles: create, rename, pick avatar, set or reset PIN, archive. Fields are limited to given name or nickname and avatar; no date of birth, no contact details for children. | M |
+| FR-M-02 | Profiles: create (a PIN is optional), rename, pick avatar, set or reset PIN, archive; switch children's codes on or off for the team (FR-P-02). Fields are limited to given name or nickname and avatar; no date of birth, no contact details for children. | M |
 | FR-M-03 | Level control per profile and for the whole team: unlock, lock, reset a level (keeping history), lock a level's form for editing. | M |
 | FR-M-04 | Dashboard: for each child, levels done, last activity, time spent per level split into cards / quiz / form (from section start and end timestamps). | M |
 | FR-M-05 | Quiz detail: for each child and question, the first-attempt result and the chosen option text, so the mentor can see which misconceptions appeared. Aggregate per question across the team ("3 of 4 wrong on L5Q3"). | M |
@@ -237,7 +238,7 @@ It shows only names, avatars, completed levels and the team's candy total, never
 | NFR-02 | Performance: first meaningful screen within 3 seconds on a mid-range Android phone over 4G; moving between cards or questions feels instant (under 200 ms, no network wait). Total asset weight for a level under 2 MB after caching. | M |
 | NFR-03 | Reliability: no answer is lost if the network drops mid-level; the app queues writes and retries, and tells the parent if something is still unsaved. | M |
 | NFR-04 | Offline play of already-loaded levels with deferred sync. | C |
-| NFR-05 | Security: HTTPS only; PINs stored hashed; mentor passwords hashed with a modern algorithm; rate limiting on PIN and login attempts; no answer data readable without the child's PIN or a mentor session; no third-party trackers, ads or analytics SDKs. | M |
+| NFR-05 | Security: HTTPS only; PINs stored hashed; mentor passwords hashed with a modern algorithm; rate limiting on PIN and login attempts; no answer data readable without a child's profile session (the child's PIN when codes are on) or a mentor session. With codes off, anyone who can open the app can open any child's profile, which the client accepts for family devices; the app link should then be shared only with the team's families; no third-party trackers, ads or analytics SDKs. | M |
 | NFR-06 | Privacy: the only personal data about a child is a given name or nickname, an avatar choice and the answers. No birth dates, photos of children, contact details or location. Data is used only for this course. The client is the data controller; the vendor processes data only to build and support the app. Vietnam's personal data rules (Decree 13/2023/NĐ-CP) apply; parents consent to their child's use. | M |
 | NFR-07 | Hosting: on accounts owned by the client (e.g. the client's own Firebase, Supabase, Vercel, AWS or similar), set up by the vendor, with expected monthly cost stated in the proposal. Target: under USD 10 per month at this scale, ideally free tier. | M |
 | NFR-08 | Ownership: full source code, build scripts, infrastructure configuration, content schema, design files and artwork are delivered to the client under an assignment of IP (or an MIT-style licence for the code if the vendor prefers to reuse their framework; state which). Third-party components must be open-source or licensed for the client's continued use at no extra cost. | M |
@@ -256,7 +257,7 @@ It shows only names, avatars, completed levels and the team's candy total, never
 5. A 30-minute handover call and written answers to follow-up questions for 3 months (warranty, see section 14).
 
 **Acceptance tests (the client will run these before accepting the MVP)**
-1. On an iPhone and on an Android phone, pick a profile, enter the PIN, complete level 1 end to end in under 15 minutes with a parent reading the cards aloud.
+1. On an iPhone and on an Android phone, pick a profile (and enter the PIN if codes are on), complete level 1 end to end in under 15 minutes with a parent reading the cards aloud.
 2. Stop mid-quiz on the phone, open the same profile on a laptop, continue from the same question.
 3. Answer a quiz question wrongly: see the explanation, continue, and find the first attempt recorded as wrong in the console; replay the level and confirm the first attempt is unchanged and the option order differs.
 4. On L6F4, enter 60 and 30 and confirm the app blocks continuing until the total is 100; enter 50 and 50; with "Vì sao…?" empty, see one gentle nudge, then continue on the second tap.
@@ -277,6 +278,7 @@ It shows only names, avatars, completed levels and the team's candy total, never
 19. On L7F2, the task list shows only tasks ticked in L7F1, while "Bao lâu làm một lần?" still shows its four options.
 20. With the OS set to reduce motion, answer a quiz question: no pop-up appears and the explanation shows at once. With it off, the pop-up finishes within 2 s and buttons stay tappable throughout.
 21. With two children, finish level 1 as one: the other's map shows their avatar at level 2 and a news line, the team jar grows by that child's first-try right answers, and no answers or per-child scores are visible. Switch team progress off in the console: it disappears for both.
+22. With codes off, tap a profile and land on the map with no PIN screen. Turn "Cần mã khi vào" on in the console: the same profile now asks for its PIN (a profile created without a PIN cannot be opened until the mentor sets one), and the rate limit applies.
 
 ## 13. Timeline
 

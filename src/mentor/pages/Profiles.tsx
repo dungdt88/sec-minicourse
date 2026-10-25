@@ -1,5 +1,5 @@
 // FR-M-02 / FR-M-13: create, rename, avatar, PIN, archive; delete only after an export.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Profile } from '../../api/types';
 import { AVATARS } from '../../content/avatars';
 import { childPdf, download, profileJson } from '../exports';
@@ -72,7 +72,7 @@ function DeleteDialog({ profile, onClose }: { profile: Profile; onClose: () => v
   );
 }
 
-function ProfileRow({ p }: { p: Profile }) {
+function ProfileRow({ p, requirePin }: { p: Profile; requirePin: boolean }) {
   const { api, run, notify } = useMentor();
   const [name, setName] = useState(p.displayName);
   const [avatar, setAvatar] = useState(p.avatar);
@@ -87,6 +87,11 @@ function ProfileRow({ p }: { p: Profile }) {
         </span>
         <strong style={{ fontSize: 17 }}>{p.displayName}</strong>
         {p.archivedAt && <span className="m-tag">Đã ẩn</span>}
+        {p.pinSet === false && (
+          <span className={`m-tag ${requirePin ? 'bad' : 'warn'}`} title="Tạo không có mã">
+            {requirePin ? '⚠️ Chưa có mã: con chưa vào được, hãy đặt mã' : 'Chưa có mã'}
+          </span>
+        )}
         <span style={{ flex: 1 }} />
         <button className="m-btn" onClick={() => setEditing(!editing)}>
           {editing ? 'Đóng' : 'Sửa'}
@@ -135,12 +140,16 @@ export function ProfilesPage() {
   const [avatar, setAvatar] = useState(AVATARS[0]);
   const [pin, setPin] = useState('');
   const profiles = [...data.profiles].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const [requirePin, setRequirePin] = useState(false);
+  useEffect(() => {
+    api.settings().then((s) => setRequirePin(!!s.requirePin), () => {});
+  }, [api]);
   return (
     <>
       <h1>Các con</h1>
       <p className="lead">Chỉ lưu tên gọi và hình đại diện. Không ngày sinh, không ảnh, không liên lạc.</p>
       {profiles.map((p) => (
-        <ProfileRow key={p.id} p={p} />
+        <ProfileRow key={p.id} p={p} requirePin={requirePin} />
       ))}
       <h2>Thêm một bạn</h2>
       <form

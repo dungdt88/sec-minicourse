@@ -116,6 +116,19 @@ test('no code by default; the mentor can require the 4-digit code again (FR-P-02
   await expect(p2.locator('.map')).toBeVisible();
   await coded.close();
 
+  // Rate limit: five wrong codes lock the profile for a while (NFR-05).
+  const guess = await browser.newContext();
+  const p3 = await guess.newPage();
+  await p3.goto('/');
+  await p3.locator('.profile-tile', { hasText: 'Dũng' }).click();
+  for (let i = 0; i < 5; i++) {
+    for (const d of '0000') await p3.getByRole('button', { name: d, exact: true }).click();
+    await expect(p3.getByText('Ối, sai mã rồi. Thử lại nhé!')).toBeVisible();
+  }
+  for (const d of '4444') await p3.getByRole('button', { name: d, exact: true }).click(); // even the right code waits
+  await expect(p3.getByText(/Thử nhiều quá rồi/)).toBeVisible();
+  await guess.close();
+
   await m.page.getByLabel('Cần mã khi vào').click();
   await expect(m.page.locator('.m-toast')).toContainText('không cần mã');
   await m.ctx.close();
@@ -489,9 +502,26 @@ test('15: deleting a profile offers an export first and removes the data', async
   const m = await mentorPage(browser);
   await m.page.goto('/mentor/profiles');
   await m.page.getByLabel('Tên gọi').fill('Tạm');
-  await m.page.getByLabel('Mã 4 số').fill('9999');
-  await m.page.getByRole('button', { name: 'Thêm', exact: true }).click();
+  await m.page.getByRole('button', { name: 'Thêm', exact: true }).click(); // no code: it is optional
   const row = m.page.locator('.m-card', { hasText: 'Tạm' }).first();
+  await expect(row).toContainText('Chưa có mã');
+
+  // 22: with codes switched on, a profile without a code is flagged, and the child is told why.
+  await m.page.goto('/mentor/settings');
+  await m.page.getByLabel('Cần mã khi vào').click();
+  await expect(m.page.locator('.m-toast')).toContainText('Tạm chưa có mã');
+  const kid = await browser.newContext();
+  const kp = await kid.newPage();
+  await kp.goto('/');
+  await kp.locator('.profile-tile', { hasText: 'Tạm' }).click();
+  await expect(kp.getByText('Con chưa có mã. Bố mẹ nhờ người hướng dẫn đặt mã cho con nhé.')).toBeVisible();
+  await kid.close();
+  await m.page.goto('/mentor/profiles');
+  await expect(row).toContainText('Chưa có mã: con chưa vào được');
+  await m.page.goto('/mentor/settings');
+  await m.page.getByLabel('Cần mã khi vào').click();
+  await expect(m.page.locator('.m-toast')).toContainText('không cần mã');
+  await m.page.goto('/mentor/profiles');
   await row.getByRole('button', { name: 'Xoá…' }).click();
   const dialog = m.page.locator('dialog[open]');
   await expect(dialog.getByRole('button', { name: '3. Xoá hẳn' })).toBeDisabled();

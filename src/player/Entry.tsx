@@ -171,6 +171,23 @@ export function PinEntry() {
     setPin((p) => (p.length < 4 ? p + d : p));
   };
 
+  // Codes are on but the mentor never set one for this child: say so, no keypad.
+  if (profile && profile.pinSet === false)
+    return (
+      <main className="screen center">
+        <div className="topbar">
+          <button className="icon-btn" onClick={() => navigate('/')}>
+            ← {t('back')}
+          </button>
+        </div>
+        <div style={{ fontSize: 72, lineHeight: 1 }} aria-hidden="true">
+          {profile.avatar}
+        </div>
+        <h1 className="big-title">{profile.displayName}</h1>
+        <p className="notice">{t('noCodeYet')}</p>
+      </main>
+    );
+
   return (
     <main className="screen">
       <div className="topbar">
