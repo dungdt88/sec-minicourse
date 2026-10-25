@@ -44,7 +44,7 @@ interface LocalDb {
   mentorSession: MentorSession | null;
   errors: ErrorLogEntry[];
   /** Added with RFP v1.1; absent in older saved databases. */
-  settings?: { skin?: 'plain' | 'halloween'; teamProgress?: boolean };
+  settings?: { skin?: 'plain' | 'halloween'; teamProgress?: boolean; requirePin?: boolean };
   epoch?: number;
 }
 
@@ -280,6 +280,12 @@ export class LocalPlayerApi implements PlayerApi {
     const db = await this.store.load();
     const profile = db.profiles.find((p) => p.id === profileId && !p.archivedAt);
     if (!profile) throw new ApiError('not_found');
+    if (!db.settings?.requirePin) {
+      const token = uuid();
+      db.sessions[token] = profileId;
+      this.store.save();
+      return token;
+    }
     const cutoff = Date.now() - 15 * 60_000;
     const failures = (db.pinFailures[profileId] ?? []).filter((t) => Date.parse(t) > cutoff);
     if (failures.length >= 5) throw new ApiError('rate_limited', undefined, 15);
@@ -440,7 +446,8 @@ export class LocalMentorApi implements MentorApi {
 
   async createProfile(input: { displayName: string; avatar: string; pin: string }) {
     const db = await this.db();
-    if (!/^\d{4}$/.test(input.pin)) throw new ApiError('invalid', 'Mã gồm 4 chữ số');
+    const pin = input.pin || String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+    if (!/^\d{4}$/.test(pin)) throw new ApiError('invalid', 'Mã gồm 4 chữ số');
     const p: Profile = {
       id: uuid(),
       teamId: db.teamId,
@@ -450,7 +457,7 @@ export class LocalMentorApi implements MentorApi {
       createdAt: now(),
     };
     db.profiles.push(p);
-    db.pins[p.id] = await hashPin(input.pin);
+    db.pins[p.id] = await hashPin(pin);
     this.store.save();
     return p;
   }

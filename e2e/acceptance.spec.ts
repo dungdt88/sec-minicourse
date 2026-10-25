@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { dontKnowAndNext, kidPage, mentorPage, next, playToForm, questionNo, throughToForm, waitSaved } from './helpers';
+import { dontKnowAndNext, enterAs, kidPage, mentorPage, next, playToForm, questionNo, throughToForm, waitSaved } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -88,6 +88,37 @@ test('1, 6, 16: a child completes level 1 on a phone', async ({ browser }) => {
   await expect(page.getByText('Hôm nay mình chơi: Màn 2')).toBeVisible();
   await expect(page.locator('.map-node', { hasText: 'Màn 3:' })).toContainText('Cửa này còn khóa! Con xong Màn 2 là mở nha.');
   await ctx.close();
+});
+
+test('no code by default; the mentor can require the 4-digit code again (FR-P-02)', async ({ browser }) => {
+  // Default: tap the picture and go in — no code screen.
+  const plain = await browser.newContext();
+  const p1 = await plain.newPage();
+  await p1.goto('/');
+  await p1.locator('.profile-tile', { hasText: 'Chi' }).click();
+  await expect(p1.locator('.map')).toBeVisible();
+  await expect(p1.getByText('Nhập mã bí mật của con')).toHaveCount(0);
+  await plain.close();
+
+  const m = await mentorPage(browser);
+  await m.page.goto('/mentor/settings');
+  await m.page.getByLabel('Cần mã khi vào').click(); // follows the server
+  await expect(m.page.locator('.m-toast')).toContainText('cần nhập mã');
+
+  const coded = await browser.newContext();
+  const p2 = await coded.newPage();
+  await p2.goto('/');
+  await p2.locator('.profile-tile', { hasText: 'Chi' }).click();
+  await expect(p2.getByText('Nhập mã bí mật của con')).toBeVisible();
+  for (const d of '9999') await p2.getByRole('button', { name: d, exact: true }).click();
+  await expect(p2.getByText('Ối, sai mã rồi. Thử lại nhé!')).toBeVisible();
+  for (const d of '3333') await p2.getByRole('button', { name: d, exact: true }).click();
+  await expect(p2.locator('.map')).toBeVisible();
+  await coded.close();
+
+  await m.page.getByLabel('Cần mã khi vào').click();
+  await expect(m.page.locator('.m-toast')).toContainText('không cần mã');
+  await m.ctx.close();
 });
 
 test('2: stop mid-quiz on the phone, continue on a laptop', async ({ browser }) => {
@@ -301,8 +332,7 @@ test('20: the mascot pop-up respects reduced motion and never blocks a tap', asy
   const reduced = await browser.newContext({ reducedMotion: 'reduce' });
   const rp = await reduced.newPage();
   await rp.goto('/');
-  await rp.locator('.profile-tile', { hasText: 'Dũng' }).click();
-  for (const d of '4444') await rp.getByRole('button', { name: d, exact: true }).click();
+  await enterAs(rp, 'Dũng');
   await rp.locator('.map-node', { hasText: 'Màn 1:' }).click();
   await rp.locator('.bottom-actions .btn').click();
   for (let i = 0; i < 4; i++) await next(rp);

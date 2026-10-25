@@ -7,10 +7,16 @@ export async function kidPage(browser: Browser, name: keyof typeof KIDS, device:
   const ctx = await browser.newContext(device === 'laptop' ? { viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false } : {});
   const page = await ctx.newPage();
   await page.goto('/');
-  await page.locator('.profile-tile', { hasText: name }).click();
-  for (const d of KIDS[name]) await page.getByRole('button', { name: d, exact: true }).click();
-  await expect(page.locator('.map')).toBeVisible();
+  await enterAs(page, name);
   return { ctx, page };
+}
+
+/** Tap the child's picture; type the code only if the team requires one. */
+export async function enterAs(page: Page, name: keyof typeof KIDS) {
+  await page.locator('.profile-tile', { hasText: name }).click();
+  await page.waitForURL(/\/(pin|play)\//);
+  if (page.url().includes('/pin/')) for (const d of KIDS[name]) await page.getByRole('button', { name: d, exact: true }).click();
+  await expect(page.locator('.map')).toBeVisible();
 }
 
 export async function mentorPage(browser: Browser): Promise<{ ctx: BrowserContext; page: Page }> {

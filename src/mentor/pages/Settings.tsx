@@ -26,6 +26,7 @@ export function SettingsPage() {
   };
   const skinOn = (settings?.skin ?? 'halloween') === 'halloween';
   const teamOn = settings?.teamProgress !== false;
+  const pinOn = !!settings?.requirePin;
   useEffect(load, [api]);
 
   return (
@@ -50,6 +51,29 @@ export function SettingsPage() {
           <strong>Halloween</strong>: Drắc Nhí, kẹo, bí ngô, các con vật hoá trang
         </label>
         <p className="small-text muted">Tắt thì dùng giao diện sáng bình thường, cùng bố cục. Máy của các con đổi theo khi mở lại ứng dụng.</p>
+      </div>
+
+      <h2>Mã của các con</h2>
+      <div className="m-card">
+        <label className="m-row" style={{ gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={pinOn}
+            disabled={!settings}
+            onChange={async (e) => {
+              const requirePin = e.target.checked;
+              if (await run(() => api.updateSettings({ requirePin }))) {
+                setSettings((s) => (s ? { ...s, requirePin } : s));
+                notify(requirePin ? 'Các con cần nhập mã 4 số khi vào.' : 'Các con chạm vào hình là vào, không cần mã.');
+              }
+            }}
+          />
+          <strong>Cần mã khi vào</strong>
+        </label>
+        <p className="small-text muted">
+          Tắt (mặc định): con chạm vào hình của mình là vào. Ai dùng máy cũng chọn được bất kỳ bạn nào, nên chỉ hợp khi máy ở nhà hoặc trong lớp. Bật: con nhập
+          mã 4 số đặt ở “Các con”; máy đã vào rồi thì không phải nhập lại.
+        </p>
       </div>
 
       <h2>Tiến độ cả đội</h2>

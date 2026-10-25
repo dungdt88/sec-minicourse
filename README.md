@@ -18,7 +18,8 @@ pnpm install
 pnpm dev:local          # http://localhost:5173, data kept in this browser only
 ```
 
-Demo profiles An / Bình / Chi / Dũng have PINs 1111 / 2222 / 3333 / 4444. Mentor console:
+Demo profiles An / Bình / Chi / Dũng: tap a picture to play (codes 1111 / 2222 / 3333 / 4444 apply
+only if "Cần mã khi vào" is switched on in Cài đặt). Mentor console:
 `mentor@local` / `mentor`. Use this mode for design reviews and trying content; it is **not** for
 real children's data (anyone with the device can read it).
 
@@ -149,7 +150,9 @@ supabase/migrations/   tables, RLS, server functions
 ```
 
 - **Children never touch tables.** The `anon` role can only call `player_*` functions with a
-  session token from `player_login(profile, PIN)`. Tokens and PINs are stored hashed (SHA-256 and
+  session token from `player_login(profile, PIN)`. By default a child just taps their picture
+  (`teams.settings.requirePin` off, at the owner's request); the mentor can require the 4-digit
+  code in Cài đặt, and then Tokens and PINs are stored hashed (SHA-256 and
   bcrypt); 5 wrong PINs lock a profile for 15 minutes. Changing a PIN signs the profile out everywhere.
 - **Mentors** sign in with Supabase Auth (password or magic link; Supabase rate-limits these),
   read their team's rows through row-level security and change things only through `mentor_*`

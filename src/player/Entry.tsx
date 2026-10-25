@@ -13,7 +13,8 @@ const CURRENT_KEY = 'tvt.currentProfile';
 
 function useBoot() {
   const setSkin = useSetSkin();
-  const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent } | null>(null);
+  // requirePin: whether children need their code (a team setting, off unless the mentor turns it on).
+  const [boot, setBoot] = useState<{ api: PlayerApi; content: ActiveContent; requirePin: boolean } | null>(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -21,9 +22,12 @@ function useBoot() {
     setError(false);
     (async () => {
       const api = await playerApi();
-      api.settings().then((s) => alive && setSkin(s.skin ?? DEFAULT_SKIN), () => {});
-      const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh }));
-      if (alive) setBoot({ api, content });
+      const settingsP = api.settings().catch(() => null);
+      void settingsP.then((s) => s && alive && setSkin(s.skin ?? DEFAULT_SKIN));
+      let requirePin = false;
+      const content = await loadContent(api, (fresh) => alive && setBoot({ api, content: fresh, requirePin }));
+      requirePin = !!(await settingsP)?.requirePin;
+      if (alive) setBoot({ api, content, requirePin });
     })().catch(() => alive && setError(true));
     return () => {
       alive = false;
@@ -75,7 +79,8 @@ export function ProfilePicker() {
     if (deviceTokens.get(p.id)) {
       localStorage.setItem(CURRENT_KEY, p.id);
       navigate('/play/home');
-    } else navigate(`/pin/${p.id}`);
+    } else if (boot.requirePin) navigate(`/pin/${p.id}`);
+    else enterWithoutCode(boot.api, p.id, navigate);
   };
 
   return (
@@ -103,6 +108,18 @@ export function ProfilePicker() {
   );
 }
 
+/** No code needed: tap the picture and go in. Falls back to the code screen if the server asks for one. */
+function enterWithoutCode(api: PlayerApi, profileId: string, navigate: (to: string, o?: { replace?: boolean }) => void) {
+  api.login(profileId, '', deviceType()).then(
+    (token) => {
+      deviceTokens.set(profileId, token);
+      localStorage.setItem(CURRENT_KEY, profileId);
+      navigate('/play/home', { replace: true });
+    },
+    () => navigate(`/pin/${profileId}`),
+  );
+}
+
 export function PinEntry() {
   const { profileId = '' } = useParams();
   const { boot, error, retry } = useBoot();
@@ -115,6 +132,10 @@ export function PinEntry() {
 
   useEffect(() => {
     if (!boot) return;
+    if (!boot.requirePin) {
+      enterWithoutCode(boot.api, profileId, navigate);
+      return;
+    }
     boot.api.listProfiles().then((ps) => setProfile(ps.find((p) => p.id === profileId) ?? null));
   }, [boot, profileId]);
 

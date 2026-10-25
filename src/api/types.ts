@@ -106,6 +106,8 @@ export interface TeamSettings {
   skin?: 'plain' | 'halloween';
   /** Friends' progress and the shared candy jar on the child's map (default on). */
   teamProgress?: boolean;
+  /** Children enter with their 4-digit code (default off: tap the picture). */
+  requirePin?: boolean;
   dataEpoch: number;
 }
 

@@ -155,8 +155,8 @@ export function ProfilesPage() {
       >
         <div className="m-row">
           <input className="m-input" placeholder="Tên gọi" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} aria-label="Tên gọi" />
-          <input className="m-input" placeholder="Mã 4 số" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} aria-label="Mã 4 số" />
-          <button className="m-btn primary" disabled={!name.trim() || !validPin(pin)}>
+          <input className="m-input" placeholder="Mã 4 số (không bắt buộc)" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} aria-label="Mã 4 số" />
+          <button className="m-btn primary" disabled={!name.trim() || (pin !== '' && !validPin(pin))}>
             Thêm
           </button>
         </div>
