@@ -45,16 +45,18 @@ function Input(props: PartProps) {
 export function PartField(
   props: Omit<PartProps, 'labelId'> & {
     fallbackLabelId: string;
-    /** After the child tapped "Tiếp" on an unfinished question: say what this part still needs. */
-    showMissing?: boolean;
+    /** After the child tapped "Tiếp" on an unfinished question: this part still needs an answer. */
+    missing?: boolean;
+    /** An empty "Vì sao…" part after the one-time nudge. */
+    nudge?: boolean;
     domId?: string;
   },
 ) {
-  const { part, answer, t, fallbackLabelId, showMissing, domId } = props;
+  const { part, answer, t, fallbackLabelId, missing, nudge, domId } = props;
   const labelId = part.label ? `label-${part.id}` : fallbackLabelId;
   const check = checkPart(part as Part, answer, t);
   const dontKnow = !!answer?.dontKnow;
-  const message = showMissing && !check.complete ? (check.message ?? t('missingPart')) : null;
+  const message = missing ? (check.message ?? t('missingPart')) : null;
   return (
     <div className="part" id={domId}>
       {part.label && part.type !== 'repeat' && (
@@ -71,6 +73,11 @@ export function PartField(
       {message && (
         <p className="part-message" role="alert">
           {message}
+        </p>
+      )}
+      {nudge && !message && (
+        <p className="gentle" role="status">
+          {t('whyNudge')}
         </p>
       )}
     </div>

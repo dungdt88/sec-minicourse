@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { ItemListPart, RepeatPart, SumSplitPart } from '../../content/types';
 import { itemListTotal, sumSplitTotal, type ItemListValue, type ListRow, type RepeatRow, type RepeatValue, type SumSplitValue } from '../../domain/answers';
 import { ThousandCheck, inThousands } from './ThousandCheck';
@@ -6,16 +7,70 @@ import { current, set, type PartProps } from './types';
 const digits = (s: string) => s.replace(/[^0-9]/g, '').slice(0, 9);
 const toNum = (s: string) => (s === '' ? null : parseInt(s, 10));
 
-export function ItemListInput({ part, answer, onChange, readOnly, t }: PartProps<ItemListPart>) {
+const cellEmpty = (v: ListRow[string] | undefined) => v == null || (typeof v === 'string' && v.trim() === '');
+const rowEmpty = (r: ListRow) => Object.values(r).every(cellEmpty);
+
+/**
+ * Grouped rows (Appendix B). `minRows` rows show from the start; rows with extra text fields are
+ * numbered cards ("Thứ 1"); empty rows stay on screen while the child works but are never saved,
+ * so the stored list has no gaps. `copyFrom` offers the child's own homework rows (H4 prices).
+ */
+export function ItemListInput({ part, answer, onChange, readOnly, t, lookup }: PartProps<ItemListPart>) {
   const value = current<ItemListValue>(answer) ?? { groups: {} };
-  const rowsOf = (g: string): ListRow[] => (value.groups?.[g]?.length ? value.groups[g] : [{}]);
-  const update = (g: string, rows: ListRow[]) => onChange(set({ groups: { ...value.groups, [g]: rows } }));
+  const minRows = Math.max(part.minRows ?? 1, 1);
+  const pad = (rows: ListRow[] | undefined) => {
+    const r = [...(rows ?? [])];
+    while (r.length < minRows) r.push({});
+    return r;
+  };
+  const [shown, setShown] = useState<Record<string, ListRow[]>>(() =>
+    Object.fromEntries(part.groups.map((g) => [g.id, pad(value.groups?.[g.id])])),
+  );
+  const [copied, setCopied] = useState<number | null>(null);
+  useEffect(() => {
+    // "Chưa biết" cleared the answer: start again from empty rows.
+    if (answer?.dontKnow) setShown(Object.fromEntries(part.groups.map((g) => [g.id, pad(undefined)])));
+  }, [answer?.dontKnow]);
+
+  const emit = (next: Record<string, ListRow[]>) => {
+    setShown(next);
+    onChange(set({ groups: Object.fromEntries(Object.entries(next).map(([g, rows]) => [g, rows.filter((r) => !rowEmpty(r))])) }));
+  };
+  const update = (g: string, rows: ListRow[]) => emit({ ...shown, [g]: rows });
   const setCell = (g: string, rows: ListRow[], i: number, id: string, v: ListRow[string]) =>
     update(g, rows.map((r, j) => (j === i ? { ...r, [id]: v } : r)));
+
+  const textFields = part.fields.filter((f) => f.type === 'text');
+  const asCards = textFields.length > 1;
+
+  // copyFrom: rows from a homework list, into empty rows of the target group; never overwrites.
+  const cf = part.copyFrom;
+  const source = cf ? ((lookup(cf.homeworkId, cf.fieldId)?.value as ItemListValue | null)?.groups?.[cf.groupId] ?? []).filter((r) => !rowEmpty(r)) : [];
+  const copyRows = () => {
+    if (!cf) return;
+    const target = [...(shown[cf.toGroupId] ?? [])];
+    const have = new Set(target.map((r) => String(r.name ?? '').trim().toLowerCase()).filter(Boolean));
+    const ids = new Set(part.fields.map((f) => f.id));
+    let n = 0;
+    for (const src of source) {
+      const key = String(src.name ?? '').trim().toLowerCase();
+      if (key && have.has(key)) continue;
+      const row = Object.fromEntries(Object.entries(src).filter(([k]) => ids.has(k)));
+      const slot = target.findIndex(rowEmpty);
+      if (slot >= 0) target[slot] = row;
+      else if (part.maxItemsPerGroup == null || target.length < part.maxItemsPerGroup) target.push(row);
+      else break;
+      have.add(key);
+      n++;
+    }
+    update(cf.toGroupId, target);
+    setCopied(n);
+  };
+
   return (
     <>
       {part.groups.map((g) => {
-        const rows = rowsOf(g.id);
+        const rows = shown[g.id] ?? pad(undefined);
         const full = part.maxItemsPerGroup != null && rows.length >= part.maxItemsPerGroup;
         // Groups like "Nhà con có sẵn" have nothing to pay, so no price box.
         const fields = g.noPrice ? part.fields.filter((f) => f.type !== 'number') : part.fields;
@@ -23,8 +78,21 @@ export function ItemListInput({ part, answer, onChange, readOnly, t }: PartProps
           <fieldset key={g.id} className="list-group">
             <legend className="part-label">{g.label}</legend>
             {g.hint && <p className="hint" style={{ marginTop: -6 }}>{g.hint}</p>}
+            {cf && cf.toGroupId === g.id && source.length > 0 && !readOnly && (
+              <div className="part" style={{ gap: 6 }}>
+                <button type="button" className="btn secondary small" onClick={copyRows}>
+                  📋 {t('copyFromHomework')}
+                </button>
+                {copied != null && (
+                  <p className="hint" role="status">
+                    {copied ? t('copiedRows', { n: copied }) : t('copiedNone')}
+                  </p>
+                )}
+              </div>
+            )}
             {rows.map((row, i) => (
-              <div className="list-item" key={i}>
+              <div className={`list-item${asCards ? ' card-row' : ''}`} key={i}>
+                {asCards && <div className="part-label">{t('rowItem', { n: i + 1 })}</div>}
                 {fields.map((f) => {
                   const short = f.label.replace(/\s*\(.*\)\s*/, '');
                   if (f.type === 'number') {
@@ -64,7 +132,7 @@ export function ItemListInput({ part, answer, onChange, readOnly, t }: PartProps
                     />
                   );
                 })}
-                {!readOnly && rows.length > 1 && (
+                {!readOnly && rows.length > minRows && (
                   <button type="button" className="btn quiet small" style={{ alignSelf: 'flex-start' }} onClick={() => update(g.id, rows.filter((_, j) => j !== i))}>
                     ✕ {t('remove')}
                   </button>

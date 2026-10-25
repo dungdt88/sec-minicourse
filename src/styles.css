@@ -995,3 +995,39 @@ details.objectives summary {
     padding: 20px 28px 28px;
   }
 }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: var(--leaf-soft);
+  border: 2px solid var(--leaf);
+  font-weight: 700;
+}
+.chip button {
+  /* DR-04: 48 × 48 tap target even inside a small chip */
+  min-width: 48px;
+  min-height: 48px;
+  margin: -6px -6px -6px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.list-item.card-row {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.list-item.card-row:last-of-type {
+  border-bottom: 2px solid var(--line);
+}

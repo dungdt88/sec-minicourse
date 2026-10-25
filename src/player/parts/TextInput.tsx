@@ -15,7 +15,7 @@ export function TextInput({ part, answer, onChange, readOnly, t, labelId }: Part
         lang="vi"
         autoComplete="off"
         rows={short ? 2 : 4}
-        placeholder={t('writeHere')}
+        placeholder={part.placeholder ?? t('writeHere')}
         onChange={(e) => onChange(set(e.target.value))}
       />
       {max != null && value.length > max * 0.8 && (

@@ -19,8 +19,8 @@ describe('content validation', () => {
   it('matches the counts in the RFP', () => {
     expect(original.levels).toHaveLength(7);
     expect(original.levels.flatMap((l) => l.cards)).toHaveLength(28);
-    expect(original.levels.flatMap((l) => l.quiz)).toHaveLength(27);
-    expect(original.levels.flatMap((l) => l.form.questions)).toHaveLength(26);
+    expect(original.levels.flatMap((l) => l.quiz)).toHaveLength(28);
+    expect(original.levels.flatMap((l) => l.form.questions)).toHaveLength(27);
     expect(original.homework.items).toHaveLength(5);
     expect(original.sdg).toHaveLength(17);
   });
@@ -54,9 +54,10 @@ describe('content validation', () => {
 
   it('rejects an unknown part type with the question id', () => {
     const c = copy();
-    (c.levels[0].form.questions[0].parts[0] as { type: string }).type = 'slider';
+    const q = c.levels[0].form.questions[0];
+    (q.parts[0] as { type: string }).type = 'slider';
     const errors = errorsOf(c);
-    expect(errors.some((e) => e.id === 'L1F1' && e.where.includes('L1F1'))).toBe(true);
+    expect(errors.some((e) => e.id === q.id && e.where.includes(q.id))).toBe(true);
   });
 
   it('rejects a part missing its required fields', () => {

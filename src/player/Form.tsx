@@ -1,8 +1,8 @@
 // "Đến lượt đội con": one question per screen with autosave, then a review screen (FR-P-20 … FR-P-25).
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormQuestion, Level, Part } from '../content/types';
 import { findQuestion } from '../content/types';
-import { checkPart, formatPart, withColon, type PartAnswer } from '../domain/answers';
+import { checkPart, checkQuestion, formatPart, withColon, type PartAnswer } from '../domain/answers';
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
@@ -66,48 +66,45 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
   const { content, t, answer, notice, clearNotice } = usePlayer();
   const { drafts, change, flushAll } = useAutosave(level.id, question.id, question.parts, readOnly);
   const lookup = (q: string, p: string) => (q === question.id ? drafts[p] : answer(q, p));
-  const complete = question.parts.every((p) => checkPart(p, drafts[p.id], t).complete);
   const promptId = `prompt-${question.id}`;
+  const check = checkQuestion(question, (id) => drafts[id], t);
   // "Tiếp" stays tappable; a tap on an unfinished question says what is missing instead of
   // silently doing nothing. Messages about a part wait for that first tap.
   const [attempted, setAttempted] = useState(false);
+  // Empty "Vì sao…" parts already nudged once: the next tap goes through (Appendix B).
+  const [nudged, setNudged] = useState<Set<string>>(new Set());
 
-  // One "Chưa biết" per question. It covers the parts not answered yet, so a child who knows
-  // the choice but not the "vì sao" keeps their choice. Tapping it again takes it back.
+  const scrollTo = (partId: string | undefined) => {
+    if (partId) document.getElementById(`part-${question.id}-${partId}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  };
+
+  // One "Chưa biết" per question. It covers what is not answered yet, so a child who knows the
+  // choice but not the rest keeps their choice. Tapping it again takes it back.
   const anyDontKnow = question.parts.some((p) => drafts[p.id]?.dontKnow);
   const toggleDontKnow = () => {
     if (anyDontKnow) {
       for (const p of question.parts) if (drafts[p.id]?.dontKnow) change(p, { value: null, dontKnow: false });
       return;
     }
-    const missing = question.parts.filter((p) => !checkPart(p, drafts[p.id], t).complete);
-    // A `required` text part (e.g. L1F4 "Vì sao?") is not skipped once the child has answered the
-    // rest: having picked an SDG, they say why. If they know nothing yet, the whole question is "Chưa biết".
-    const answeredSome = missing.length < question.parts.length;
-    const skippable = missing.filter((p) => !(answeredSome && p.type === 'text' && p.required));
-    if (missing.length && !skippable.length) {
-      setAttempted(true);
-      return;
-    }
-    for (const p of missing.length ? skippable : question.parts) change(p, { value: null, dontKnow: true });
+    const unanswered = question.parts.filter((p) => !checkPart(p, drafts[p.id], t).complete);
+    for (const p of unanswered.length ? unanswered : question.parts) change(p, { value: null, dontKnow: true });
   };
-
-  // Everything else is done and only a required part is missing: name it.
-  const isRequired = (p: Part) => p.type === 'text' && !!p.required;
-  const othersDone = question.parts.every((p) => isRequired(p) || checkPart(p, drafts[p.id], t).complete);
-  const requiredMissing = othersDone
-    ? question.parts.find((p) => isRequired(p) && !checkPart(p, drafts[p.id], t).complete)
-    : undefined;
 
   const tryNext = () => {
     flushAll();
-    if (complete || readOnly) {
-      onNext();
+    if (readOnly) return onNext();
+    if (!check.complete) {
+      setAttempted(true);
+      scrollTo(check.blocking[0] ?? question.parts[0]?.id);
       return;
     }
-    setAttempted(true);
-    const first = question.parts.find((p) => !checkPart(p, drafts[p.id], t).complete);
-    if (first) document.getElementById(`part-${question.id}-${first.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    const pending = check.nudge.filter((id) => !nudged.has(id));
+    if (pending.length) {
+      setNudged(new Set([...nudged, ...pending]));
+      scrollTo(pending[0]);
+      return;
+    }
+    onNext();
   };
 
   const contextRows = (question.context ?? []).map((ref) => {
@@ -115,8 +112,10 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
     const part = found?.question.parts.find((p) => p.id === ref.partId);
     const label = part?.label ?? found?.question.prompt ?? ref.questionId;
     const value = part ? formatPart(part, answer(ref.questionId, ref.partId), content, t) : '';
-    return { key: `${ref.questionId}/${ref.partId}`, label, value: value || t('noAnswer') };
+    const chose = !!part && ['single_choice', 'multi_choice', 'pick_n', 'sdg_picker'].includes(part.type);
+    return { key: `${ref.questionId}/${ref.partId}`, label, value: value || t('noAnswer'), chose };
   });
+  const firstTextPart = question.parts.find((p) => p.type === 'text')?.id;
 
   return (
     <main className="screen">
@@ -133,14 +132,18 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         </h1>
         {question.hint && <p className="hint">{question.hint}</p>}
       </div>
-      {!readOnly && question.parts.some((p) => p.type === 'text') && <HintBanner id="dictation" text={t('dictationTip')} />}
       {readOnly && <p className="notice lock">{t('formLocked')}</p>}
       {notice && (
         <p className="notice lock" role="alert" onClick={clearNotice}>
           {notice}
         </p>
       )}
-      {contextRows.length > 0 && (
+      {contextRows.length === 1 && (
+        <p className="context-box" style={{ margin: 0 }}>
+          {t(contextRows[0].chose ? 'earlierChose' : 'earlierWrote')} <strong>{contextRows[0].value}</strong>
+        </p>
+      )}
+      {contextRows.length > 1 && (
         <div className="context-box">
           {t('earlierAnswers')}
           <dl>
@@ -154,19 +157,23 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         </div>
       )}
       {question.parts.map((part) => (
-        <PartField
-          key={part.id}
-          part={part}
-          answer={drafts[part.id]}
-          onChange={(a) => change(part, a)}
-          readOnly={readOnly}
-          t={t}
-          content={content}
-          lookup={lookup}
-          domId={`part-${question.id}-${part.id}`}
-          showMissing={attempted}
-          fallbackLabelId={promptId}
-        />
+        <Fragment key={part.id}>
+          <PartField
+            part={part}
+            answer={drafts[part.id]}
+            onChange={(a) => change(part, a)}
+            readOnly={readOnly}
+            t={t}
+            content={content}
+            lookup={lookup}
+            domId={`part-${question.id}-${part.id}`}
+            missing={attempted && check.blocking.includes(part.id)}
+            nudge={nudged.has(part.id) && check.nudge.includes(part.id)}
+            fallbackLabelId={promptId}
+          />
+          {/* FR-P-24: under the first text field, a tip about the keyboard's microphone. */}
+          {!readOnly && part.id === firstTextPart && <HintBanner id="dictation" text={t('dictationTip')} />}
+        </Fragment>
       ))}
       {question.allowDontKnow && (
         <button type="button" className="option dont-know" role="checkbox" aria-checked={anyDontKnow} disabled={readOnly} onClick={toggleDontKnow}>
@@ -176,11 +183,9 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
           <span>{t('dontKnow')}</span>
         </button>
       )}
-      {attempted && !complete && !readOnly && (
+      {attempted && !check.complete && !readOnly && (
         <p className="gentle" role="alert">
-          {/* After "Chưa biết" only a required part can be missing: name it instead of
-              suggesting "Chưa biết" again. */}
-          {requiredMissing ? t('requiredHint', { label: requiredMissing.label ?? '' }) : t('missingHint')}
+          {check.textOnlyEmpty ? t('textOnlyMissing') : t('missingHint')}
         </p>
       )}
       <div className="bottom-actions">
@@ -214,12 +219,11 @@ export function FormReview({ level, readOnly, submitted, onEdit, onSubmit, top }
   const { content, t, answer, flush, saveStatus } = usePlayer();
   const [busy, setBusy] = useState(false);
   const rows = level.form.questions.map((q) => {
-    const parts = q.parts.map((p) => ({
-      label: p.label,
-      text: formatPart(p, answer(q.id, p.id), content, t),
-      complete: checkPart(p, answer(q.id, p.id), t).complete,
-    }));
-    return { q, parts, complete: parts.every((p) => p.complete) };
+    // Empty optional parts are left out of the review rather than shown as "chưa trả lời".
+    const parts = q.parts
+      .map((p) => ({ label: p.label, text: formatPart(p, answer(q.id, p.id), content, t) }))
+      .filter((p, i) => p.text || q.parts.length === 1 || i === 0);
+    return { q, parts, complete: checkQuestion(q, (id) => answer(q.id, id), t).complete };
   });
   const allComplete = rows.every((r) => r.complete);
 

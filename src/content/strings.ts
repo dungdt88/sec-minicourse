@@ -57,7 +57,10 @@ export const APP_STRINGS: UiStrings = {
   readAloudFailed: 'Máy chưa đọc được tiếng Việt. Bố mẹ đọc cho con nghe nhé.',
   dictationTip: 'Mẹo cho bố mẹ: bấm nút micro 🎤 trên bàn phím điện thoại, con nói và máy tự gõ.',
   missingPart: 'Phần này con chưa trả lời.',
-  requiredHint: 'Con viết thêm phần “{label}” nhé.',
+  textOnlyMissing: 'Con trả lời một chút, hoặc bấm “Chưa biết” nhé.',
+  whyNudge: 'Con nói thêm vì sao không? Chưa nghĩ ra thì bấm Tiếp lần nữa nhé.',
+  earlierChose: 'Ở câu trước con chọn:',
+  earlierWrote: 'Ở câu trước con ghi:',
   missingHint: 'Còn phần chưa xong. Không biết thì chọn “Chưa biết” nhé.',
   questionOf: 'Câu {n}/{total}',
   today: 'Hôm nay: Màn {n}',
@@ -82,6 +85,11 @@ export const APP_STRINGS: UiStrings = {
   numberRange: 'Số từ {min} đến {max} thôi nhé.',
   tooManyRows: 'Nhiều nhất {n} dòng.',
   addRow: 'Thêm dòng',
+  add: 'Thêm',
+  rowItem: 'Thứ {n}',
+  copyFromHomework: 'Chép giá từ Bài về nhà',
+  copiedRows: 'Đã chép {n} dòng. Con xem lại giá nhé.',
+  copiedNone: 'Các dòng ở Bài về nhà đã có ở đây rồi.',
   remove: 'Xoá',
   earlierAnswers: 'Con đã trả lời:',
   youChose: 'Con đã chọn:',
@@ -114,9 +122,15 @@ export const APP_STRINGS: UiStrings = {
 
 export type Translate = (key: string, params?: Record<string, string | number>) => string;
 
+const pickOne = (v: string | string[]): string => (Array.isArray(v) ? v[Math.floor(Math.random() * v.length)] : v);
+
+/**
+ * Content strings win over the app's. A list value (ui.correctLines…) yields one entry at random
+ * on every call, so a screen that must not change on re-render picks once and keeps the result.
+ */
 export function makeT(ui: UiStrings | undefined): Translate {
   return (key, params) => {
-    let s = ui?.[key] ?? APP_STRINGS[key] ?? key;
+    let s = pickOne(ui?.[key] ?? APP_STRINGS[key] ?? key);
     if (params) for (const [k, v] of Object.entries(params)) s = s.replaceAll(`{${k}}`, String(v));
     return s;
   };

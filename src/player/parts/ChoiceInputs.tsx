@@ -69,6 +69,17 @@ export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId 
     setBlocked(false);
     onChange(set(v));
   };
+  const [ownDraft, setOwnDraft] = useState('');
+  const addOwn = () => {
+    const text = ownDraft.trim();
+    if (!text) return;
+    if (part.max != null && count >= part.max) {
+      setBlocked(true);
+      return;
+    }
+    update({ ...value, own: [...own, text] });
+    setOwnDraft('');
+  };
   const toggle = (id: string) => {
     if (value.optionIds.includes(id)) update({ ...value, optionIds: value.optionIds.filter((x) => x !== id) });
     else if (part.max != null && count >= part.max) setBlocked(true);
@@ -99,37 +110,42 @@ export function MultiChoiceInput({ part, answer, onChange, readOnly, t, labelId 
             )}
           </div>
         ))}
-        {part.allowAddOwn &&
-          own.map((text, i) => (
-            <div className="list-row" key={i}>
-              <input
-                className="text-input short"
-                aria-label={`${t('addOwn')} ${i + 1}`}
-                value={text}
-                maxLength={80}
-                readOnly={readOnly}
-                lang="vi"
-                autoComplete="off"
-                onChange={(e) => update({ ...value, own: own.map((s, j) => (j === i ? e.target.value : s)) })}
-              />
-              {!readOnly && (
-                <button type="button" className="icon-btn" onClick={() => update({ ...value, own: own.filter((_, j) => j !== i) })}>
-                  {t('remove')}
+        {part.allowAddOwn && (
+          // The child's own options, as removable chips (Appendix B).
+          <div className="part" style={{ gap: 8 }}>
+            {own.length > 0 && (
+              <div className="chips">
+                {own.map((text, i) => (
+                  <span className="chip" key={i}>
+                    {text}
+                    {!readOnly && (
+                      <button type="button" aria-label={`${t('remove')}: ${text}`} onClick={() => update({ ...value, own: own.filter((_, j) => j !== i) })}>
+                        ✕
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            )}
+            {!readOnly && (
+              <div className="list-row">
+                <input
+                  className="text-input short"
+                  aria-label={t('addOwn')}
+                  placeholder={t('addOwn')}
+                  value={ownDraft}
+                  maxLength={80}
+                  lang="vi"
+                  autoComplete="off"
+                  onChange={(e) => setOwnDraft(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addOwn()}
+                />
+                <button type="button" className="btn secondary small" disabled={!ownDraft.trim()} onClick={addOwn}>
+                  + {t('add')}
                 </button>
-              )}
-            </div>
-          ))}
-        {part.allowAddOwn && !readOnly && (
-          <button
-            type="button"
-            className="btn secondary small"
-            onClick={() => {
-              if (part.max != null && count >= part.max) setBlocked(true);
-              else update({ ...value, own: [...own, ''] });
-            }}
-          >
-            + {t('addOwn')}
-          </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
       {blocked && part.max != null && (

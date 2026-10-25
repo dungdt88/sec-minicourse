@@ -52,8 +52,21 @@
     "ui": {
       "type": "object",
       "additionalProperties": {
-        "type": "string"
-      }
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "description": "UI strings; {n}/{total} are placeholders. A list means: pick one at random (correctLines, wrongLines, cheers, oops)."
     },
     "levels": {
       "type": "array",
@@ -67,6 +80,13 @@
     },
     "zoom": {
       "type": "object"
+    },
+    "submission": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/submissionSection"
+      },
+      "description": "Submission map (FR-M-16): which answers feed each section of the competition template."
     }
   },
   "additionalProperties": false,
@@ -220,6 +240,11 @@
         },
         "sticker": {
           "$ref": "#/$defs/assetPath"
+        },
+        "minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Estimated minutes shown on the level intro; computed from the counts if absent."
         }
       },
       "additionalProperties": false
@@ -566,6 +591,14 @@
         "required": {
           "type": "boolean",
           "description": "The part must be written even when the question's other parts are 'Chưa biết'."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -589,6 +622,18 @@
         },
         "optionsFrom": {
           "$ref": "#/$defs/answerRef"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -620,6 +665,18 @@
         },
         "allowAddOwn": {
           "type": "boolean"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -639,6 +696,18 @@
         },
         "max": {
           "type": "integer"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -664,6 +733,18 @@
           "items": {
             "$ref": "#/$defs/choiceOption"
           }
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -674,6 +755,18 @@
         "type": true,
         "label": {
           "type": "string"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -763,6 +856,48 @@
         },
         "totalLabel": {
           "type": "string"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
+        },
+        "minRows": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Rows shown from the start."
+        },
+        "copyFrom": {
+          "type": "object",
+          "required": [
+            "homeworkId",
+            "fieldId",
+            "groupId",
+            "toGroupId"
+          ],
+          "properties": {
+            "homeworkId": {
+              "$ref": "#/$defs/id"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/id"
+            },
+            "groupId": {
+              "$ref": "#/$defs/id"
+            },
+            "toGroupId": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Offer to copy rows from a homework capture list into this list (fills empty rows only)."
         }
       },
       "additionalProperties": false
@@ -814,6 +949,18 @@
             },
             "additionalProperties": false
           }
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -873,6 +1020,18 @@
         "rowLabel": {
           "type": "string",
           "description": "Label for each row, with {n}, e.g. 'Bạn {n}'. Default 'Lần {n}'."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Sentence starter shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Must be filled before Next unless the question is 'Chưa biết'."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Never blocks Next."
         }
       },
       "additionalProperties": false
@@ -937,6 +1096,38 @@
             "type": "integer",
             "minimum": 1
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "submissionSection": {
+      "type": "object",
+      "required": [
+        "part",
+        "section",
+        "questionIds"
+      ],
+      "properties": {
+        "part": {
+          "$ref": "#/$defs/text"
+        },
+        "section": {
+          "$ref": "#/$defs/text"
+        },
+        "questionIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "homeworkIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "note": {
+          "type": "string"
         }
       },
       "additionalProperties": false

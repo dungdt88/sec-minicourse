@@ -168,6 +168,25 @@ function semanticChecks(c: CourseContent, errors: ContentError[]) {
     if (ref && !partIndex.has(`${ref.questionId}/${ref.partId}`))
       err(`homework › ${item.id}`, item.id, `showAnswer trỏ tới ${ref.questionId}/${ref.partId} không tồn tại`);
   }
+  // copyFrom: the homework list and both groups must exist.
+  for (const level of c.levels)
+    for (const fq of level.form.questions)
+      for (const p of fq.parts) {
+        if (p.type !== 'item_list' || !p.copyFrom) continue;
+        const cf = p.copyFrom;
+        const src = c.homework.capture?.[cf.homeworkId]?.find((x) => x.id === cf.fieldId);
+        if (!src || src.type !== 'item_list' || !src.groups.some((g) => g.id === cf.groupId))
+          err(`${level.id} › ${fq.id}`, fq.id, `copyFrom trỏ tới ${cf.homeworkId}/${cf.fieldId}/${cf.groupId} không có`);
+        if (!p.groups.some((g) => g.id === cf.toGroupId)) err(`${level.id} › ${fq.id}`, fq.id, `copyFrom.toGroupId "${cf.toGroupId}" không có trong danh sách`);
+      }
+
+  // Submission map: every id must be a real question or homework item.
+  const questionIds = new Set(c.levels.flatMap((l) => l.form.questions.map((q) => q.id)));
+  for (const s of c.submission ?? []) {
+    for (const q of s.questionIds) if (!questionIds.has(q)) err(`submission › ${s.section}`, q, `câu "${q}" không có`);
+    for (const h of s.homeworkIds ?? []) if (!c.homework.items.some((i) => i.id === h)) err(`submission › ${s.section}`, h, `việc "${h}" không có trong Bài về nhà`);
+  }
+
   const hwIds = new Set(c.homework.items.map((i) => i.id));
   uniqueIds(c.homework.items, 'homework', null, 'việc', err);
   for (const [key, parts] of Object.entries(c.homework.capture ?? {})) {

@@ -5,7 +5,7 @@
 // formatPart(), and a component in src/player/parts/. TypeScript's exhaustiveness check
 // (the `never` defaults) points at every place that needs it.
 
-import type { CourseContent, ItemListPart, Part, RepeatPart, SumSplitPart } from '../content/types';
+import type { CourseContent, FormQuestion, ItemListPart, Part, RepeatPart, SumSplitPart } from '../content/types';
 
 export interface ChoiceValue {
   optionId: string;
@@ -233,12 +233,20 @@ export function formatPart(part: Part, answer: PartAnswer | undefined, content: 
         .map((g) => {
           const rows = (iv.groups?.[g.id] ?? []).filter((r) => part.fields.some((f) => f.type === 'text' && !isBlank(r[f.id])));
           if (!rows.length) return null;
-          const items = rows.map((r) =>
-            part.fields
-              .map((f) => (r[f.id] == null || r[f.id] === '' ? null : f.type === 'number' ? `${r[f.id]} nghìn` : String(r[f.id])))
-              .filter(Boolean)
-              .join(' – '),
-          );
+          // Rows with extra text fields (L3F3: name, "Hay ở chỗ…", "Chưa hay ở chỗ…") keep their
+          // labels and are numbered; simple rows read "Bìa – 20 nghìn".
+          const textFields = part.fields.filter((f) => f.type === 'text');
+          const cell = (f: (typeof part.fields)[number], r: ListRow) =>
+            r[f.id] == null || r[f.id] === '' ? null : f.type === 'number' ? `${r[f.id]} nghìn` : String(r[f.id]).trim();
+          if (textFields.length > 1) {
+            const [first, ...rest] = part.fields;
+            const items = rows.map((r, i) => {
+              const extra = rest.map((f) => (cell(f, r) ? `${f.label} ${cell(f, r)}` : null)).filter(Boolean);
+              return `${i + 1}) ${cell(first, r) ?? '–'}${extra.length ? ` (${extra.join('; ')})` : ''}`;
+            });
+            return `${g.label}: ${items.join(' ')}`;
+          }
+          const items = rows.map((r) => part.fields.map((f) => cell(f, r)).filter(Boolean).join(' – '));
           return `${g.label}: ${items.join('; ')}`;
         })
         .filter(Boolean)
@@ -312,3 +320,53 @@ export const isComparable = (part: Part) =>
 
 /** "Chọn một hình" → "Chọn một hình:"; "Vì sao?" stays as is. Used where a label precedes an answer. */
 export const withColon = (label: string) => (/[?:：]$/.test(label.trim()) ? label : `${label}:`);
+
+// ---------------------------------------------------------------- whole question (Appendix B)
+
+export interface QuestionCheck {
+  /** Next may go ahead (a pending "Vì sao" nudge is shown once first, see `nudge`). */
+  complete: boolean;
+  /** Parts that must still be answered. */
+  blocking: string[];
+  /** A question made only of text parts, with nothing written and no "Chưa biết". */
+  textOnlyEmpty: boolean;
+  /** Empty optional "Vì sao…" / "Lý do…" parts: one gentle nudge, then the second tap goes through. */
+  nudge: string[];
+}
+
+const NUDGE_LABEL = /^\s*(vì sao|lý do)/iu;
+
+/**
+ * Appendix B, as corrected in RFP v1.1:
+ * - choice and number parts (and lists, splits…) must be filled unless `optional`;
+ * - a question made only of text parts needs at least one filled (or "Chưa biết");
+ * - in a question that also has other parts, a text part is optional unless `required`;
+ * - an empty text part labelled "Vì sao…" / "Lý do…" gets one nudge.
+ * "Chưa biết" (dontKnow) satisfies any part, so no question ends up with nothing recorded.
+ */
+export function checkQuestion(question: FormQuestion | { parts: Part[] }, answers: (partId: string) => PartAnswer | undefined, t: T): QuestionCheck {
+  const parts = question.parts;
+  const state = parts.map((p) => {
+    const a = answers(p.id);
+    const c = checkPart(p, a, t);
+    return { p, dk: !!a?.dontKnow, filled: c.complete && !a?.dontKnow, invalid: !c.complete && !!c.message };
+  });
+  const textOnly = parts.every((p) => p.type === 'text');
+  const blocking: string[] = [];
+  const nudge: string[] = [];
+  let textOnlyEmpty = false;
+
+  if (textOnly) {
+    if (!state.some((s) => s.filled || s.dk)) textOnlyEmpty = true;
+    for (const s of state) if (s.p.required && !s.filled && !s.dk) blocking.push(s.p.id);
+  } else {
+    for (const s of state) {
+      if (s.filled || s.dk) continue;
+      if (s.p.type === 'text') {
+        if (s.p.required) blocking.push(s.p.id);
+        else if (s.p.label && NUDGE_LABEL.test(s.p.label)) nudge.push(s.p.id);
+      } else if (!(s.p.optional && !s.invalid)) blocking.push(s.p.id);
+    }
+  }
+  return { complete: !textOnlyEmpty && blocking.length === 0, blocking, textOnlyEmpty, nudge };
+}

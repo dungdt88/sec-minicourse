@@ -20,7 +20,8 @@ export interface Sdg {
   icon: string;
 }
 
-export type UiStrings = Record<string, string>;
+/** A list value means: pick one at random (ui.correctLines, ui.wrongLines, ui.cheers, ui.oops). */
+export type UiStrings = Record<string, string | string[]>;
 
 export interface Card {
   id: string;
@@ -67,13 +68,17 @@ export interface AnswerRef {
 interface PartBase {
   id: string;
   label?: string;
+  /** Sentence starter shown in an empty field. */
+  placeholder?: string;
+  /** Must be filled before Next unless the question is answered "Chưa biết". */
+  required?: boolean;
+  /** Never blocks Next. */
+  optional?: boolean;
 }
 
 export interface TextPart extends PartBase {
   type: 'text';
   maxLength?: number;
-  /** Still needs an answer when the question's "Chưa biết" covers the other parts. */
-  required?: boolean;
 }
 
 export interface SingleChoicePart extends PartBase {
@@ -125,6 +130,10 @@ export interface ItemListPart extends PartBase {
   /** Show the running total of the number fields, labelled totalLabel. */
   showTotal?: boolean;
   totalLabel?: string;
+  /** Rows shown from the start. */
+  minRows?: number;
+  /** Offer to copy rows from a homework capture list (fills empty rows only, never overwrites). */
+  copyFrom?: { homeworkId: string; fieldId: string; groupId: string; toGroupId: string };
 }
 
 export interface SumSplitField {
@@ -207,6 +216,8 @@ export interface Level {
   character?: string;
   /** Optional sticker artwork; a generated sticker is used otherwise. */
   sticker?: string;
+  /** Estimated minutes on the intro; computed from the counts when absent. */
+  minutes?: number;
 }
 
 export interface HomeworkItem {
@@ -239,6 +250,16 @@ export interface CourseContent {
   levels: Level[];
   homework: Homework;
   zoom?: unknown;
+  /** Submission map (FR-M-16). */
+  submission?: SubmissionSection[];
+}
+
+export interface SubmissionSection {
+  part: string;
+  section: string;
+  questionIds: string[];
+  homeworkIds?: string[];
+  note?: string;
 }
 
 /** Sorted helpers: the file carries `order`, the app never relies on array order. */

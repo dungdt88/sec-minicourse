@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { checkPart, compareKey, formatPart, itemListTotal, visibleOptions, withColon, type ItemListValue, type PartAnswer } from '../src/domain/answers';
+import { checkPart, checkQuestion, compareKey, formatPart, itemListTotal, visibleOptions, withColon, type ItemListValue, type PartAnswer } from '../src/domain/answers';
 import { inThousands } from '../src/player/parts/ThousandCheck';
 import { makeT } from '../src/content/strings';
 import { findQuestion, type CourseContent, type Part } from '../src/content/types';
@@ -96,8 +96,8 @@ describe('pick_n', () => {
   });
 });
 
-describe('sdg_picker', () => {
-  const p = part('L1F4');
+describe('sdg_picker (kept as a Could; not used by content .10)', () => {
+  const p: Part = { id: 'a', type: 'sdg_picker' };
   it('needs one of the 17 goals', () => {
     expect(check(p, ans(3)).complete).toBe(true);
     expect(check(p, ans(18)).complete).toBe(false);
@@ -190,5 +190,44 @@ describe('labels and units', () => {
     expect(inThousands('Giá (nghìn đồng)')).toBe(true);
     expect(inThousands('bộ hoặc vé')).toBe(false);
     expect(inThousands(undefined)).toBe(false);
+  });
+});
+
+describe('question rules (Appendix B, RFP v1.1)', () => {
+  const q = (id: string) => findQuestion(content, id)!.question;
+  const run = (id: string, a: Record<string, PartAnswer>) => checkQuestion(q(id), (p) => a[p], t);
+
+  it('a text-only question cannot be passed empty (L1F2)', () => {
+    expect(run('L1F2', {})).toMatchObject({ complete: false, textOnlyEmpty: true });
+    expect(run('L1F2', { a: ans('Hôm thứ Hai…') }).complete).toBe(true);
+    expect(run('L1F2', { a: dontKnow }).complete).toBe(true);
+  });
+  it('L1F1: a players choice with the required text empty asks for the text (test 16)', () => {
+    expect(run('L1F1', { b: ans({ optionId: 'b' }) })).toMatchObject({ complete: false, blocking: ['a'] });
+    expect(run('L1F1', { a: ans('Ai về đích trước thì thắng'), b: ans({ optionId: 'b' }) }).complete).toBe(true);
+    // "Chưa biết" on the question covers the required part too
+    expect(run('L1F1', { a: dontKnow, b: ans({ optionId: 'b' }) }).complete).toBe(true);
+  });
+  it('choice and number parts block unless optional; L5F3 amount is optional (test 18)', () => {
+    expect(run('L5F3', {}).blocking).toEqual(['a']);
+    expect(run('L5F3', { a: ans({ optionIds: ['a'] }) }).complete).toBe(true);
+  });
+  it('L6F4: sum must be 100, then an empty "Vì sao…" gets one nudge (test 4)', () => {
+    expect(run('L6F4', { a: ans({ values: { reinvest: 60, good: 30 } }) }).complete).toBe(false);
+    const ok = run('L6F4', { a: ans({ values: { reinvest: 50, good: 50 } }) });
+    expect(ok.complete).toBe(true);
+    expect(ok.nudge).toEqual(['b']);
+    expect(run('L6F4', { a: ans({ values: { reinvest: 50, good: 50 } }), b: ans('Vì trường mình cần sách') }).nudge).toEqual([]);
+  });
+  it('an optional text without "Vì sao" in a mixed question neither blocks nor nudges (L2F1)', () => {
+    const first = (q('L2F1').parts[0] as Extract<Part, { type: 'single_choice' }>).options[0].id;
+    expect(run('L2F1', { a: ans({ optionId: first }) })).toMatchObject({ complete: true, nudge: [] });
+  });
+  it('L3F3: the list and the "hơn ở chỗ nào" choice are both needed (test 17)', () => {
+    const list = ans({ groups: { alt: [{ name: 'Cờ vua', good: 'vui', bad: 'lâu' }, { name: 'Bóng đá', good: 'khoẻ' }] } });
+    expect(run('L3F3', { list }).blocking).toEqual(['edge']);
+    expect(run('L3F3', { list, edge: ans({ optionIds: ['b'] }) }).complete).toBe(true);
+    const p = q('L3F3').parts[0];
+    expect(formatPart(p, list, content, t)).toBe('Thứ các bạn có thể chơi thay: 1) Cờ vua (Hay ở chỗ… vui; Chưa hay ở chỗ… lâu) 2) Bóng đá (Hay ở chỗ… khoẻ)');
   });
 });
