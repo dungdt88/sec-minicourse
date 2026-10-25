@@ -27,27 +27,33 @@ export async function mentorPage(browser: Browser): Promise<{ ctx: BrowserContex
 const title = (page: Page) => page.locator('.topbar .title').first();
 export const next = (page: Page) => page.getByRole('button', { name: 'Tiếp', exact: true }).click();
 
-/** From the map: open level n and click through cards and quiz (first option each time) to the form's first question. */
-export async function playToForm(page: Page, order: number) {
-  await page.locator('.map-node', { hasText: `Màn ${order}:` }).click();
-  await page.locator('.bottom-actions .btn').click(); // intro: start or replay
+/** From wherever a level resumes: click through cards and quiz (first option each time) and the
+ * quiz-end "Kể về …" button, to the form's first question. */
+export async function throughToForm(page: Page) {
   for (let guard = 0; guard < 30; guard++) {
-    const tt = (await title(page).textContent()) ?? '';
-    if (/Thẻ truyện|Thẻ khái niệm/.test(tt)) await next(page);
-    else if (tt.includes('Câu đố')) {
-      if (await page.getByText('Xong câu đố!').isVisible()) await next(page);
-      else {
-        const open = page.locator('.option:not([disabled])');
-        if (await open.count()) await open.first().click();
-        await next(page);
-      }
-    } else if (await page.locator('h1.big-title', { hasText: 'Đến lượt đội con' }).isVisible()) {
-      await page.locator('.bottom-actions .btn').click();
+    if (await page.getByText(/^Từ điển pháp thuật \d+\/\d+$/).count()) return; // already on the form
+    if (await page.getByText('Xong câu đố!').isVisible()) {
+      await page.locator('.bottom-actions .btn').click(); // ui.toForm
       await expect(page.locator('h1.prompt')).toBeVisible();
       return;
+    }
+    const tt = (await title(page).textContent()) ?? '';
+    if (/Thẻ truyện|Thẻ khái niệm/.test(tt) || (await page.locator('.info-chip').count())) {
+      await page.locator('.bottom-actions .btn:not(.secondary)').click();
+    } else if (tt.includes('Câu đố')) {
+      const open = page.locator('.option:not([disabled])');
+      if (await open.count()) await open.first().click();
+      await next(page);
     } else throw new Error(`unexpected screen: ${tt}`);
   }
   throw new Error('did not reach the form');
+}
+
+/** From the map: open level n and go to the form's first question. */
+export async function playToForm(page: Page, order: number) {
+  await page.locator('.map-node', { hasText: `Màn ${order}:` }).click();
+  await expect(title(page)).toBeVisible();
+  await throughToForm(page);
 }
 
 /** Answer the current form question "Chưa biết", then continue. */
@@ -56,7 +62,8 @@ export async function dontKnowAndNext(page: Page) {
   await next(page);
 }
 
-export const questionNo = (page: Page, n: number, total: number) => expect(page.getByText(`Câu ${n}/${total}`).first()).toBeVisible();
+export const questionNo = (page: Page, n: number, total: number) =>
+  expect(page.getByText(new RegExp(`^(Câu|Từ điển pháp thuật) ${n}/${total}$`)).first()).toBeVisible();
 
 export async function waitSaved(page: Page) {
   await expect(page.locator('.save-pill')).toHaveText(/Đã lưu/, { timeout: 30_000 });

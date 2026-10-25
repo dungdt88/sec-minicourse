@@ -1,6 +1,6 @@
 # Where each submission answer comes from
 
-Content version 2026-10-25.12. The same map is in the content file as the top-level `submission` list. Template: "(Bản nộp) Business Idea & Plan Template 2026" (Milestones 3 and 4, due November 3).
+Content version 2026-10-25.13. The same map is in the content file as the top-level `submission` list. Template: "(Bản nộp) Business Idea & Plan Template 2026" (Milestones 3 and 4, due November 3).
 
 The children answer in Vietnamese in the game. Trí and the mentor then turn those answers into the English template. Question ids (L1F1 and so on) match the game's console and its CSV/JSON exports. H2 is the one optional homework task, "Chơi thử với bạn" (3 friends play the paper draft at school). "Zoom" is the team call after the seven levels.
 

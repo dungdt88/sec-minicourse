@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25.12",
+  "contentVersion": "2026-10-25.13",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -151,7 +151,7 @@
     "other": "Khác",
     "submit": "Nộp phiếu thôi!",
     "saved": "Đã lưu",
-    "yourTurn": "Đến lượt đội con",
+    "yourTurn": "Từ điển pháp thuật",
     "cards": "Thẻ truyện",
     "quiz": "Câu đố",
     "parentReads": "Bố mẹ đọc thẻ cho con nghe nhé",
@@ -187,7 +187,9 @@
       "Ối!",
       "Hụt rồi!",
       "Hì hì!"
-    ]
+    ],
+    "toForm": "Kể về từ điển pháp thuật",
+    "toFormHint": "Giờ con kể về từ điển pháp thuật của đội nhé: {n} câu. Không có đúng hay sai đâu. Chưa nghĩ ra thì bấm \"Chưa biết\"."
   },
   "levels": [
     {
@@ -325,8 +327,8 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
-        "intro": "Trả lời về trò chơi Magic của đội. Con nói, bố mẹ gõ cũng được.",
+        "title": "Từ điển pháp thuật của đội",
+        "intro": "Trả lời về từ điển pháp thuật của đội. Con nói, bố mẹ gõ cũng được.",
         "questions": [
           {
             "id": "L1F2",
@@ -600,7 +602,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -732,7 +734,7 @@
                   },
                   {
                     "id": "d",
-                    "text": "Cuốn từ điển phép thuật"
+                    "text": "Cuốn từ điển pháp thuật"
                   },
                   {
                     "id": "e",
@@ -904,7 +906,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -1246,7 +1248,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -1513,7 +1515,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -1751,7 +1753,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -2058,7 +2060,7 @@
         }
       ],
       "form": {
-        "title": "Đến lượt đội con",
+        "title": "Từ điển pháp thuật của đội",
         "intro": null,
         "questions": [
           {
@@ -2075,7 +2077,7 @@
                   },
                   {
                     "id": "h",
-                    "text": "Viết, vẽ từ điển phép thuật"
+                    "text": "Viết, vẽ từ điển pháp thuật"
                   },
                   {
                     "id": "b",
@@ -2123,7 +2125,7 @@
                   },
                   {
                     "id": "h",
-                    "text": "Viết, vẽ từ điển phép thuật"
+                    "text": "Viết, vẽ từ điển pháp thuật"
                   },
                   {
                     "id": "b",

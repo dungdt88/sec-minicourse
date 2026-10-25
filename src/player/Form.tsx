@@ -121,7 +121,13 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
   return (
     <main className="screen">
       {top}
-      <ProgressDots index={index} total={total} label={t('questionOf', { n: index + 1, total })} />
+      <ProgressDots index={index} total={total} label={t('formOf', { label: t('yourTurn'), n: index + 1, total })} />
+      {/* The level's own intro line (L1), once, now that the quiz-end screen leads straight here. */}
+      {index === 0 && level.form.intro && (
+        <p className="muted small-text" style={{ margin: 0 }}>
+          {level.form.intro}
+        </p>
+      )}
       <div>
         <h1 className="prompt content-col" id={promptId}>
           <RichText text={question.prompt} />

@@ -3,7 +3,7 @@
 Request for proposal — version 1.1, October 25, 2026 (replaces version 1.0)
 Owner: Richard Dam (parent mentor of the team). Contact: [email / Zalo]
 Proposals due by: [date]. Questions are welcome before then.
-Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.12)
+Content file supplied with this document: `content/course-content.json` (schema 1.0, content version 2026-10-25.13)
 Also supplied: `submission-map.md`, which shows which answers feed which part of the competition submission (used by FR-M-16).
 Confidential: shared for quotation only. The course content and the children's business idea belong to the team; please do not reuse or publish them.
 
@@ -11,12 +11,12 @@ Confidential: shared for quotation only. The course content and the children's b
 
 We ran the course ourselves, recorded one child explaining the idea, and checked every form question against the submission template. Please re-quote against this version.
 
-**Content (2026-10-25 → 2026-10-25.12)**
+**Content (2026-10-25 → 2026-10-25.13)**
 - **Plain language:** every card, quiz and form was rewritten in short, everyday Vietnamese. Terms such as SWOT, lời gộp/ròng, đối thủ and khả thi are gone.
 - **No SDG for the children:** they no longer see or pick a Sustainable Development Goal; the mentor picks it from their Level 1 answers. The `sdg_picker` type and the 17 SDG icons are no longer needed (now Could).
 - **Logic first:** every quiz is a situation and a decision with a visible result. The story is consistent across levels.
 - **28 quiz questions, 4 per level:** the correct option is no longer usually the longest (by length: longest 8, middle 14, shortest 6).
-- **27 form questions.** Level 1 asks about the problem before the game. The idea is still open (board game, "magic dictionary", playing together), so questions offer choices plus "Thêm của con" and never assume one product.
+- **27 form questions.** Level 1 asks about the problem before the game. The idea is still open (board game, the "từ điển pháp thuật" magic dictionary, playing together), so questions offer choices plus "Thêm của con" and never assume one product.
 - **Questions added to fill the submission template:**
   - L1F1b: players per game.
   - L2F4: what the first set contains and what comes later.
@@ -31,6 +31,7 @@ We ran the course ourselves, recorded one child explaining the idea, and checked
 - **L1F3 is a multiple choice (from .11):** "giúp các bạn những điều gì?", 1–3 picks out of 8 options plus "Khác". L1F4 now asks why for "những điều đó"; its `context` shows all picks.
 - **Homework reduced to one optional task (from .12):** the children have enough school homework. Only H2 remains: playtest the paper draft with 3 friends at school, ticks only, with an optional "what to change" box for parents. Its title, "Chơi thử với bạn", replaces "Bài về nhà" in the UI. H1, H3, H4 and H5 and the L6F2 `copyFrom` link are gone; parents check prices themselves.
 - **Play on after a level (from .12):** the level complete screen leads with a big "Chơi tiếp: Màn n+1" button (FR-P-28).
+- **Clearer name for the form part (from .13):** "Đến lượt đội con" did not tell a child what comes next. The form part is now called after the team's product. The quiz-end button is `ui.toForm` ("Kể về từ điển pháp thuật"), with `ui.toFormHint` ("Giờ con kể về từ điển pháp thuật của đội nhé: {n} câu…") above it. The label on form screens is `ui.yourTurn` ("Từ điển pháp thuật 1/4"). "Trò chơi Magic" and "từ điển phép thuật" are now "từ điển pháp thuật" everywhere in the content.
 
 **Look and feel**
 - **Light theme:** a soft, light pastel theme that stays light when the phone is in dark mode.
@@ -59,7 +60,7 @@ We will send this document to more than one vendor. Please answer each numbered 
 
 **The competition.** The children are in the School Enterprise Challenge, a global schools programme run by the UK charity Teach A Man To Fish. TOMATO Education runs the Vietnamese edition as "Cuộc thi Khởi nghiệp học đường 2026". Teams go through seven milestones over a school year: form a team, explore dreams, write a business idea, write a business plan, launch, run the business and report on it, celebrate. The business idea and plan are worth 40% of the score; the report on actually running the business is the rest.
 
-**The team.** Four children aged 8 (grade 3) at an international school in Ho Chi Minh City. Their idea is still forming: a "Magic" board game, perhaps built around a "magic dictionary" of spells, for primary and secondary students, mainly for fun and for playing together with friends. The course must not assume one product. The mentor is a parent (the owner of this document). Other parents help their own child at home.
+**The team.** Four children aged 8 (grade 3) at an international school in Ho Chi Minh City. Their idea is still forming: a "Magic" board game, built around a "từ điển pháp thuật" (magic dictionary) of spells, for primary and secondary students, mainly for fun and for playing together with friends. The course must not assume one product. The mentor is a parent (the owner of this document). Other parents help their own child at home.
 
 **Rules that shape the product.**
 - The work must be student-led. Adults may ask questions but must not write the answers. Judges mark work that looks adult-written as insufficient.
@@ -110,7 +111,7 @@ Source of truth: `content/course-content.json`. The numbers below describe versi
 | Objectives per level | 2–3 | For parents. Shown collapsed. |
 | Concept cards | 28 (4 per level) | Short sentences (about 7 words). Several cards have a bullet list and/or a footer line. Key terms carry the English word in brackets. The UI calls them "Thẻ truyện". |
 | Quiz questions | 28 (4 per level) | 3 options, exactly one correct, one explanation. Correct answer positions in the file: a 7, b 13, c 8. The app must shuffle option order on every play. |
-| Form questions ("Đến lượt đội con") | 27 (3–4 per level) | 7 input types in use, see Appendix B. Every question has a "Chưa biết" (don't know) escape. |
+| Form questions ("Từ điển pháp thuật" part) | 27 (3–4 per level) | 7 input types in use, see Appendix B. Every question has a "Chưa biết" (don't know) escape. |
 | Homework items | 1 | One optional task, "Chơi thử với bạn" (playtest with 3 friends at school, ticks only). Printable; optional in-app capture (Should). The app handles any number of items. |
 | Characters | 4 + mascot | Sóc Hạt Dẻ (squirrel, maker), Gấu Mật (bear, keeps the money, loves honey), Thỏ Bông (rabbit, seller), Cú Mèo (owl, "what if…?"). The mascot Drắc Nhí is UI art only and does not appear in the story (DR-08). |
 | SDG list | 17 | Titles and captions stay in the file for the mentor's reference. The children never see them; no icons are needed. |
@@ -163,7 +164,7 @@ Priority: M = Must (MVP), S = Should, C = Could.
 | FR-P-18 | The mascot reacts to every answer. In the feedback box it is happy when right and "oops" when wrong. A short pop-up also plays over the page: when right, it jumps in with a one-word cheer from `ui.cheers` while sweets and bats fly out; when wrong, it wobbles with "Ối!" from `ui.oops` while two bats flutter off. Limits are in DR-05. Sound effects are optional and must be mutable; sound off by default. | S |
 | FR-P-19 | Quiz end screen: "Xong câu đố! Thu kẹo nào!" with one candy per question answered right on the first try (e.g. 3 candies, 1 empty wrapper), shown only as encouragement, never as a pass/fail. | M |
 
-### 7.5 Forms ("Đến lượt đội con")
+### 7.5 Forms (the "Từ điển pháp thuật" part)
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
@@ -340,7 +341,7 @@ Common to all parts:
 - **A question made only of text parts** cannot be passed empty: at least one must be filled, or the question answered "Chưa biết". The app says so with a short message ("Con trả lời một chút, hoặc bấm \"Chưa biết\" nhé.").
 - **Every question** therefore ends up with an answer or a "Chưa biết"; nothing is skipped silently.
 
-| Type | Behaviour and validation | Used in (content 2026-10-25.12) |
+| Type | Behaviour and validation | Used in (content 2026-10-25.13) |
 | --- | --- | --- |
 | `text` | Text area; `maxLength` soft limit with counter; device keyboard and dictation. | L1F1a (required, placeholder), L1F2 (placeholder), L1F4 (placeholder), L2F1b, L2F3a, L2F4b (placeholder), L3F4a, L3F4b, L4F1b, L4F2b, L6F1b, L6F3b, L6F4b, L7F2b, L7F3a, L7F3b |
 | `single_choice` | Large option tiles; exactly one; an option with `allowText: true` ("Khác") reveals a short text field. | L1F1b, L2F1a, L2F3b, L3F1a, L3F1b, L4F1a, L7F2a, L7F2c |
@@ -421,7 +422,7 @@ Notes marked `note` on a question are instructions to the builder, not text for 
 
 Provided in `ui{}` of the content file. The main ones:
 - **Navigation:** Tiếp · Quay lại · Vào màn thôi! · Chơi tiếp nào! · Chơi lại.
-- **Choices and forms:** Chưa biết · Khác · Nộp phiếu thôi! · Đã lưu · Đến lượt đội con · Thêm của con.
+- **Choices and forms:** Chưa biết · Khác · Nộp phiếu thôi! · Đã lưu · Thêm của con · Kể về từ điển pháp thuật (`toForm`) · Từ điển pháp thuật (`yourTurn`, form label) · Giờ con kể về từ điển pháp thuật của đội nhé: {n} câu… (`toFormHint`).
 - **Sections:** Thẻ truyện · Câu đố.
 - **Parent hints:** Bố mẹ đọc thẻ cho con nghe nhé · Con nói, bố mẹ gõ cũng được · Khi đội có bản nháp, giờ ra chơi rủ 3 bạn chơi thử nhé (`homeworkReminder`) · Mục tiêu (cho bố mẹ).
 - **Titles:** Hú hú! Xong Màn {n}! · Ai tới chơi đây? · Nhập mã bí mật của con.
@@ -445,7 +446,7 @@ Strings the app adds itself, in the same register:
 | Màn | A level of the course; one per day |
 | Thẻ truyện | Story card; one idea, a few short sentences |
 | Câu đố | Quiz question; 3 options, one correct, explanation |
-| Đến lượt đội con | "Your team's turn": the per-level form about the children's own game |
+| Từ điển pháp thuật | The team's product (a magic dictionary game), and the name of the per-level form where the children answer about it. Called "Đến lượt đội con" before content .13. |
 | Chưa biết | "Don't know yet": the escape option on every form question |
 | Chơi thử với bạn | The one optional homework task: 3 friends play the paper draft at school; the child ticks laughed / finished / wants to play again |
 | Drắc Nhí | The mascot: a friendly baby Dracula who reacts to quiz answers (seasonal skin) |

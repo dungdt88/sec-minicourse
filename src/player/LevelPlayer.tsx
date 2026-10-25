@@ -20,7 +20,8 @@ function stepsOf(level: Level): Pointer[] {
   byOrder(level.quiz).forEach((_, i) => steps.push({ step: 'quiz', index: i }));
   if (level.quiz.length) steps.push({ step: 'quizEnd', index: 0 });
   if (level.form.questions.length) {
-    steps.push({ step: 'formIntro', index: 0 });
+    // The quiz-end screen leads into the form ("Kể về …"); a level without a quiz gets an intro screen.
+    if (!level.quiz.length) steps.push({ step: 'formIntro', index: 0 });
     level.form.questions.forEach((_, i) => steps.push({ step: 'form', index: i }));
     steps.push({ step: 'review', index: 0 });
   }
@@ -281,29 +282,21 @@ function LevelScreen({ levelId }: { levelId: string }) {
       );
 
     case 'quizEnd':
-      return <QuizEnd level={level} character={character} onNext={next} top={top(t('quiz'))} />;
+      return <QuizEnd level={level} character={character} onNext={next} top={top(t('quiz'))} formQuestions={level.form.questions.length} />;
 
     case 'formIntro':
       return (
         <main className="screen">
-          {top(level.form.title)}
-          <h1 className="big-title center">{level.form.title}</h1>
+          {top(t('yourTurn'))}
+          <h1 className="big-title center">{t('yourTurn')}</h1>
           <Character character={character} expression="thinking" size={130} />
           <p className="center content-col" style={{ margin: '0 auto', fontWeight: 700 }}>
-            {t('formIntroDefault', { n: level.form.questions.length })}
+            {t('toFormHint', { n: level.form.questions.length })}
           </p>
-          {level.form.intro && <p className="center content-col muted" style={{ margin: '0 auto' }}>{level.form.intro}</p>}
-          {/* The parent hint once, unless the level's own intro already says it. */}
-          {!level.form.intro?.includes(t('parentTypes')) && (
-            <div className="hint-banner">
-              <span aria-hidden="true">👨‍👩‍👧</span>
-              <p>{t('parentTypes')}</p>
-            </div>
-          )}
           {formLocked && <p className="notice lock">{t('formLocked')}</p>}
           <div className="bottom-actions">
             <button className="btn" onClick={next}>
-              {t('start')}
+              {t('toForm')}
             </button>
           </div>
         </main>

@@ -128,7 +128,20 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
   );
 }
 
-export function QuizEnd({ level, character, onNext, top }: { level: Level; character: CharacterData | undefined; onNext: () => void; top: React.ReactNode }) {
+export function QuizEnd({
+  level,
+  character,
+  onNext,
+  top,
+  formQuestions,
+}: {
+  level: Level;
+  character: CharacterData | undefined;
+  onNext: () => void;
+  top: React.ReactNode;
+  /** Questions in the level's form: the button then leads into it ("Kể về từ điển pháp thuật"). */
+  formQuestions: number;
+}) {
   const { state, t } = usePlayer();
   const skin = useSkin();
   // Stars count first tries only, as encouragement, never pass/fail (FR-P-19).
@@ -156,9 +169,14 @@ export function QuizEnd({ level, character, onNext, top }: { level: Level; chara
             ? t('quizSomeRight', { n: firstTryRight, total: level.quiz.length })
             : t('quizNoneRight', { total: level.quiz.length })}
       </p>
+      {formQuestions > 0 && (
+        <p className="notice content-col" style={{ margin: '0 auto' }}>
+          {t('toFormHint', { n: formQuestions })}
+        </p>
+      )}
       <div className="bottom-actions">
         <button className="btn" onClick={onNext}>
-          {t('next')}
+          {formQuestions > 0 ? t('toForm') : t('next')}
         </button>
       </div>
     </main>

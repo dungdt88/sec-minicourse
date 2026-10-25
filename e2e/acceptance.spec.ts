@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { dontKnowAndNext, kidPage, mentorPage, next, playToForm, questionNo, waitSaved } from './helpers';
+import { dontKnowAndNext, kidPage, mentorPage, next, playToForm, questionNo, throughToForm, waitSaved } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -43,8 +43,9 @@ test('1, 6, 16: a child completes level 1 on a phone', async ({ browser }) => {
   }
   await expect(page.getByText('Xong câu đố! Thu kẹo nào!')).toBeVisible();
   await expect(page.locator('.candies svg')).toHaveCount(4); // FR-P-19: one candy or wrapper per question
-  await next(page);
-  await page.locator('.bottom-actions .btn').click(); // form intro
+  await expect(page.getByText('Giờ con kể về từ điển pháp thuật của đội nhé: 4 câu.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Kể về từ điển pháp thuật' }).click(); // ui.toForm
+  await expect(page.getByText('Từ điển pháp thuật 1/4').first()).toBeVisible();
 
   // L1F2: a question of only text cannot be passed empty
   await next(page);
@@ -122,8 +123,7 @@ test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept a
     await page.locator('.option').first().click();
     await next(page);
   }
-  await next(page); // quiz end
-  await page.locator('.bottom-actions .btn').click();
+  await page.locator('.bottom-actions .btn').click(); // quiz end → "Kể về từ điển pháp thuật"
   for (let i = 0; i < 3; i++) await next(page); // the child's own answers are back
   await expect(page.locator('textarea')).toHaveValue(/Phiên bản 1/);
   await page.locator('textarea').fill('Trò Magic: phiên bản 2, ai gom đủ 3 thẻ phép thuật thì thắng.');
@@ -296,11 +296,7 @@ test('20: the mascot pop-up respects reduced motion and never blocks a tap', asy
 test('13: answers given offline are saved when the network returns', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'Dũng');
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
-  for (let guard = 0; guard < 8 && !(await page.locator('h1.big-title', { hasText: 'Đến lượt đội con' }).isVisible()); guard++) {
-    if (await page.locator('.option:not([disabled])').count()) await page.locator('.option').first().click();
-    await next(page);
-  }
-  await page.locator('.bottom-actions .btn').click();
+  await throughToForm(page);
   await ctx.setOffline(true);
   await page.locator('textarea').fill('Viết lúc mất mạng, câu một');
   await next(page);
