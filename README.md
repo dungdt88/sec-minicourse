@@ -69,7 +69,9 @@ Supabase. Files: `Dockerfile`, `deploy/nginx.conf`, `deploy/security-headers.con
 
 Cost: the Supabase free tier, and the Lightsail instance that already runs Mika (this container
 is capped at 64 MB and a quarter of a CPU). **A free Supabase project pauses after 7 days without
-use**; opening the app wakes it within a minute. Supabase Pro (USD 25/month) never pauses.
+use**, and then the app shows its offline screen until someone presses **Restore project** in the
+Supabase dashboard (a few minutes). Supabase Pro (USD 25/month) never pauses and keeps daily
+backups; on the free plan, export the JSON from **Xuất dữ liệu** now and then.
 
 Have ready: the domain (e.g. `vongtay.example.com`), the mentor's email and a strong password, and
 SSH access to the instance as `ubuntu`.
