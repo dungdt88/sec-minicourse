@@ -1,6 +1,6 @@
 -- Children's code optional (owner's request): teams.settings.requirePin, default off.
-create or replace function player_login(p_profile_id uuid, p_pin text, p_device text)
-returns jsonb language plpgsql security definer set search_path = public, extensions as $$
+create or replace function sec_minicourse.player_login(p_profile_id uuid, p_pin text, p_device text)
+returns jsonb language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare
   p profiles;
   failures int;
@@ -32,8 +32,8 @@ end $$;
 
 -- Profiles can be created without a code; a random one is stored so turning codes on later
 -- never leaves a profile open. The mentor sets a real code in "Các con" when needed.
-create or replace function mentor_create_profile(p_name text, p_avatar text, p_pin text) returns uuid
-language plpgsql security definer set search_path = public, extensions as $$
+create or replace function sec_minicourse.mentor_create_profile(p_name text, p_avatar text, p_pin text) returns uuid
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare t uuid := require_mentor(); new_id uuid; v_pin text := p_pin;
 begin
   if v_pin is null or v_pin = '' then v_pin := lpad((floor(random() * 10000))::int::text, 4, '0'); end if;

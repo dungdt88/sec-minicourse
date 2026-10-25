@@ -3,17 +3,22 @@
 // name: no demo children, no answers, no test mentor.
 //
 //   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… SUPABASE_ANON_KEY=… \
-//   MENTOR_EMAIL=you@example.com MENTOR_PASSWORD=… MENTOR_LABEL="bố Trí" \
+//   MENTOR_EMAIL=you@example.com [MENTOR_PASSWORD=…] MENTOR_LABEL="bố Trí" \
 //   PROFILES="An:🦊,Bình:🐼:2222" pnpm bootstrap
 //
 // PROFILES: name:avatar[:4-digit code], in the order the picker shows them. Without a code the
 // child taps their picture (codes are off for a new team); a code can be set later in "Các con".
 // A new team starts with: Halloween skin on, team progress on, codes off.
 //
+// The mentor's account may already exist (a Supabase project shared with other apps): then it is
+// used as it is and its password is never changed; MENTOR_PASSWORD is needed only to create a
+// new account. All tables and functions are in the app's schema (src/api/schema.ts).
+//
 // The service role key is used only here, on your machine; it never goes into the app.
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 import { validateContent } from '../src/content/validate';
+import { DB_SCHEMA } from '../src/api/schema';
 
 const env = (k: string, fallback?: string) => {
   const v = process.env[k] ?? fallback;
@@ -27,13 +32,23 @@ const anonKey = env('SUPABASE_ANON_KEY');
 const slug = env('TEAM_SLUG', 'default');
 const teamName = env('TEAM_NAME', 'Đội Magic');
 const email = env('MENTOR_EMAIL').toLowerCase();
-const password = env('MENTOR_PASSWORD');
+const password = process.env.MENTOR_PASSWORD;
 const contentFile = env('CONTENT_FILE', 'content/course-content.json');
 // What the children call the mentor in kid-facing text; see TeamSettings.mentorLabel.
 const mentorLabel = process.env.MENTOR_LABEL?.trim();
 const profilesSpec = process.env.PROFILES ?? '';
 
-const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+const admin = createClient(url, serviceKey, { db: { schema: DB_SCHEMA }, auth: { persistSession: false } });
+
+/** The auth account with this email, if any (pages through every user of a shared project). */
+async function findUser(address: string) {
+  for (let page = 1; ; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+    const user = data.users.find((u) => u.email?.toLowerCase() === address);
+    if (user || data.users.length < 1000) return user ?? null;
+  }
+}
 
 async function main() {
   // Team
@@ -52,24 +67,30 @@ async function main() {
   }
   if (mentorLabel) console.log(`children call the mentor "${mentorLabel}"`);
 
-  // Mentor account
-  let userId: string | undefined;
-  const created = await admin.auth.admin.createUser({ email, password, email_confirm: true });
-  if (created.data.user) {
+  // Mentor account: an existing one is reused untouched; otherwise it is created.
+  let userId: string;
+  const account = await findUser(email);
+  if (account) {
+    userId = account.id;
+    console.log(`mentor ${email} already has an account: used as it is, password not changed`);
+    if (password) console.log('  note: MENTOR_PASSWORD was ignored; sign in with this account\'s own password');
+  } else {
+    if (!password) throw new Error(`${email} has no account yet: set MENTOR_PASSWORD to create one`);
+    const created = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+    if (created.error) throw created.error;
     userId = created.data.user.id;
     console.log(`mentor ${email} created`);
-  } else {
-    const list = await admin.auth.admin.listUsers({ perPage: 1000 });
-    userId = list.data.users.find((u) => u.email?.toLowerCase() === email)?.id;
-    if (!userId) throw created.error ?? new Error('could not create mentor');
-    console.log(`mentor ${email} exists`);
   }
   const m = await admin.from('mentors').upsert({ user_id: userId, team_id: team!.id, email }, { onConflict: 'user_id' });
   if (m.error) throw m.error;
 
-  // From here on act as the mentor, through the same functions the console uses.
-  const mentor = createClient(url, anonKey, { auth: { persistSession: false } });
-  const signIn = await mentor.auth.signInWithPassword({ email, password });
+  // From here on act as the mentor, through the same functions the console uses. A one-time
+  // sign-in link made with the service key works for new and existing accounts alike: no email
+  // is sent and no password is needed.
+  const link = await admin.auth.admin.generateLink({ type: 'magiclink', email });
+  if (link.error) throw link.error;
+  const mentor = createClient(url, anonKey, { db: { schema: DB_SCHEMA }, auth: { persistSession: false } });
+  const signIn = await mentor.auth.verifyOtp({ token_hash: link.data.properties.hashed_token, type: 'magiclink' });
   if (signIn.error) throw signIn.error;
 
   const { data: active } = await mentor.from('content_versions').select('id').eq('is_active', true).maybeSingle();
@@ -92,6 +113,9 @@ async function main() {
     if (r.error) throw r.error;
     console.log(`profile ${name} created`);
   }
+  // End only this script's session: a global sign-out would also sign the mentor out of other
+  // apps in a shared project.
+  await mentor.auth.signOut({ scope: 'local' });
   console.log('done');
 }
 

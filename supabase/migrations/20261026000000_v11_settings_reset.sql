@@ -1,21 +1,21 @@
 -- RFP v1.1: team settings (seasonal skin, DR-08) and trial-run reset (FR-M-15).
 
-alter table teams add column settings jsonb not null default '{"skin": "halloween"}';
-alter table teams add column data_epoch int not null default 0;
+alter table sec_minicourse.teams add column settings jsonb not null default '{"skin": "halloween"}';
+alter table sec_minicourse.teams add column data_epoch int not null default 0;
 
 -- Settings the player app needs before login (the skin), plus the current data epoch.
-create function public_team_settings(p_team_slug text) returns jsonb
-language sql stable security definer set search_path = public as $$
+create function sec_minicourse.public_team_settings(p_team_slug text) returns jsonb
+language sql stable security definer set search_path = sec_minicourse, extensions, pg_temp as $$
   select t.settings || jsonb_build_object('dataEpoch', t.data_epoch) from teams t where t.slug = p_team_slug
 $$;
 
-create function mentor_settings() returns jsonb
-language sql stable security definer set search_path = public as $$
+create function sec_minicourse.mentor_settings() returns jsonb
+language sql stable security definer set search_path = sec_minicourse, extensions, pg_temp as $$
   select t.settings || jsonb_build_object('dataEpoch', t.data_epoch) from teams t where t.id = require_mentor()
 $$;
 
-create function mentor_update_settings(p_patch jsonb) returns void
-language plpgsql security definer set search_path = public as $$
+create function sec_minicourse.mentor_update_settings(p_patch jsonb) returns void
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare t uuid := require_mentor();
 begin
   update teams set settings = settings || (p_patch - 'dataEpoch') where id = t;
@@ -24,8 +24,8 @@ end $$;
 -- Delete the children's answers, attempts and timings and clear their level progress; keep
 -- profiles, PINs, the mentor's level locks/unlocks, form locks and settings. Bumping the epoch
 -- makes every device drop writes it queued before the reset.
-create function mentor_reset_trial() returns void
-language plpgsql security definer set search_path = public as $$
+create function sec_minicourse.mentor_reset_trial() returns void
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare t uuid := require_mentor();
 begin
   delete from answer_versions where team_id = t;
@@ -36,8 +36,8 @@ begin
   update teams set data_epoch = data_epoch + 1 where id = t;
 end $$;
 
-create or replace function player_state(p_token text) returns jsonb
-language plpgsql security definer set search_path = public as $$
+create or replace function sec_minicourse.player_state(p_token text) returns jsonb
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare p profiles;
 begin
   p := session_profile(p_token);
@@ -54,8 +54,8 @@ begin
   );
 end $$;
 
-create or replace function player_write(p_token text, m jsonb) returns void
-language plpgsql security definer set search_path = public as $$
+create or replace function sec_minicourse.player_write(p_token text, m jsonb) returns void
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare
   p profiles;
   v_kind text := m->>'kind';
@@ -138,5 +138,8 @@ begin
   end if;
 end $$;
 
-grant execute on function public_team_settings(text) to anon, authenticated;
-grant execute on function mentor_settings(), mentor_update_settings(jsonb), mentor_reset_trial() to authenticated;
+-- New functions: no PUBLIC execute (PostgreSQL's default), only the roles that call them.
+revoke execute on function sec_minicourse.public_team_settings(text), sec_minicourse.mentor_settings(),
+  sec_minicourse.mentor_update_settings(jsonb), sec_minicourse.mentor_reset_trial() from public;
+grant execute on function sec_minicourse.public_team_settings(text) to anon, authenticated;
+grant execute on function sec_minicourse.mentor_settings(), sec_minicourse.mentor_update_settings(jsonb), sec_minicourse.mentor_reset_trial() to authenticated;

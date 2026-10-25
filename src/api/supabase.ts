@@ -1,6 +1,7 @@
 // Supabase backend. Children never touch tables: every player call is an RPC that takes the
 // session token. Mentors read their team's rows (RLS) and write through mentor_* RPCs.
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
+import { DB_SCHEMA } from './schema';
 import type { CourseContent } from '../content/types';
 import type { TeamProgress } from '../domain/team';
 import {
@@ -32,7 +33,7 @@ function toApiError(e: { message?: string; code?: string } | null | undefined): 
   return new ApiError('unknown', msg);
 }
 
-async function rpc<T>(client: SupabaseClient, fn: string, args: Row): Promise<T> {
+async function rpc<T>(client: AppClient, fn: string, args: Row): Promise<T> {
   let res;
   try {
     res = await client.rpc(fn, args);
@@ -43,14 +44,21 @@ async function rpc<T>(client: SupabaseClient, fn: string, args: Row): Promise<T>
   return res.data as T;
 }
 
-export function makeClient(url: string, key: string): SupabaseClient {
-  return createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+export function makeClient(url: string, key: string) {
+  // db.schema: every .from() and .rpc() goes to the app's own schema (src/api/schema.ts).
+  return createClient(url, key, {
+    db: { schema: DB_SCHEMA },
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  });
 }
+
+/** A Supabase client bound to the app's schema. */
+export type AppClient = ReturnType<typeof makeClient>;
 
 export class SupabasePlayerApi implements PlayerApi {
   readonly kind = 'supabase' as const;
   constructor(
-    private client: SupabaseClient,
+    private client: AppClient,
     private teamSlug: string,
   ) {}
 
@@ -108,7 +116,7 @@ const camelRow = <T>(r: Row): T => Object.fromEntries(Object.entries(r).map(([k,
 
 export class SupabaseMentorApi implements MentorApi {
   readonly kind = 'supabase' as const;
-  constructor(private client: SupabaseClient) {}
+  constructor(private client: AppClient) {}
 
   private async select<T>(table: string, columns = '*'): Promise<T[]> {
     const { data, error } = await this.client.from(table).select(columns);

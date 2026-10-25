@@ -3,8 +3,8 @@
 -- number of first-try quiz answers that were right (team total). Never answers or per-child
 -- scores. The mentor can switch it off (teams.settings.teamProgress = false).
 
-create function player_team_progress(p_token text) returns jsonb
-language plpgsql security definer set search_path = public as $$
+create function sec_minicourse.player_team_progress(p_token text) returns jsonb
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare
   p profiles;
   on_ boolean;
@@ -28,4 +28,6 @@ begin
   );
 end $$;
 
-grant execute on function player_team_progress(text) to anon, authenticated;
+-- New functions: no PUBLIC execute (PostgreSQL's default), only the roles that call them.
+revoke execute on function sec_minicourse.player_team_progress(text) from public;
+grant execute on function sec_minicourse.player_team_progress(text) to anon, authenticated;

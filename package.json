@@ -17,7 +17,8 @@
     "launch-check": "tsx scripts/launch-check.ts",
     "bootstrap:local": "SUPABASE_URL=http://127.0.0.1:54321 SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH SUPABASE_SERVICE_ROLE_KEY=sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz MENTOR_EMAIL=mentor@local.test MENTOR_PASSWORD=mentor-local-pass PROFILES=\"An:🦊:1111,Bình:🐼:2222,Chi:🦄:3333,Dũng:🐢:4444\" tsx scripts/bootstrap.ts",
     "test:e2e": "playwright test",
-    "gen:validator": "tsx scripts/build-validator.ts"
+    "gen:validator": "tsx scripts/build-validator.ts",
+    "gen:schema-sql": "tsx scripts/build-schema-sql.ts"
   },
   "dependencies": {
     "@fontsource/nunito": "^5.3.0",

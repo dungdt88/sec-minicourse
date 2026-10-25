@@ -2,21 +2,22 @@
 -- placeholder, so with codes switched on the child cannot get in until the mentor sets a code;
 -- the console and the child's code screen say so instead of a silent "wrong code".
 
-alter table profiles add column pin_set boolean not null default true;
+alter table sec_minicourse.profiles add column pin_set boolean not null default true;
 
-drop function public_profiles(text);
-create function public_profiles(p_team_slug text)
+drop function sec_minicourse.public_profiles(text);
+create function sec_minicourse.public_profiles(p_team_slug text)
 returns table (id uuid, display_name text, avatar text, pin_set boolean)
-language sql stable security definer set search_path = public as $$
+language sql stable security definer set search_path = sec_minicourse, extensions, pg_temp as $$
   select p.id, p.display_name, p.avatar, p.pin_set
   from profiles p join teams t on t.id = p.team_id
   where t.slug = p_team_slug and p.archived_at is null
   order by p.created_at
 $$;
-grant execute on function public_profiles(text) to anon, authenticated;
+revoke execute on function sec_minicourse.public_profiles(text) from public;
+grant execute on function sec_minicourse.public_profiles(text) to anon, authenticated;
 
-create or replace function mentor_create_profile(p_name text, p_avatar text, p_pin text) returns uuid
-language plpgsql security definer set search_path = public, extensions as $$
+create or replace function sec_minicourse.mentor_create_profile(p_name text, p_avatar text, p_pin text) returns uuid
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare t uuid := require_mentor(); new_id uuid; v_pin text := p_pin;
 begin
   if v_pin is null or v_pin = '' then v_pin := lpad((floor(random() * 10000))::int::text, 4, '0'); end if;
@@ -28,8 +29,8 @@ begin
   return new_id;
 end $$;
 
-create or replace function mentor_set_pin(p_id uuid, p_pin text) returns void
-language plpgsql security definer set search_path = public, extensions as $$
+create or replace function sec_minicourse.mentor_set_pin(p_id uuid, p_pin text) returns void
+language plpgsql security definer set search_path = sec_minicourse, extensions, pg_temp as $$
 declare t uuid := require_mentor();
 begin
   if p_pin !~ '^[0-9]{4}$' then raise exception 'invalid'; end if;

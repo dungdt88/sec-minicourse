@@ -3,8 +3,9 @@
 //
 //   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret key> pnpm launch-check
 //
-// The same check as SQL, for the dashboard's SQL Editor: supabase/snippets/launch-check.sql.
+// The same check as SQL, for the dashboard's SQL Editor: deploy/launch-check.sql.
 import { createClient } from '@supabase/supabase-js';
+import { DB_SCHEMA } from '../src/api/schema';
 
 const env = (k: string) => {
   const v = process.env[k];
@@ -12,7 +13,10 @@ const env = (k: string) => {
   return v;
 };
 
-const admin = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
+const admin = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), {
+  db: { schema: DB_SCHEMA },
+  auth: { persistSession: false },
+});
 
 /** Children's data: every one of these must be empty at launch. */
 const MUST_BE_EMPTY: [table: string, what: string][] = [
@@ -57,12 +61,17 @@ async function main() {
   if (mentors.error) throw mentors.error;
   console.log(`  mentors   ${mentors.data.map((m) => m.email).join(', ') || '—'}`);
 
-  const users = await admin.auth.admin.listUsers({ perPage: 1000 });
-  if (users.error) throw users.error;
-  const emails = users.data.users.map((u) => u.email ?? '(no email)');
+  // The project may be shared with other apps: count its accounts, list none of theirs.
+  const emails: string[] = [];
+  for (let page = 1; ; page++) {
+    const users = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (users.error) throw users.error;
+    emails.push(...users.data.users.map((u) => u.email ?? ''));
+    if (users.data.users.length < 1000) break;
+  }
   const test = emails.filter((e) => e.endsWith('@local.test'));
   if (test.length) ok = false;
-  console.log(`  accounts  ${emails.join(', ') || '—'}${test.length ? `   TEST ACCOUNT: ${test.join(', ')}` : ''}`);
+  console.log(`  accounts  ${emails.length} in the project (all apps)${test.length ? `   TEST ACCOUNT: ${test.join(', ')}` : ''}`);
 
   console.log(ok ? '\nOK: no children\'s data, no test account.' : '\nNOT READY: see the lines above.');
   if (!ok) process.exit(1);

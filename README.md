@@ -34,7 +34,8 @@ pnpm dev                  # uses .env.development (local Supabase URL and publis
 ```
 
 `npx supabase db reset` wipes the local database; run `pnpm bootstrap:local` again afterwards.
-Studio (table browser) is at http://127.0.0.1:54323.
+Studio (table browser) is at http://127.0.0.1:54323. Everything is in the `sec_minicourse` schema
+(see "How it works"); a local database made before that change needs one `npx supabase db reset`.
 
 ## Tests
 
@@ -64,56 +65,78 @@ screen under 3 s on a 4-year-old Android over 4G) needs a real device.
 The app is static. GitHub Actions builds it into a Docker image (nginx, non-root, port 3000
 inside the container) and runs it on the shared Lightsail instance at `127.0.0.1:3001`, behind
 Caddy, as in `mika-cms-webapp/docs/deployment-standard.md` ("Adding a project"). All data is in
-Supabase. Files: `Dockerfile`, `deploy/nginx.conf`, `deploy/security-headers.conf`,
-`.github/workflows/deploy.yml`.
+Supabase, in the app's own schema `sec_minicourse`, inside a Supabase project that other apps
+share. Files: `Dockerfile`, `deploy/nginx.conf`, `deploy/security-headers.conf`,
+`.github/workflows/deploy.yml`, `deploy/supabase-schema.sql`, `deploy/launch-check.sql`.
 
-Cost: the Supabase free tier, and the Lightsail instance that already runs Mika (this container
-is capped at 64 MB and a quarter of a CPU). **A free Supabase project pauses after 7 days without
-use**, and then the app shows its offline screen until someone presses **Restore project** in the
-Supabase dashboard (a few minutes). Supabase Pro (USD 25/month) never pauses and keeps daily
-backups; on the free plan, export the JSON from **Xuất dữ liệu** now and then.
+Production address: **https://tiemvongtay.chabinuhandmade.com** (Cloudflare DNS, an A record set to
+**DNS only**, grey cloud, so Caddy on the instance gets the certificate). Children's codes: off.
 
-Have ready: the domain (e.g. `vongtay.example.com`), the mentor's email and a strong password, and
-SSH access to the instance as `ubuntu`.
+The container is capped at 64 MB and a quarter of a CPU. If the shared Supabase project is on the
+free plan, it pauses after 7 days without use by any of its apps, and then every app is down
+until someone presses **Restore project** in the dashboard. The free plan keeps no backups, so
+export the JSON from **Xuất dữ liệu** now and then.
 
-### 1. Supabase project (once)
+Have ready: the mentor's email (it may already have an account in the shared project), SSH
+access to the instance as `ubuntu`, and the shared project's URL, publishable key and secret key
+(Project Settings → API Keys).
 
-1. Create a project in **Singapore** (ap-southeast-1). Note the project ref, the publishable key
-   and the secret key (Project Settings → API Keys).
-2. Push the schema (migrations only; `supabase/seed.sql` is for local development and is not run):
-   ```sh
-   npx supabase login
-   npx supabase link --project-ref <ref>
-   npx supabase db push
-   ```
-3. Authentication → Sign In / Providers: turn **off** "Allow new users to sign up". Keep Email on.
-   Authentication → Providers → Email: minimum password length 12.
-4. Authentication → URL Configuration: Site URL `https://<domain>`; add `https://<domain>/mentor`
-   to the redirect URLs (for the mentor's email sign-in link).
-5. Create the team, the mentor, the content and the four children, in the order the picker shows
+### 1. Supabase: the app's schema in the shared project (once)
+
+The project is shared, so **leave its project-wide settings alone**: sign-ups, Site URL and the
+password policy stay as they are. The app does not need them changed (see "Shared project" below).
+Do not use `supabase db push` or `supabase migration repair` either: the CLI keeps one migration
+history per project, and other apps' history would conflict with this one. The SQL is applied by
+hand instead.
+
+1. **SQL Editor** → New query → paste all of `deploy/supabase-schema.sql` → Run. It creates the
+   schema `sec_minicourse` with its tables, row-level security, functions and grants, in one
+   transaction; it touches nothing in `public` or any other schema and inserts no data. If the
+   schema already exists it stops at the first line and changes nothing.
+2. **Only after step 1**: Project Settings → Data API → **Exposed schemas** → add
+   `sec_minicourse` → Save. The order matters: if an exposed schema does not exist, the Data API
+   fails to start (HTTP 503) for **every app in the project**. For the same reason, never drop or
+   rename the schema while it is exposed; remove it from the list first.
+3. Authentication → URL Configuration → **Redirect URLs**: add
+   `https://tiemvongtay.chabinuhandmade.com/mentor` (for the mentor's email sign-in link). Leave the
+   Site URL as it is: the app asks for that address explicitly, and Supabase honours it because it
+   is on the list.
+4. Create the team, the mentor, the content and the four children, in the order the picker shows
    them, without codes:
    ```sh
-   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<publishable key> \
+    SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<publishable key> \
    SUPABASE_SERVICE_ROLE_KEY=<secret key> TEAM_NAME="Đội Magic" MENTOR_LABEL="bố Trí" \
-   MENTOR_EMAIL=<mentor email> MENTOR_PASSWORD=<strong password> \
+   MENTOR_EMAIL=<mentor email> MENTOR_PASSWORD=<strong password, only for a new account> \
    PROFILES="Đậu:🐯,Go-Han:🐸,Suri:🐬,Bình Minh:🦁" pnpm bootstrap
    ```
    This creates exactly: team "Đội Magic" (Halloween on, team progress on, codes off, the children
-   call the mentor "bố Trí"); one mentor account; the content in `content/course-content.json`,
-   active; the four profiles. No answers, no demo children, no test account. The avatars are
-   placeholders: change them in **Các con**. The secret key is used only on your machine, for
-   this script and the check below; it never goes into GitHub or the server. Start the command
-   with a space so the shell does not keep it in its history.
-6. Check that the project holds no children's data (read only; exits 1 if it does):
+   call the mentor "bố Trí"); the content in `content/course-content.json`, active; the four
+   profiles; and makes the email a mentor. If the email **already has an account** in the
+   project, that account is used as it is, its password is not changed, and the script says
+   "MENTOR_PASSWORD was ignored": sign in with the account's own password. Otherwise the account is
+   created with `MENTOR_PASSWORD`. No answers, no demo children, no test account. The avatars are
+   placeholders: change them in **Các con**. The secret key is used only on your machine, for this
+   script and the check below; it never goes into GitHub or the server. The leading space keeps the
+   command out of the shell history.
+5. Check that the project holds no children's data (read only; exits 1 if it does):
    ```sh
-   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret key> pnpm launch-check
+    SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<secret key> pnpm launch-check
    ```
-   Or paste `supabase/snippets/launch-check.sql` into the SQL Editor: every "children's data" row
-   must show 0.
-7. More mentors: Authentication → Users → **Invite user**, then add the email in the console
-   under **Cài đặt**. Supabase's built-in email only reaches members of your Supabase organisation
-   and sends a few emails an hour; set up custom SMTP to invite anyone else, or create the account
-   with a password instead (Authentication → Users → Add user).
+   Or paste `deploy/launch-check.sql` into the SQL Editor: every "children's data" row and the
+   "ours in public" row must show 0.
+6. More mentors: the person needs an account in the project (Authentication → Users → Add user, or
+   their own sign-up), then add their email in the console under **Cài đặt**.
+
+**Shared project, open sign-ups.** Anyone who signs up in the project gets an account, but an
+account that is not in `sec_minicourse.mentors` reads no rows (row-level security), and every
+`mentor_*` function answers "unauthorized". The children's side does not use accounts at all: it
+calls the `player_*` functions with its own session tokens. Children (the `anon` role) can read no
+table and call only `player_*`, `public_*` and `report_error`. The sign-in link button never creates
+an account (`shouldCreateUser: false`).
+
+**Later schema changes.** A new migration in `supabase/migrations/` is applied the same way: paste
+that one file into the SQL Editor. `pnpm gen:schema-sql` rebuilds `deploy/supabase-schema.sql` for
+new projects; a unit test fails if it is out of date.
 
 ### 2. The server (once)
 
@@ -127,11 +150,12 @@ On a machine with SSH access to the instance (`18.136.67.209`):
    ssh-keygen -t ed25519 -C "deploy-sec-minicourse" -f ~/.ssh/sec-minicourse_deploy -N ""
    ssh-copy-id -i ~/.ssh/sec-minicourse_deploy.pub ubuntu@18.136.67.209
    ```
-3. DNS: an A record for `<domain>` → `18.136.67.209`. Check: `dig +short <domain>`.
+3. DNS (Cloudflare): an A record `tiemvongtay` → `18.136.67.209`, proxy status **DNS only** (grey
+   cloud), so Caddy gets and renews the certificate itself. Check: `dig +short tiemvongtay.chabinuhandmade.com`.
 4. Caddy, on the instance:
    ```sh
-   sudo tee /etc/caddy/sites/<domain>.caddy >/dev/null <<'EOF'
-   <domain> {
+   sudo tee /etc/caddy/sites/tiemvongtay.chabinuhandmade.com.caddy >/dev/null <<'EOF'
+   tiemvongtay.chabinuhandmade.com {
        encode zstd gzip
        reverse_proxy 127.0.0.1:3001
    }
@@ -177,13 +201,13 @@ Watch with `gh run watch`. The run fails unless the new container reports health
 docker ps                                                   # sec-minicourse, "healthy"
 free -m                                                     # available still > 150 MB
 # from anywhere
-curl -sI https://<domain> | head -3                         # 200, server: Caddy
-curl -s https://<domain>/health                             # ok
+curl -sI https://tiemvongtay.chabinuhandmade.com | head -3   # 200, server: Caddy
+curl -s https://tiemvongtay.chabinuhandmade.com/health       # ok
 curl --max-time 5 http://18.136.67.209:3001/                # MUST fail: the port is not public
 ```
 
-Then open `https://<domain>`: the picker shows Đậu, Go-Han, Suri and Bình Minh, and
-`https://<domain>/mentor` signs the mentor in.
+Then open `https://tiemvongtay.chabinuhandmade.com`: the picker shows Đậu, Go-Han, Suri and Bình Minh, and
+`https://tiemvongtay.chabinuhandmade.com/mentor` signs the mentor in.
 
 Roll back by re-running the last good **Deploy** run. To try the image locally first:
 `docker build --build-arg VITE_SUPABASE_URL=… --build-arg VITE_SUPABASE_ANON_KEY=… -t sec-minicourse .`
@@ -254,6 +278,10 @@ src/
 supabase/migrations/   tables, RLS, server functions
 ```
 
+- **Own schema.** Every table, function and policy is in the Postgres schema `sec_minicourse`
+  (constant `DB_SCHEMA` in `src/api/schema.ts`; every Supabase client uses `db.schema`), so the app
+  can share a Supabase project with other apps and creates nothing in `public`. Functions pin
+  `search_path = sec_minicourse, extensions, pg_temp`; grants and revokes name only this schema.
 - **Children never touch tables.** The `anon` role can only call `player_*` functions with a
   session token from `player_login(profile, PIN)`. By default a child just taps their picture
   (`teams.settings.requirePin` off, at the owner's request); the mentor can require the 4-digit
