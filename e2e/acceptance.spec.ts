@@ -109,6 +109,29 @@ test('2: stop mid-quiz on the phone, continue on a laptop', async ({ browser }) 
   await laptop.ctx.close();
 });
 
+test('team progress: friends on the map, one candy jar, news — and the mentor can hide it', async ({ browser }) => {
+  // An finished Level 1 in test 1.
+  const { ctx, page } = await kidPage(browser, 'Bình');
+  await expect(page.locator('.team-card')).toBeVisible();
+  await expect(page.locator('.team-card')).toContainText('Hũ kẹo của cả đội');
+  await expect(page.locator('.team-news', { hasText: 'An vừa xong Màn 1!' })).toBeVisible();
+  await expect(page.locator('.map-node', { hasText: 'Màn 2:' }).locator('.friends-here')).toContainText('🦊');
+  await expect(page.getByText(/Bình đang ở màn này/)).toHaveCount(0); // never the child themself
+  await ctx.close();
+
+  const m = await mentorPage(browser);
+  await m.page.goto('/mentor/settings');
+  await m.page.getByLabel('Cho các con thấy cả đội đang ở đâu').click(); // follows the server
+  await expect(m.page.locator('.m-toast')).toContainText('Đã ẩn tiến độ cả đội');
+  const again = await kidPage(browser, 'Bình');
+  await expect(again.page.locator('.map')).toBeVisible();
+  await expect(again.page.locator('.team-card')).toHaveCount(0);
+  await again.ctx.close();
+  await m.page.getByLabel('Cho các con thấy cả đội đang ở đâu').click();
+  await expect(m.page.locator('.m-toast')).toContainText('tiến độ của cả đội');
+  await m.ctx.close();
+});
+
 test('3, 7: replay keeps the first attempt and shuffles again; an edit is kept as a version', async ({ browser }) => {
   const { ctx, page } = await kidPage(browser, 'An');
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();

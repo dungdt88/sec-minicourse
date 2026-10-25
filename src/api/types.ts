@@ -2,6 +2,7 @@
 // in-browser local backend). Field names follow FR-C-04.
 import type { PartValue } from '../domain/answers';
 import type { CourseContent } from '../content/types';
+import type { TeamProgress } from '../domain/team';
 
 export type DeviceType = 'phone' | 'tablet' | 'desktop';
 export type Section = 'cards' | 'quiz' | 'form';
@@ -103,6 +104,8 @@ export interface ActiveContent {
 /** Team settings (DR-08 skin) plus the data epoch, which a trial-run reset bumps (FR-M-15). */
 export interface TeamSettings {
   skin?: 'plain' | 'halloween';
+  /** Friends' progress and the shared candy jar on the child's map (default on). */
+  teamProgress?: boolean;
   dataEpoch: number;
 }
 
@@ -178,6 +181,8 @@ export interface PlayerApi {
   activeContent(): Promise<ActiveContent>;
   settings(): Promise<TeamSettings>;
   state(token: string): Promise<PlayerState>;
+  /** Friends' levels and the team candy total; never answers. */
+  teamProgress(token: string): Promise<TeamProgress>;
   write(token: string, m: Mutation): Promise<void>;
   reportError(token: string | null, message: string, context: Record<string, unknown>): Promise<void>;
 }

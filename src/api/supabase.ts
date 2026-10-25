@@ -2,6 +2,7 @@
 // session token. Mentors read their team's rows (RLS) and write through mentor_* RPCs.
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { CourseContent } from '../content/types';
+import type { TeamProgress } from '../domain/team';
 import {
   ApiError,
   type ActiveContent,
@@ -87,6 +88,10 @@ export class SupabasePlayerApi implements PlayerApi {
 
   async state(token: string) {
     return rpc<PlayerState>(this.client, 'player_state', { p_token: token });
+  }
+
+  async teamProgress(token: string) {
+    return rpc<TeamProgress>(this.client, 'player_team_progress', { p_token: token });
   }
 
   async write(token: string, m: Mutation) {

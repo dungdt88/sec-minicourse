@@ -4,6 +4,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { remindLevels } from './Home';
+import { finishedLevel } from '../domain/team';
+import { AvatarRow, useTeamProgress } from './team';
 import { Character, levelCharacter } from '../art/Character';
 import { Sticker } from '../art/Sticker';
 import { byOrder, type Level } from '../content/types';
@@ -79,6 +81,7 @@ export function LevelPlayer() {
 function LevelScreen({ levelId }: { levelId: string }) {
   const player = usePlayer();
   const { content, state, levelState, write, base, preview, t, saveStatus, flush } = player;
+  const team = useTeamProgress();
   const navigate = useNavigate();
   const level = content.levels.find((l) => l.id === levelId);
   const steps = useMemo(() => (level ? stepsOf(level) : []), [level]);
@@ -356,6 +359,12 @@ function LevelScreen({ levelId }: { levelId: string }) {
               <Character key={c.id} character={c} expression="happy" size={72} decorative />
             ))}
           </div>
+          {team && (
+            <p className="team-news" style={{ margin: 0 }}>
+              {t('teamFinishedLevel', { done: finishedLevel(team.friends, level.id).length, total: team.friends.length, n: level.order })}{' '}
+              <AvatarRow friends={finishedLevel(team.friends, level.id)} size={30} />
+            </p>
+          )}
           {canPlayOn && <p style={{ margin: 0 }}>{t('nextOpen', { n: nextLevel.order })}</p>}
           <div className="bottom-actions" style={{ flexDirection: 'column' }}>
             {canPlayOn && (

@@ -6,6 +6,7 @@
 
 import type { CourseContent } from '../content/types';
 import { uuid } from '../domain/progress';
+import type { TeamProgress } from '../domain/team';
 import {
   ApiError,
   type ActiveContent,
@@ -43,7 +44,7 @@ interface LocalDb {
   mentorSession: MentorSession | null;
   errors: ErrorLogEntry[];
   /** Added with RFP v1.1; absent in older saved databases. */
-  settings?: { skin?: 'plain' | 'halloween' };
+  settings?: { skin?: 'plain' | 'halloween'; teamProgress?: boolean };
   epoch?: number;
 }
 
@@ -319,6 +320,25 @@ export class LocalPlayerApi implements PlayerApi {
       levels: db.levelStates.filter((s) => s.profileId === p.id),
       answers: latestAnswers(db.answers.filter((a) => a.profileId === p.id)),
       attempts: db.attempts.filter((a) => a.profileId === p.id),
+    };
+  }
+
+  async teamProgress(token: string): Promise<TeamProgress> {
+    const [db] = await this.profileFor(token);
+    if (db.settings?.teamProgress === false) return { enabled: false };
+    const active = db.profiles.filter((p) => !p.archivedAt);
+    const ids = new Set(active.map((p) => p.id));
+    return {
+      enabled: true,
+      friends: active.map((f) => ({
+        id: f.id,
+        displayName: f.displayName,
+        avatar: f.avatar,
+        completed: db.levelStates
+          .filter((s) => s.profileId === f.id && s.completedAt)
+          .map((s) => ({ levelId: s.levelId, completedAt: s.completedAt! })),
+      })),
+      teamCandies: db.attempts.filter((a) => ids.has(a.profileId) && a.attemptNo === 1 && a.correct).length,
     };
   }
 

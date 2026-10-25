@@ -2,7 +2,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Sticker } from '../art/Sticker';
 import { Character } from '../art/Character';
-import { Pumpkin } from '../art/Halloween';
+import { Candy, Pumpkin } from '../art/Halloween';
+import { FINISHED, friendsByLevel, recentNews, teamCandyGoal, type FriendProgress } from '../domain/team';
+import { AvatarRow, useTeamProgress } from './team';
 import { useSkin } from '../art/skin';
 import { sortedLevels } from '../content/types';
 import { levelStatuses, todayLevel } from '../domain/progress';
@@ -30,6 +32,11 @@ export function Home() {
   const hwHighlight = homeworkHighlighted(remindLevels(content.homework.remindAfterLevels), completedOrders);
   const hasHomework = content.homework.items.length > 0;
   const allDone = completedOrders.length === levels.length;
+  // Team progress (cooperative): friends on the map, one shared candy jar, friendly news.
+  const team = useTeamProgress();
+  const here = team ? friendsByLevel(levels, team.friends, state.profile.id) : new Map<string, FriendProgress[]>();
+  const news = team ? recentNews(levels, team.friends, state.profile.id) : [];
+  const goal = team ? teamCandyGoal(levels, team.friends) : 0;
 
   return (
     <main className="screen">
@@ -65,6 +72,29 @@ export function Home() {
         <p className="notice center" role="status">
           🎉 {t('courseDone', { n: levels.length })}
         </p>
+      )}
+
+      {team && (
+        <section className="team-card" aria-label={t('teamTitle')}>
+          <div className="team-jar-row">
+            <Candy size={36} />
+            <div style={{ flex: 1 }}>
+              <strong>{t('teamJar')}</strong>
+              <div className="jar-bar" role="progressbar" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={team.teamCandies} aria-label={t('teamJar')}>
+                <span style={{ width: `${goal ? Math.min(100, (team.teamCandies / goal) * 100) : 0}%` }} />
+              </div>
+            </div>
+            <strong className="jar-count">{t('teamJarCount', { n: team.teamCandies })}</strong>
+          </div>
+          <p className="small-text muted" style={{ margin: '4px 0 0' }}>
+            {t('teamTogether')}
+          </p>
+          {news.map((n) => (
+            <p className="team-news" key={`${n.friend.id}-${n.level.id}`}>
+              <span aria-hidden="true">{n.friend.avatar}</span> 🎉 {t('newsDone', { name: n.friend.displayName, n: n.level.order })}
+            </p>
+          ))}
+        </section>
       )}
 
       <nav className="map" aria-label={content.title}>
@@ -107,10 +137,23 @@ export function Home() {
                   {sub}
                 </span>
               </span>
+              {here.get(level.id) && (
+                <span className="friends-here">
+                  <AvatarRow friends={here.get(level.id)!} max={3} />
+                  <span className="visually-hidden">
+                    {t('friendsHere', { names: here.get(level.id)!.map((f) => f.displayName).join(', ') })}
+                  </span>
+                </span>
+              )}
             </button>
           );
         })}
       </nav>
+      {here.get(FINISHED) && (
+        <p className="team-news center">
+          🏁 {t('friendsFinished', { n: levels.length })} <AvatarRow friends={here.get(FINISHED)!} />
+        </p>
+      )}
 
       <div className="center" aria-hidden="true">
         <span style={{ display: 'inline-flex', gap: 4 }}>

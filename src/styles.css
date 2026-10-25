@@ -1194,3 +1194,70 @@ html[data-skin='halloween'] .today-tag {
   min-height: 68px;
   font-size: 23px;
 }
+
+/* ---------- team progress (cooperative: no ranking, no per-child scores) */
+.team-card {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+.team-jar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.jar-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: var(--honey-soft);
+  border: 2px solid var(--line);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.jar-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f7a8c4, var(--honey));
+  border-radius: 999px;
+  transition: width 500ms ease-out;
+}
+.jar-count {
+  font-size: 18px;
+  white-space: nowrap;
+}
+.team-news {
+  margin: 6px 0 0;
+  font-weight: 700;
+  font-size: 17px;
+}
+.map-node {
+  position: relative;
+}
+.friends-here {
+  position: absolute;
+  top: -12px;
+  right: 10px;
+}
+.avatar-row {
+  display: inline-flex;
+}
+.avatar-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--line);
+  margin-left: -6px;
+  line-height: 1;
+}
+.avatar-row .avatar-bubble:first-child {
+  margin-left: 0;
+}
+.avatar-bubble.more {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-soft);
+}

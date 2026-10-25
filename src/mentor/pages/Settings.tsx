@@ -25,6 +25,7 @@ export function SettingsPage() {
     api.settings().then(setSettings, () => {});
   };
   const skinOn = (settings?.skin ?? 'halloween') === 'halloween';
+  const teamOn = settings?.teamProgress !== false;
   useEffect(load, [api]);
 
   return (
@@ -49,6 +50,29 @@ export function SettingsPage() {
           <strong>Halloween</strong>: Drắc Nhí, kẹo, bí ngô, các con vật hoá trang
         </label>
         <p className="small-text muted">Tắt thì dùng giao diện sáng bình thường, cùng bố cục. Máy của các con đổi theo khi mở lại ứng dụng.</p>
+      </div>
+
+      <h2>Tiến độ cả đội</h2>
+      <div className="m-card">
+        <label className="m-row" style={{ gap: 8 }}>
+          <input
+            type="checkbox"
+            checked={teamOn}
+            disabled={!settings}
+            onChange={async (e) => {
+              const teamProgress = e.target.checked;
+              if (await run(() => api.updateSettings({ teamProgress }))) {
+                setSettings((s) => (s ? { ...s, teamProgress } : s));
+                notify(teamProgress ? 'Các con thấy tiến độ của cả đội.' : 'Đã ẩn tiến độ cả đội.');
+              }
+            }}
+          />
+          <strong>Cho các con thấy cả đội đang ở đâu</strong>
+        </label>
+        <p className="small-text muted">
+          Trên bản đồ: hình của các bạn bên cạnh màn các bạn đang chơi, một hũ kẹo chung của cả đội, và tin “Bình vừa xong Màn 2!”. Không có bảng xếp hạng,
+          không có điểm riêng từng con, và không bao giờ cho xem câu trả lời của bạn khác.
+        </p>
       </div>
 
       <h2>Xoá kết quả chạy thử</h2>
