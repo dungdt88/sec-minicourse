@@ -12,7 +12,7 @@ function fakeSpeech(heard: string) {
   w.__said = [];
   w.__hold = false; // true: the next sentence keeps "speaking" until __release()
   const voices = [{ lang: 'vi-VN', name: 'Linh', default: true, localService: true, voiceURI: 'Linh' }];
-  type U = { text: string; onend: (() => void) | null };
+  type U = { text: string; onstart: (() => void) | null; onend: (() => void) | null };
   let timer: ReturnType<typeof setTimeout> | null = null;
   let held: U | null = null;
   w.SpeechSynthesisUtterance = function (this: U, text: string) {
@@ -32,6 +32,7 @@ function fakeSpeech(heard: string) {
       getVoices: () => voices,
       speak: (u: U) => {
         w.__said.push(u.text);
+        setTimeout(() => u.onstart?.(), 0);
         if (w.__hold) held = u;
         else
           timer = setTimeout(() => {

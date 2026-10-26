@@ -318,18 +318,24 @@ supabase/migrations/   tables, RLS, server functions
   purpose: no ranking, no per-child scores or order, never another child's answers (FR-P-25). Only
   names, avatars, completed levels and the team's candy total leave the server
   (`player_team_progress`). The mentor can switch it off in Cài đặt (`teams.settings.teamProgress`).
-- **Read-aloud and voice typing** (`src/player/speech.ts`). 🔊 reads a card, a quiz question
-  with its lettered choices (after the answer: why), and a form question with its hint, labels
-  and choices, in the device's own Vietnamese voice (Apple's Enhanced/Premium voice when
-  installed), or a card's recorded `audio` file. Bracketed English words are read in an English
-  voice, emoji are skipped, and it reads one sentence at a time, each started when the one before
-  ends (browsers keep a queue of utterances unreliably; a sentence that never reports its end is
-  passed by a watchdog). One reading at a time; leaving or answering the question stops it. 🎤
-  "Bấm để nói" under a text box uses the browser's own speech recognition (`vi-VN`): the words
-  are added after what is in the box, word for word, and saved like typed text. It is hidden
-  where the browser cannot do it (Firefox, an iPhone Home Screen app, plain http), so the
-  keyboard's microphone (the FR-P-24 tip, unchanged) stays the way there. No key, no server and
-  no AI service: the browser may use Apple's or Google's speech service, as the keyboard does.
+- **Read-aloud and voice typing** (`src/player/speech.ts`). 🔊 reads a card; a quiz question
+  with its lettered choices (after the answer: why); and a form question with its hint, part
+  labels, every choice to pick from, the groups of a list and the boxes of a split (not what the
+  child already wrote, nor the "Ở câu trước con chọn" box). It uses the device's own Vietnamese
+  voice (Apple's Enhanced/Premium voice when installed), or a card's recorded `audio` file.
+  Bracketed English words are read in an English voice and emoji are skipped. It reads one
+  sentence at a time, each started when the one before ends (browsers keep a queue of utterances
+  unreliably). A watchdog times each sentence from its start: one that never ends is passed, one
+  that never starts (8 s) means the device cannot read, and the parent sees "Máy chưa đọc được
+  tiếng Việt" for that card or question. One reading at a time; leaving or answering the question
+  stops it. 🎤 "Bấm để nói" under a text box uses the browser's own speech recognition
+  (`vi-VN`): the words are added after what is in the box, word for word, and saved like typed
+  text. It is not shown in Firefox, in an iPhone Home Screen app (recognition is reported not to
+  work there) or over plain http, and every 🎤 goes away once the browser says it has no
+  Vietnamese recognition; a refused or busy microphone only gives a message. The FR-P-24
+  keyboard-microphone tip stays under the first text box everywhere, as the way that always works.
+  No key, no server and no AI service: the browser may use Apple's or Google's speech service, as
+  the keyboard does.
 - **What the children call the mentor.** `teams.settings.mentorLabel` (Cài đặt → "Các con gọi
   người hướng dẫn là", e.g. "bố Trí"; default "người hướng dẫn") fills `{mentor}` in kid-facing
   text, such as "Bố mẹ nhờ bố Trí đặt mã cho con nhé." The mentor console still says "người hướng dẫn".

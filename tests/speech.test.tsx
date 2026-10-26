@@ -5,7 +5,7 @@ import { makeT } from '../src/content/strings';
 import type { TextPart } from '../src/content/types';
 import type { PartAnswer } from '../src/domain/answers';
 import { TextInput } from '../src/player/parts/TextInput';
-import { currentlySpeaking, pickVoice, sentenceDeadline, speak, speechChunks, stopSpeaking } from '../src/player/speech';
+import { currentlySpeaking, englishParts, pickVoice, sentenceDeadline, speak, speechChunks, START_TIMEOUT, stopSpeaking } from '../src/player/speech';
 
 const t = makeT(undefined);
 
@@ -34,6 +34,15 @@ describe('what read-aloud says', () => {
     expect(speechChunks(['A. Sóc tết vòng.', 'B. Mua vòng.']).map((c) => c.text)).toEqual(['A. Sóc tết vòng.', 'B. Mua vòng.']);
   });
 
+  it('a Vietnamese text in brackets stays Vietnamese, on screen and read aloud', () => {
+    expect(englishParts('(Bố mẹ giúp con nhé.) Khách hàng (customer)')).toEqual([
+      { piece: '(Bố mẹ giúp con nhé.) Khách hàng ', en: false },
+      { piece: '(customer)', en: true },
+      { piece: '', en: false },
+    ]);
+    expect(speechChunks(['(Bố mẹ giúp con nhé.)'])).toEqual([{ text: '(Bố mẹ giúp con nhé.)', lang: 'vi' }]);
+  });
+
   it('skips empty and missing texts', () => {
     expect(speechChunks([undefined, null, '', ' 🎃 ', 'Xong!'])).toEqual([{ text: 'Xong!', lang: 'vi' }]);
   });
@@ -46,6 +55,7 @@ interface FakeUtterance {
   voice: { lang: string; name: string } | null;
   lang: string;
   rate: number;
+  onstart: (() => void) | null;
   onend: (() => void) | null;
   onerror: ((e: { error: string }) => void) | null;
 }
@@ -61,7 +71,7 @@ beforeEach(() => {
     { lang: 'vi-VN', name: 'Linh' },
   ];
   vi.stubGlobal('SpeechSynthesisUtterance', function (this: FakeUtterance, text: string) {
-    Object.assign(this, { text, voice: null, lang: '', rate: 1, onend: null, onerror: null });
+    Object.assign(this, { text, voice: null, lang: '', rate: 1, onstart: null, onend: null, onerror: null });
   });
   vi.stubGlobal('speechSynthesis', {
     getVoices: () => voices,
@@ -107,21 +117,42 @@ describe('read-aloud with the device voice', () => {
     expect(fail).not.toHaveBeenCalled();
   });
 
-  it('moves past a sentence whose end never comes, and still finishes', () => {
+  it('moves past a sentence that started but never ends, timed from its start', () => {
     vi.useFakeTimers();
     try {
       const fail = vi.fn();
-      speak('L1C1', speechChunks(['Một hai ba. Bốn năm.']), fail);
-      expect(spoken.map((u) => u.text)).toEqual(['Một hai ba.']);
-      vi.advanceTimersByTime(sentenceDeadline('Một hai ba.') - 1);
-      expect(spoken).toHaveLength(1); // still within its time
+      speak('L1C1', speechChunks(['Có. Bốn năm.']), fail);
+      expect(spoken.map((u) => u.text)).toEqual(['Có.']);
+      // A slow first word (an iPhone's Enhanced voice) is not cut: the clock starts with speech.
+      vi.advanceTimersByTime(3000);
+      spoken[0].onstart?.();
+      vi.advanceTimersByTime(sentenceDeadline('Có.') - 1);
+      expect(spoken).toHaveLength(1);
       vi.advanceTimersByTime(1);
-      expect(spoken.map((u) => u.text)).toEqual(['Một hai ba.', 'Bốn năm.']);
+      expect(spoken.map((u) => u.text)).toEqual(['Có.', 'Bốn năm.']);
       spoken[0].onend?.(); // a late end of the stuck sentence changes nothing
       expect(spoken).toHaveLength(2);
+      spoken[1].onstart?.();
       spoken[1].onend?.();
       expect(currentlySpeaking()).toBeNull();
       expect(fail).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a sentence that never starts means the device cannot read: the parent is told', () => {
+    vi.useFakeTimers();
+    try {
+      const fail = vi.fn();
+      speak('L1C1', speechChunks(['Một. Hai. Ba.']), fail);
+      vi.advanceTimersByTime(START_TIMEOUT - 1);
+      expect(fail).not.toHaveBeenCalled();
+      expect(currentlySpeaking()).toBe('L1C1');
+      vi.advanceTimersByTime(1);
+      expect(fail).toHaveBeenCalledTimes(1);
+      expect(currentlySpeaking()).toBeNull(); // not "Dừng" for the length of the whole card
+      expect(spoken).toHaveLength(1); // the rest is not tried in silence
     } finally {
       vi.useRealTimers();
     }
@@ -254,12 +285,41 @@ describe('voice typing (🎤 under a text box)', () => {
     expect(screen.getByRole('alert').textContent).toBe(t('dictateNoSpeech'));
   });
 
-  it('stops listening when the question is left', () => {
-    const { unmount } = render(<Box initial="" onChange={vi.fn()} />);
+  it('stops listening when the question is left, and nothing heard later reaches it', () => {
+    const onChange = vi.fn();
+    const { unmount } = render(<Box initial="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'Bấm để nói' }));
-    const abort = vi.spyOn(FakeRecognition.last!, 'abort');
+    const rec = FakeRecognition.last!;
+    act(() => rec.hear('bốn bạn', false));
+    // A browser that ends without an "aborted" error, and then delivers a late result.
+    const abort = vi.spyOn(rec, 'abort').mockImplementation(function (this: FakeRecognition) {
+      this.onend?.();
+    });
     unmount();
     expect(abort).toHaveBeenCalled();
+    rec.onresult?.({ resultIndex: 0, results: { length: 1, 0: { isFinal: true, 0: { transcript: 'muộn' } } } });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('a busy microphone (a phone call) gives a message and keeps 🎤', () => {
+    render(<Box initial="" onChange={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Bấm để nói' }));
+    act(() => {
+      FakeRecognition.last!.onerror?.({ error: 'audio-capture' });
+      FakeRecognition.last!.onend?.();
+    });
+    expect(screen.getByRole('alert').textContent).toBe(t('dictateFailed'));
+    expect(screen.getByRole('button', { name: 'Bấm để nói' })).toBeTruthy();
+  });
+
+  it('has no 🎤 in an iPhone Home Screen app, where recognition does not work', () => {
+    Object.defineProperty(navigator, 'standalone', { value: true, configurable: true });
+    try {
+      render(<Box initial="" onChange={vi.fn()} />);
+      expect(screen.queryByRole('button')).toBeNull();
+    } finally {
+      delete (navigator as { standalone?: boolean }).standalone;
+    }
   });
 
   it('has no button on a locked form, over plain http, or without recognition', () => {
@@ -278,14 +338,21 @@ describe('voice typing (🎤 under a text box)', () => {
   });
 
   // Last: after this the button stays hidden for the rest of the visit (module state).
-  it('hides the button for good when the device has no microphone or no Vietnamese', () => {
-    render(<Box initial="" onChange={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Bấm để nói' }));
+  it('hides every 🎤 on the screen for good when the device has no Vietnamese recognition', () => {
+    render(
+      <>
+        <Box initial="" onChange={vi.fn()} />
+        <Box initial="" onChange={vi.fn()} />
+      </>,
+    );
+    expect(screen.getAllByRole('button', { name: 'Bấm để nói' })).toHaveLength(2);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Bấm để nói' })[0]);
     act(() => {
       FakeRecognition.last!.onerror?.({ error: 'language-not-supported' });
       FakeRecognition.last!.onend?.();
     });
-    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryAllByRole('button')).toHaveLength(0); // the other box too
     expect(screen.getByRole('alert').textContent).toBe(t('dictateFailed'));
+    expect(screen.getAllByRole('textbox')).toHaveLength(2);
   });
 });

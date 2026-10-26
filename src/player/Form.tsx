@@ -10,13 +10,20 @@ import { HintBanner, ReadAloud, RichText, StepProgress } from './ui';
 
 const TEXT_DEBOUNCE_MS = 600;
 
-/** What 🔊 reads on a form question: the question, its hint, and each part's label and choices. */
+/**
+ * What 🔊 reads on a form question: the question, its hint, each part's label, every choice to pick
+ * from (in L7F2 that includes the tasks the child added in L7F1), the groups of a list and the boxes
+ * of a split. Not what the child already wrote or added in this question, and not the "earlier you
+ * chose" box.
+ */
 function spokenQuestion(question: FormQuestion, lookup: (q: string, p: string) => PartAnswer | undefined): (string | undefined)[] {
   const out: (string | undefined)[] = [question.prompt, question.hint];
   for (const part of question.parts) {
     if (part.type !== 'repeat') out.push(part.label); // a repeat part shows no label
     if (part.type === 'single_choice') out.push(...visibleOptions(part, lookup).map((o) => o.text));
     if (part.type === 'multi_choice' || part.type === 'pick_n') out.push(...part.options.map((o) => o.text));
+    if (part.type === 'item_list') for (const g of part.groups) out.push(g.label, g.hint);
+    if (part.type === 'sum_split') out.push(...part.fields.map((f) => f.label));
   }
   return out;
 }

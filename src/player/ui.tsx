@@ -3,20 +3,19 @@ import { useEffect, useState } from 'react';
 import { Ghost } from '../art/Halloween';
 import { useSkin } from '../art/skin';
 import { usePlayer } from './session';
-import { currentlySpeaking, EN_TERM, pickVoice, playAudio, speak, speechChunks, stopSpeaking, useSpeaking } from './speech';
+import { currentlySpeaking, englishParts, playAudio, speak, speechChunks, stopSpeaking, useHasVietnameseVoice, useSpeaking } from './speech';
 
 /** "khách hàng (customer)": the bracketed English word renders as-is, a little lighter (FR-P-13). */
 export function RichText({ text }: { text: string }) {
-  const parts = text.split(EN_TERM);
   return (
     <>
-      {parts.map((p, i) =>
-        /^\([A-Za-z]/.test(p) ? (
+      {englishParts(text).map(({ piece, en }, i) =>
+        en ? (
           <span key={i} className="en-term" lang="en">
-            {p}
+            {piece}
           </span>
         ) : (
-          p
+          piece
         ),
       )}
     </>
@@ -81,36 +80,18 @@ export function HintBanner({ id, text, line }: { id: string; text: string; /** o
 }
 
 /**
- * Whether the device has a Vietnamese voice. Chrome fills its list of voices a moment after the
- * page starts and may announce it before this screen listens; Safari does not announce it at all.
- * So look again once mounted and a few times after, besides listening.
- */
-function useVietnameseVoice(): boolean {
-  const [has, setHas] = useState(() => pickVoice('vi') != null);
-  useEffect(() => {
-    if (typeof speechSynthesis === 'undefined') return;
-    const update = () => setHas(pickVoice('vi') != null);
-    update();
-    const timers = [300, 1000, 3000].map((ms) => setTimeout(update, ms));
-    speechSynthesis.addEventListener('voiceschanged', update);
-    return () => {
-      timers.forEach(clearTimeout);
-      speechSynthesis.removeEventListener('voiceschanged', update);
-    };
-  }, []);
-  return has;
-}
-
-/**
  * Read-aloud (FR-P-14) for what a screen shows: a card, a quiz question and its answers, a form
  * question. A recorded file when the content names one (cards[].audio), otherwise the device's own
  * Vietnamese voice; hidden when neither is available. `compact` shows only 🔊, for a crowded row.
  */
 export function ReadAloud({ id, text, audio, compact }: { id: string; text: (string | null | undefined)[]; audio?: string; compact?: boolean }) {
   const { t } = usePlayer();
-  const voice = useVietnameseVoice();
+  const voice = useHasVietnameseVoice();
   const speaking = useSpeaking();
-  const [failed, setFailed] = useState(false);
+  // A failure belongs to one card or question: the next one offers 🔊 again (one card's audio file
+  // may be missing, or a one-off error).
+  const [failedId, setFailedId] = useState<string | null>(null);
+  const failed = failedId === id;
   const playing = speaking === id;
 
   // Leaving the card or question (or answering it) ends its reading.
@@ -124,7 +105,7 @@ export function ReadAloud({ id, text, audio, compact }: { id: string; text: (str
   if (!audio && !voice) return null;
 
   const play = () => {
-    const fail = () => setFailed(true);
+    const fail = () => setFailedId(id);
     if (audio) playAudio(id, `/${audio}`, fail);
     else speak(id, speechChunks(text), fail);
   };
