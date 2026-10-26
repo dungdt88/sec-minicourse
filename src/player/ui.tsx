@@ -1,22 +1,21 @@
 // Small shared pieces of the player screens.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ghost } from '../art/Halloween';
 import { useSkin } from '../art/skin';
 import { usePlayer } from './session';
-import type { Card } from '../content/types';
+import { currentlySpeaking, englishParts, playAudio, speak, speechChunks, stopSpeaking, useHasVietnameseVoice, useSpeaking } from './speech';
 
 /** "khách hàng (customer)": the bracketed English word renders as-is, a little lighter (FR-P-13). */
 export function RichText({ text }: { text: string }) {
-  const parts = text.split(/(\([A-Za-z][A-Za-z0-9 '’\-/]*\))/g);
   return (
     <>
-      {parts.map((p, i) =>
-        /^\([A-Za-z]/.test(p) ? (
+      {englishParts(text).map(({ piece, en }, i) =>
+        en ? (
           <span key={i} className="en-term" lang="en">
-            {p}
+            {piece}
           </span>
         ) : (
-          p
+          piece
         ),
       )}
     </>
@@ -80,81 +79,56 @@ export function HintBanner({ id, text, line }: { id: string; text: string; /** o
   );
 }
 
-function vietnameseVoice(): SpeechSynthesisVoice | null {
-  if (typeof speechSynthesis === 'undefined') return null;
-  return speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('vi')) ?? null;
-}
-
 /**
- * Read-aloud for a card (FR-P-14): the card's recorded audio if the content names one, otherwise
- * the device's own Vietnamese voice. Hidden when neither is available.
+ * Read-aloud (FR-P-14) for what a screen shows: a card, a quiz question and its answers, a form
+ * question. A recorded file when the content names one (cards[].audio), otherwise the device's own
+ * Vietnamese voice; hidden when neither is available. `compact` shows only 🔊, for a crowded row.
  */
-export function ReadAloud({ card }: { card: Card }) {
+export function ReadAloud({ id, text, audio, compact }: { id: string; text: (string | null | undefined)[]; audio?: string; compact?: boolean }) {
   const { t } = usePlayer();
-  const [playing, setPlaying] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(vietnameseVoice);
-  const audio = useRef<HTMLAudioElement | null>(null);
+  const voice = useHasVietnameseVoice();
+  const speaking = useSpeaking();
+  // A failure belongs to one card or question: the next one offers 🔊 again (one card's audio file
+  // may be missing, or a one-off error).
+  const [failedId, setFailedId] = useState<string | null>(null);
+  const failed = failedId === id;
+  const playing = speaking === id;
 
-  useEffect(() => {
-    if (typeof speechSynthesis === 'undefined') return;
-    const update = () => setVoice(vietnameseVoice());
-    speechSynthesis.addEventListener('voiceschanged', update);
-    return () => speechSynthesis.removeEventListener('voiceschanged', update);
-  }, []);
-
+  // Leaving the card or question (or answering it) ends its reading.
   useEffect(
     () => () => {
-      audio.current?.pause();
-      if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+      if (currentlySpeaking() === id) stopSpeaking();
     },
-    [card.id],
+    [id],
   );
 
-  if (!card.audio && !voice) return null;
-
-  const stop = () => {
-    audio.current?.pause();
-    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-    setPlaying(false);
-  };
+  if (!audio && !voice) return null;
 
   const play = () => {
-    if (card.audio) {
-      audio.current ??= new Audio(`/${card.audio}`);
-      audio.current.onended = () => setPlaying(false);
-      audio.current.currentTime = 0;
-      audio.current.play().catch(() => {
-        setPlaying(false);
-        setFailed(true);
-      });
-    } else if (voice) {
-      const text = [card.title, card.body, ...(card.bullets ?? []), card.footer ?? ''].join('. ');
-      const u = new SpeechSynthesisUtterance(text);
-      u.voice = voice;
-      u.lang = voice.lang;
-      u.rate = 0.9;
-      u.onend = () => setPlaying(false);
-      u.onerror = () => {
-        setPlaying(false);
-        setFailed(true);
-      };
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-    }
-    setPlaying(true);
+    const fail = () => setFailedId(id);
+    if (audio) playAudio(id, `/${audio}`, fail);
+    else speak(id, speechChunks(text), fail);
   };
 
   if (failed) {
     return (
-      <span className="small-text muted" role="status" style={{ maxWidth: 220, textAlign: 'right' }}>
+      <span className={`small-text muted${compact ? ' read-failed' : ''}`} role="status" style={compact ? undefined : { maxWidth: 220, textAlign: 'right' }}>
         {t('readAloudFailed')}
       </span>
     );
   }
+  const label = playing ? t('pause') : t('readAloud');
   return (
-    <button className="icon-btn" onClick={playing ? stop : play} aria-pressed={playing}>
-      <span aria-hidden="true">{playing ? '⏸' : '🔊'}</span> {playing ? t('pause') : t('readAloud')}
+    <button
+      type="button"
+      className={`icon-btn${compact ? ' small' : ''}`}
+      onClick={playing ? stopSpeaking : play}
+      aria-pressed={playing}
+      aria-label={compact ? label : undefined}
+      title={compact ? label : undefined}
+    >
+      <span aria-hidden="true">{playing ? '⏸' : '🔊'}</span>
+      {!compact && ` ${label}`}
     </button>
   );
 }

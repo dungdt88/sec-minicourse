@@ -7,7 +7,7 @@ import { usePlayer } from './session';
 import { Candy, Mascot } from '../art/Halloween';
 import { prefersReducedMotion, useSkin } from '../art/skin';
 import { MascotPopup } from './MascotPopup';
-import { RichText, StepProgress } from './ui';
+import { ReadAloud, RichText, StepProgress } from './ui';
 
 interface QuestionProps {
   level: Level;
@@ -73,7 +73,18 @@ export function QuizQuestionScreen({ level, question, index, total, character, s
   return (
     <main className="screen">
       {top}
-      <StepProgress index={index} total={total} label={t('questionOf', { n: index + 1, total })} />
+      {/* Before the answer: the question and its choices; after it, why (FR-P-14 for the quiz). */}
+      <StepProgress
+        index={index}
+        total={total}
+        label={t('questionOf', { n: index + 1, total })}
+        action={
+          <ReadAloud
+            id={`${question.id}:${answered ? 'why' : 'ask'}`}
+            text={answered ? [heading, question.explanation] : [question.prompt, ...options.map((o, i) => `${String.fromCharCode(65 + i)}. ${o.text}`)]}
+          />
+        }
+      />
       <h1 className="prompt content-col">
         <RichText text={question.prompt} />
       </h1>

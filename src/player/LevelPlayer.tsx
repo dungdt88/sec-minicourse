@@ -191,7 +191,12 @@ function LevelScreen({ levelId }: { levelId: string }) {
   );
 
   const cardProgress = (index: number, card: (typeof cards)[number]) => (
-    <StepProgress index={index} total={cards.length} label={t('cardOf', { n: index + 1, total: cards.length })} action={<ReadAloud card={card} />} />
+    <StepProgress
+      index={index}
+      total={cards.length}
+      label={t('cardOf', { n: index + 1, total: cards.length })}
+      action={<ReadAloud id={card.id} audio={card.audio} text={[card.title, card.body, ...(card.bullets ?? []), card.footer]} />}
+    />
   );
 
   if (peek != null && onWorksheet) {

@@ -40,7 +40,7 @@ Studio (table browser) is at http://127.0.0.1:54323. Everything is in the `sec_m
 ## Tests
 
 ```sh
-pnpm test        # unit: content validation, all form input types, shuffle, progress, offline queue, compare
+pnpm test        # unit: content validation, all form input types, shuffle, progress, offline queue, compare, read-aloud, voice typing
 pnpm test:e2e    # Playwright: the RFP acceptance tests against local Supabase (resets the local DB)
 pnpm typecheck
 pnpm validate-content [path/to/file.json]
@@ -58,7 +58,9 @@ E2E_SUPABASE_WORKDIR=<folder> E2E_SUPABASE_URL=http://127.0.0.1:<api port> E2E_A
 ```
 
 `e2e/acceptance.spec.ts` automates acceptance tests 1–13 and 15 from section 12. Test 14 (first
-screen under 3 s on a 4-year-old Android over 4G) needs a real device.
+screen under 3 s on a 4-year-old Android over 4G) needs a real device. `e2e/speech.spec.ts` plays
+level 1 with stand-ins for the browser's voices and microphone (a test browser has neither); how
+the real voice and recognition sound on the families' phones needs a real device too.
 
 ## Deploy (Lightsail + Supabase cloud)
 
@@ -316,6 +318,24 @@ supabase/migrations/   tables, RLS, server functions
   purpose: no ranking, no per-child scores or order, never another child's answers (FR-P-25). Only
   names, avatars, completed levels and the team's candy total leave the server
   (`player_team_progress`). The mentor can switch it off in Cài đặt (`teams.settings.teamProgress`).
+- **Read-aloud and voice typing** (`src/player/speech.ts`). 🔊 reads a card; a quiz question
+  with its lettered choices (after the answer: why); and a form question with its hint, part
+  labels, every choice to pick from, the groups of a list and the boxes of a split (not what the
+  child already wrote, nor the "Ở câu trước con chọn" box). It uses the device's own Vietnamese
+  voice (Apple's Enhanced/Premium voice when installed), or a card's recorded `audio` file.
+  Bracketed English words are read in an English voice and emoji are skipped. It reads one
+  sentence at a time, each started when the one before ends (browsers keep a queue of utterances
+  unreliably). A watchdog times each sentence from its start: one that never ends is passed, one
+  that never starts (8 s) means the device cannot read, and the parent sees "Máy chưa đọc được
+  tiếng Việt" for that card or question. One reading at a time; leaving or answering the question
+  stops it. 🎤 "Bấm để nói" under a text box uses the browser's own speech recognition
+  (`vi-VN`): the words are added after what is in the box, word for word, and saved like typed
+  text. It is not shown in Firefox, in an iPhone Home Screen app (recognition is reported not to
+  work there) or over plain http, and every 🎤 goes away once the browser says it has no
+  Vietnamese recognition; a refused or busy microphone only gives a message. The FR-P-24
+  keyboard-microphone tip stays under the first text box everywhere, as the way that always works.
+  No key, no server and no AI service: the browser may use Apple's or Google's speech service, as
+  the keyboard does.
 - **What the children call the mentor.** `teams.settings.mentorLabel` (Cài đặt → "Các con gọi
   người hướng dẫn là", e.g. "bố Trí"; default "người hướng dẫn") fills `{mentor}` in kid-facing
   text, such as "Bố mẹ nhờ bố Trí đặt mã cho con nhé." The mentor console still says "người hướng dẫn".
@@ -330,7 +350,7 @@ supabase/migrations/   tables, RLS, server functions
 
 | Area | Status |
 | --- | --- |
-| FR-P-01 … 28 | All Must done. Should: test profile and preview (P-04/M-10), stickers (P-08), read-aloud (P-14), mascot reactions and pop-up (P-18, no sound), links between answers (P-23), homework capture (P-27). |
+| FR-P-01 … 28 | All Must done; FR-P-24 also has a 🎤 voice-typing button where the browser supports it. Should: test profile and preview (P-04/M-10), stickers (P-08), read-aloud (P-14; also on quiz and form questions), mascot reactions and pop-up (P-18, no sound), links between answers (P-23), homework capture (P-27). |
 | FR-M-01 … 16 | All Must done; Should: Zoom sheet (M-11), team-scoped data (M-12), trial-run reset (M-15), submission view (M-16). Not done: M-14 Google Sheet import (Could). |
 | FR-C-01 … 05 | Done. Art is SVG drawn in code, overridable by files. `sdg_picker` kept (Could); the children no longer see SDGs, the list is shown to the mentor in "Bài nộp". |
 | DR-01 … 08 | Done, including the Halloween skin (DR-08) with placeholder art (original, client-owned). |
