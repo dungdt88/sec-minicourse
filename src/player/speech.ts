@@ -75,8 +75,9 @@ let speakingId: string | null = null;
 const listeners = new Set<() => void>();
 /** Goes up on every stop, so the late events of a stopped reading are ignored. */
 let run = 0;
-/** Held until spoken: Chrome can drop the events of utterances nothing refers to. */
-let queue: SpeechSynthesisUtterance[] = [];
+/** Held while spoken: Chrome can drop the events of an utterance nothing refers to. */
+let current: SpeechSynthesisUtterance | null = null;
+let watchdog: ReturnType<typeof setTimeout> | undefined;
 let player: HTMLAudioElement | null = null;
 let listening: { abort: () => void } | null = null;
 
@@ -99,16 +100,24 @@ export const currentlySpeaking = () => speakingId;
 
 export function stopSpeaking() {
   run++;
-  queue = [];
+  if (current) current.onend = current.onerror = null; // the cancel below reports an "interrupted" error
+  current = null;
+  clearTimeout(watchdog);
   player?.pause();
   player = null;
   synth()?.cancel();
   if (speakingId !== null) emit(null);
 }
 
+/** Time a sentence may take before the watchdog moves on (about 10 characters a second at 0.9). */
+export const sentenceDeadline = (text: string) => 2500 + text.length * 250;
+
 /**
- * Read the chunks aloud as `id`. `onFail` runs when the device cannot speak; a reading stopped by
- * the child, by leaving the screen or by another reading is not a failure.
+ * Read the chunks aloud as `id`, one sentence at a time: each starts when the one before ends.
+ * Browsers keep a queue of utterances unreliably (Safari can drop the rest, Chrome can stall), and
+ * a sentence that never reports its end is moved past by a watchdog. `onFail` runs when the
+ * device cannot speak; a reading stopped by the child, by leaving the screen or by another reading
+ * is not a failure.
  */
 export function speak(id: string, chunks: Chunk[], onFail: () => void) {
   stopSpeaking();
@@ -118,25 +127,42 @@ export function speak(id: string, chunks: Chunk[], onFail: () => void) {
   const me = run;
   const vi = pickVoice('vi');
   const en = pickVoice('en');
-  queue = chunks.map((c, i) => {
+
+  const say = (i: number) => {
+    if (me !== run) return;
+    clearTimeout(watchdog);
+    if (i >= chunks.length) return stopSpeaking();
+    const c = chunks[i];
     const u = new SpeechSynthesisUtterance(c.text);
     const voice = c.lang === 'vi' ? vi : en;
     if (voice) u.voice = voice;
     u.lang = voice?.lang ?? (c.lang === 'vi' ? 'vi-VN' : 'en-US');
     u.rate = 0.9;
-    if (i === chunks.length - 1)
-      u.onend = () => {
-        if (me === run) stopSpeaking();
-      };
+    let done = false;
+    const next = () => {
+      if (done || me !== run) return;
+      done = true;
+      say(i + 1);
+    };
+    u.onend = next;
     u.onerror = (e) => {
-      if (me !== run) return;
+      if (done || me !== run) return;
       stopSpeaking();
       if (e.error !== 'interrupted' && e.error !== 'canceled') onFail();
     };
-    return u;
-  });
+    current = u;
+    s.speak(u);
+    watchdog = setTimeout(() => {
+      if (done || me !== run) return;
+      // Stuck: let go of this sentence and carry on with the next.
+      done = true;
+      s.cancel();
+      say(i + 1);
+    }, sentenceDeadline(c.text));
+  };
+
   emit(id);
-  for (const u of queue) s.speak(u);
+  say(0);
 }
 
 /** Play a recorded file (cards[].audio) as `id`. */

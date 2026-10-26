@@ -322,8 +322,9 @@ supabase/migrations/   tables, RLS, server functions
   with its lettered choices (after the answer: why), and a form question with its hint, labels
   and choices, in the device's own Vietnamese voice (Apple's Enhanced/Premium voice when
   installed), or a card's recorded `audio` file. Bracketed English words are read in an English
-  voice, emoji are skipped, and text goes out a sentence at a time, because some browsers stop a
-  long utterance halfway. One reading at a time; leaving or answering the question stops it. 🎤
+  voice, emoji are skipped, and it reads one sentence at a time, each started when the one before
+  ends (browsers keep a queue of utterances unreliably; a sentence that never reports its end is
+  passed by a watchdog). One reading at a time; leaving or answering the question stops it. 🎤
   "Bấm để nói" under a text box uses the browser's own speech recognition (`vi-VN`): the words
   are added after what is in the box, word for word, and saved like typed text. It is hidden
   where the browser cannot do it (Firefox, an iPhone Home Screen app, plain http), so the

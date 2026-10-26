@@ -1,24 +1,49 @@
 // Read-aloud on cards, quiz and form questions (FR-P-14) and the 🎤 voice typing under a text box
 // (FR-P-24), in the real level flow. A test browser has no voices and no microphone, so the
-// browser's speech APIs are replaced by stand-ins that record what they were asked to say.
+// browser's speech APIs are replaced by stand-ins that record what they were asked to say and end
+// each sentence a moment later, as a real voice does.
 import { expect, test, type Page } from '@playwright/test';
 import { enterAs, next, waitSaved } from './helpers';
 
 const HEARD = 'con muốn chơi cùng bạn';
 
 function fakeSpeech(heard: string) {
-  const w = window as unknown as Record<string, unknown> & { __said: string[] };
+  const w = window as unknown as Record<string, unknown> & { __said: string[]; __hold: boolean; __release: () => void };
   w.__said = [];
+  w.__hold = false; // true: the next sentence keeps "speaking" until __release()
   const voices = [{ lang: 'vi-VN', name: 'Linh', default: true, localService: true, voiceURI: 'Linh' }];
-  w.SpeechSynthesisUtterance = function (this: { text: string }, text: string) {
+  type U = { text: string; onend: (() => void) | null };
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let held: U | null = null;
+  w.SpeechSynthesisUtterance = function (this: U, text: string) {
     this.text = text;
+  };
+  w.__release = () => {
+    const u = held;
+    held = null;
+    u?.onend?.();
   };
   Object.defineProperty(window, 'speechSynthesis', {
     configurable: true,
     value: {
+      get speaking() {
+        return timer != null || held != null;
+      },
       getVoices: () => voices,
-      speak: (u: { text: string }) => w.__said.push(u.text), // never ends by itself: stays "Dừng"
-      cancel: () => {},
+      speak: (u: U) => {
+        w.__said.push(u.text);
+        if (w.__hold) held = u;
+        else
+          timer = setTimeout(() => {
+            timer = null;
+            u.onend?.();
+          }, 20);
+      },
+      cancel: () => {
+        if (timer) clearTimeout(timer);
+        timer = null;
+        held = null;
+      },
       addEventListener: () => {},
       removeEventListener: () => {},
     },
@@ -43,6 +68,7 @@ function fakeSpeech(heard: string) {
 }
 
 const said = (page: Page) => page.evaluate(() => (window as unknown as { __said: string[] }).__said.join(' | '));
+const hold = (page: Page, on: boolean) => page.evaluate((v) => ((window as unknown as { __hold: boolean }).__hold = v), on);
 
 test('🔊 reads cards, quiz questions and form questions; 🎤 types what was said and it is saved', async ({ browser }) => {
   const ctx = await browser.newContext();
@@ -53,14 +79,26 @@ test('🔊 reads cards, quiz questions and form questions; 🎤 types what was s
   await page.locator('.map-node', { hasText: 'Màn 1:' }).click();
   await page.locator('.bottom-actions .btn').first().click(); // "Bắt đầu" (or "Chơi lại")
 
-  // A card: as before, plus the reading now stops when the child moves on.
+  // A card, read one sentence at a time to the end; the button says "Dừng" meanwhile.
   await expect(page.getByText('Thẻ 1/4').first()).toBeVisible();
   await expect(page.locator('.concept-card h2')).toHaveText('Kinh doanh (business) là gì?');
+  await hold(page, true);
   await page.getByRole('button', { name: 'Đọc to' }).click();
   await expect(page.getByRole('button', { name: 'Dừng' })).toHaveAttribute('aria-pressed', 'true');
-  expect(await said(page)).toContain('Kinh doanh | business | là gì?'); // the English word in an English voice
+  expect(await said(page)).toBe('Kinh doanh'); // the next sentence waits for this one to end
+  await hold(page, false);
+  await page.evaluate(() => (window as unknown as { __release: () => void }).__release());
+  await expect(page.getByRole('button', { name: 'Đọc to' })).toHaveAttribute('aria-pressed', 'false'); // finished by itself
+  expect(await said(page)).toMatch(/^Kinh doanh \| business \| là gì\? \| Sóc, Gấu, Thỏ và Cú Mèo mở một tiệm nhỏ\. \|/); // English in an English voice
+  expect(await said(page)).toContain('Việc làm giúp gọi là dịch vụ.'); // the last sentence too
+  // Moving on stops a reading.
+  await hold(page, true);
+  await page.getByRole('button', { name: 'Đọc to' }).click();
+  await expect(page.getByRole('button', { name: 'Dừng' })).toBeVisible();
   await next(page);
+  await expect(page.getByText('Thẻ 2/4').first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Đọc to' })).toHaveAttribute('aria-pressed', 'false');
+  await hold(page, false);
   for (let i = 1; i < 4; i++) await next(page);
 
   // A quiz question: the question and its lettered choices; after the answer, why.
@@ -68,13 +106,16 @@ test('🔊 reads cards, quiz questions and form questions; 🎤 types what was s
   const prompt = (await page.locator('h1.prompt').textContent())!.trim();
   const firstOption = (await page.locator('.option-list .option span:last-child').first().textContent())!.trim();
   await page.getByRole('button', { name: 'Đọc to' }).click();
-  expect(await said(page)).toContain(`A. ${firstOption}`);
-  expect(await said(page)).toContain(prompt.split(/[.?!]/)[0]);
+  await expect.poll(() => said(page)).toContain(`${prompt} | A. ${firstOption}`);
+  await hold(page, true);
+  await page.getByRole('button', { name: 'Đọc to' }).click();
+  await expect(page.getByRole('button', { name: 'Dừng' })).toBeVisible();
   await page.locator('.option').first().click();
   await expect(page.getByRole('button', { name: 'Đọc to' })).toHaveAttribute('aria-pressed', 'false'); // answering ends it
+  await hold(page, false);
   await page.getByRole('button', { name: 'Đọc to' }).click();
   const explanation = (await page.locator('.feedback p').textContent())!.trim();
-  expect(await said(page)).toContain(explanation.split(/[.?!]/)[0]);
+  await expect.poll(() => said(page)).toContain(explanation.split(/[.?!]/)[0]);
   await next(page);
   for (let i = 1; i < 4; i++) {
     await page.locator('.option').first().click();
@@ -86,7 +127,8 @@ test('🔊 reads cards, quiz questions and form questions; 🎤 types what was s
   await expect(page.getByText('Từ điển pháp thuật 1/4').first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Xem lại thẻ' })).toBeVisible();
   await page.getByRole('button', { name: 'Đọc to' }).click();
-  expect(await said(page)).toContain((await page.locator('h1.prompt').textContent())!.trim().split(/[.?!]/)[0]);
+  const formPrompt = (await page.locator('h1.prompt').textContent())!.trim();
+  await expect.poll(() => said(page)).toContain(formPrompt.split(/[.?!]/)[0]);
   await page.locator('textarea').fill('Hôm nay');
   await page.getByRole('button', { name: 'Bấm để nói' }).click();
   await expect(page.locator('textarea')).toHaveValue(`Hôm nay ${HEARD}`);

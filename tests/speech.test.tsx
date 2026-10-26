@@ -5,7 +5,7 @@ import { makeT } from '../src/content/strings';
 import type { TextPart } from '../src/content/types';
 import type { PartAnswer } from '../src/domain/answers';
 import { TextInput } from '../src/player/parts/TextInput';
-import { currentlySpeaking, pickVoice, speak, speechChunks, stopSpeaking } from '../src/player/speech';
+import { currentlySpeaking, pickVoice, sentenceDeadline, speak, speechChunks, stopSpeaking } from '../src/player/speech';
 
 const t = makeT(undefined);
 
@@ -86,20 +86,45 @@ describe('read-aloud with the device voice', () => {
     expect(pickVoice('vi')?.name).toBe('Linh (Enhanced)');
   });
 
-  it('queues one utterance per chunk with the right voice, and ends when the last one ends', () => {
+  it('says one sentence at a time with the right voice, each after the one before ends', () => {
     const fail = vi.fn();
     speak('L1C1', speechChunks(['Khách hàng (customer) là ai?']), fail);
     expect(currentlySpeaking()).toBe('L1C1');
+    // Not queued up front: Safari can drop queued utterances and Chrome can stall on them.
+    expect(spoken.map((u) => [u.text, u.voice?.name])).toEqual([['Khách hàng', 'Linh']]);
+    spoken[0].onend?.();
+    spoken[0].onend?.(); // a repeated end event does not skip a sentence
     expect(spoken.map((u) => [u.text, u.voice?.name])).toEqual([
       ['Khách hàng', 'Linh'],
       ['customer', 'Samantha'],
-      ['là ai?', 'Linh'],
     ]);
-    spoken[0].onend?.(); // not the last: still reading
+    spoken[1].onend?.();
+    expect(spoken[2].text).toBe('là ai?');
     expect(currentlySpeaking()).toBe('L1C1');
     spoken[2].onend?.();
     expect(currentlySpeaking()).toBeNull();
+    expect(spoken).toHaveLength(3);
     expect(fail).not.toHaveBeenCalled();
+  });
+
+  it('moves past a sentence whose end never comes, and still finishes', () => {
+    vi.useFakeTimers();
+    try {
+      const fail = vi.fn();
+      speak('L1C1', speechChunks(['Một hai ba. Bốn năm.']), fail);
+      expect(spoken.map((u) => u.text)).toEqual(['Một hai ba.']);
+      vi.advanceTimersByTime(sentenceDeadline('Một hai ba.') - 1);
+      expect(spoken).toHaveLength(1); // still within its time
+      vi.advanceTimersByTime(1);
+      expect(spoken.map((u) => u.text)).toEqual(['Một hai ba.', 'Bốn năm.']);
+      spoken[0].onend?.(); // a late end of the stuck sentence changes nothing
+      expect(spoken).toHaveLength(2);
+      spoken[1].onend?.();
+      expect(currentlySpeaking()).toBeNull();
+      expect(fail).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('a reading stopped by the child or by leaving the screen is not a failure', () => {
@@ -110,18 +135,23 @@ describe('read-aloud with the device voice', () => {
     expect(fail).not.toHaveBeenCalled();
     expect(currentlySpeaking()).toBeNull();
     // Late events of a stopped reading change nothing.
-    speak('L1C2', speechChunks(['Ba.']), fail);
-    spoken[1].onerror?.({ error: 'synthesis-failed' });
+    speak('L1C2', speechChunks(['Ba. Bốn.']), fail);
+    const stopped = spoken[0];
+    stopSpeaking();
+    stopped.onerror?.({ error: 'synthesis-failed' });
+    stopped.onend?.();
     expect(fail).not.toHaveBeenCalled();
-    expect(currentlySpeaking()).toBe('L1C2');
+    expect(spoken.map((u) => u.text)).toEqual(['Một.', 'Ba.']);
+    expect(currentlySpeaking()).toBeNull();
   });
 
   it('a device that cannot speak reports it once', () => {
     const fail = vi.fn();
-    speak('L1Q1:ask', speechChunks(['Câu hỏi?']), fail);
+    speak('L1Q1:ask', speechChunks(['Câu hỏi? Câu nữa.']), fail);
     spoken[0].onerror?.({ error: 'synthesis-failed' });
     expect(fail).toHaveBeenCalledTimes(1);
     expect(currentlySpeaking()).toBeNull();
+    expect(spoken).toHaveLength(1); // nothing more is tried
   });
 });
 
