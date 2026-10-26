@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "contentVersion": "2026-10-25.14",
+  "contentVersion": "2026-10-26.15",
   "locale": "vi",
   "title": "Khóa học mini: Tiệm Vòng Tay Rừng Xanh",
   "sourceDoc": "https://claude.ai/artifact/7bVpEvJb66bTY3B6XKYwwG",
@@ -1609,8 +1609,8 @@
     {
       "id": "L6",
       "order": 6,
-      "title": "Màn 6 – Tiền để bắt đầu và chia tiền lời",
-      "name": "Tiền để bắt đầu và chia tiền lời",
+      "title": "Màn 6 – Tiền để bắt đầu và dùng tiền lời",
+      "name": "Tiền để bắt đầu và dùng tiền lời",
       "objectives": [
         "Biết tiệm cần tiền trước khi bán (vốn), liệt kê đồ cần mua với giá thật, đoán số bán có lý do, và kể được cách tìm vốn.",
         "Cùng đội quyết định cách dùng tiền lời theo luật cuộc thi, cộng lại vừa đúng."
@@ -1639,13 +1639,13 @@
             "Cả đội góp tiền tiết kiệm.",
             "Mượn bố mẹ, hẹn ngày trả."
           ],
-          "footer": "Mượn thì trả xong mới chia tiền lời."
+          "footer": "Mượn thì phải trả trước, rồi mới dùng tiền lời."
         },
         {
           "id": "L6C4",
           "order": 4,
-          "title": "Chia tiền lời.",
-          "body": "Luật cuộc thi: tiền lời không chia cho từng bạn mang về. Tiền lời dùng để làm tiếp, giúp trường, hoặc làm việc tốt. Giả sử tiệm lời 100 nghìn:",
+          "title": "Dùng tiền lời vào việc gì?",
+          "body": "Luật cuộc thi: tiền lời không chia cho từng bạn mang về. Đội dùng tiền lời để làm tiếp, giúp trường, hoặc làm việc tốt. Giả sử tiệm lời 100 nghìn:",
           "bullets": [
             "Có nợ thì trả trước.",
             "Giữ lại một phần để mua len làm tiếp.",
@@ -1730,7 +1730,7 @@
         {
           "id": "L6Q4",
           "order": 4,
-          "prompt": "Tiệm lời 100 nghìn, đang nợ bố mẹ Gấu 20 nghìn. Chia thế nào là đúng?",
+          "prompt": "Tiệm lời 100 nghìn, đang nợ bố mẹ Gấu 20 nghìn. Dùng thế nào là đúng?",
           "options": [
             {
               "id": "a",
@@ -1869,7 +1869,7 @@
           },
           {
             "id": "L6F4",
-            "prompt": "Đội lời 100 nghìn. Con chia thế nào?",
+            "prompt": "Đội lời 100 nghìn. Con muốn dùng vào việc gì?",
             "parts": [
               {
                 "id": "a",
@@ -2329,7 +2329,7 @@
     "intro": "Buổi Zoom dài 30 phút, Trí dẫn, bố chỉ hỏi. Chỉ bỏ phiếu những điều mà phiếu của các con trả lời khác nhau, nhiều nhất 5–6 lần. Các lựa chọn hiện trên màn hình, mỗi bạn nói ý mình trước rồi giơ ngón tay để bỏ phiếu, chụp màn hình mỗi lần bỏ phiếu để làm bằng chứng các con tự quyết.",
     "agenda": [
       "5 phút: mỗi bạn kể một điều bất ngờ lúc các bạn chơi thử (nếu đội đã chơi thử).",
-      "20 phút: bỏ phiếu, chọn trong số này: tên trò chơi; bán bộ, vé chơi, hay cả hai; giá bán; chia tiền lời; các nhóm việc và bao lâu đổi vai.",
+      "20 phút: bỏ phiếu, chọn trong số này: tên trò chơi; bán bộ, vé chơi, hay cả hai; giá bán; cách dùng tiền lời; các nhóm việc và bao lâu đổi vai.",
       "5 phút: mỗi bạn nói một điều bên ngoài có thể giúp đội, và một điều có thể làm khó đội (hai ô còn lại của SWOT)."
     ],
     "after": [

@@ -1,6 +1,6 @@
 # Where each submission answer comes from
 
-Content version 2026-10-25.14. The same map is in the content file as the top-level `submission` list. Template: "(Bản nộp) Business Idea & Plan Template 2026" (Milestones 3 and 4, due November 3).
+Content version 2026-10-26.15. The same map is in the content file as the top-level `submission` list. Template: "(Bản nộp) Business Idea & Plan Template 2026" (Milestones 3 and 4, due November 3).
 
 The children answer in Vietnamese in the game. Trí and the mentor then turn those answers into the English template. Question ids (L1F1 and so on) match the game's console and its CSV/JSON exports. H2 is the one optional homework task, "Chơi thử với bạn" (3 friends play the paper draft at school). "Zoom" is the team call after the seven levels.
 
@@ -12,13 +12,13 @@ Every one of the 27 form questions feeds at least one template section. The quiz
 | --- | --- | --- | --- |
 | 1. About your team (counts, ages, teachers) | — | Not in the course | Mentor |
 | 2. Your school | 200 words | Not in the course | Mentor or teacher |
-| 2. What you want to do with the money | 100 words | L6F4 (split of the profit; name of the good cause and why) | Children; Zoom vote on the split |
+| 2. What you want to do with the money | 100 words | L6F4 (how the profit is used: debt, keep to make more, good cause; name of the good cause and why) | Children; Zoom vote on how to use it |
 | 3. Your idea | 100 words | L1F1 (how it is played, who wins, players per game), L2F4 (what the first set contains, what comes later), L4F1 (set to take home, ticket to play, or both), L3F1 (who it is for first) | Children |
 | 4. Problem or need | 200 words | L1F2 (something they saw at school), L1F3 (what the game helps with: 1–3 picks), L1F4 (why it helps) | Children |
 | SDG (tick one) | — | Chosen by the parents from L1F3 and L1F4. The children never see the SDG list. | Mentor |
 | 4. Why will this idea work (customers, resources, skills, money) | 100 words | Customers: L2F1, H2 if done. Resources: L6F2 "Nhà con có sẵn". Skills: L2F2, L3F4a. Money: L5F2 (profit per set). Permission and safety: L2F3. | Children |
 | 5. Start-up capital: how much and how raised | 200 words | L6F2 (what to buy, prices, what is already at home, total), L6F3 (where the money comes from, and why) | Children; parents check prices; mentor checks the numbers |
-| 6. Profit sharing agreement | Table | L6F4 (split of 100 nghìn, which becomes the percentages; the good cause and why). Timescale and signatures are added by adults. | Children; Zoom vote; teacher signs |
+| 6. Profit sharing agreement | Table | L6F4 (how 100 nghìn of profit is used, which becomes the percentages; the good cause and why). Timescale and signatures are added by adults. | Children; Zoom vote; teacher signs |
 
 ## Business Plan (Milestone 4)
 
