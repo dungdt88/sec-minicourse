@@ -505,6 +505,32 @@ a {
   color: var(--wrong-ink);
   font-weight: 700;
 }
+/* 🎤 voice typing under a text box; it pulses gently while the browser listens. */
+.dictate-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.icon-btn.dictate.listening {
+  border-color: var(--berry);
+  background: var(--wrong-soft);
+  animation: listen 1.4s ease-in-out infinite;
+}
+@keyframes listen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 87, 122, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(194, 87, 122, 0); }
+}
+.dictate-status {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+.dictate-status.error {
+  color: var(--wrong-ink);
+  font-weight: 700;
+}
 .part-message {
   color: var(--wrong-ink);
   font-weight: 700;
@@ -1732,4 +1758,24 @@ html[data-skin='halloween'] .today-tag {
   font-weight: 700;
   font-size: 17px;
   line-height: 1.35;
+}
+
+/* A form question with its 🔊 on the right; a "cannot read" note goes on its own line below. */
+.prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px 10px;
+}
+.prompt-row .prompt {
+  flex: 1;
+  min-width: 0;
+}
+.prompt-row .icon-btn {
+  flex: none;
+  margin-top: -8px;
+  font-size: 20px;
+}
+.prompt-row .read-failed {
+  flex-basis: 100%;
 }

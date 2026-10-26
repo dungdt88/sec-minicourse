@@ -74,6 +74,13 @@ export const APP_STRINGS: UiStrings = {
   backToForm: 'Về phiếu',
   readAloudFailed: 'Máy chưa đọc được tiếng Việt. Bố mẹ đọc cho con nghe nhé.',
   dictationTip: '🎤 Bố mẹ bấm micro trên bàn phím, con nói là máy gõ.',
+  // The 🎤 button under a text box (voice typing in the browser, where it has it).
+  dictate: 'Bấm để nói',
+  dictateStop: 'Nói xong',
+  listening: 'Máy đang nghe con nói…',
+  dictateNoSpeech: 'Ơ, máy chưa nghe thấy gì. Con bấm 🎤 rồi nói lại nhé!',
+  dictateDenied: 'Máy chưa cho dùng micro. Bố mẹ bấm micro trên bàn phím nhé.',
+  dictateFailed: 'Máy chưa nghe được. Bố mẹ bấm micro trên bàn phím nhé.',
   missingPart: 'Phần này con chưa trả lời.',
   textOnlyMissing: 'Con trả lời một chút, hoặc bấm “Chưa biết” nhé.',
   whyNudge: 'Con nói thêm vì sao không? Chưa nghĩ ra thì bấm Tiếp lần nữa nhé.',

@@ -2,13 +2,24 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormQuestion, Level, Part } from '../content/types';
 import { findQuestion } from '../content/types';
-import { checkPart, checkQuestion, formatPart, pickedTexts, withColon, type PartAnswer } from '../domain/answers';
+import { checkPart, checkQuestion, formatPart, pickedTexts, visibleOptions, withColon, type PartAnswer } from '../domain/answers';
 import { uuid } from '../domain/progress';
 import { PartField } from './parts';
 import { usePlayer } from './session';
-import { HintBanner, RichText, StepProgress } from './ui';
+import { HintBanner, ReadAloud, RichText, StepProgress } from './ui';
 
 const TEXT_DEBOUNCE_MS = 600;
+
+/** What 🔊 reads on a form question: the question, its hint, and each part's label and choices. */
+function spokenQuestion(question: FormQuestion, lookup: (q: string, p: string) => PartAnswer | undefined): (string | undefined)[] {
+  const out: (string | undefined)[] = [question.prompt, question.hint];
+  for (const part of question.parts) {
+    if (part.type !== 'repeat') out.push(part.label); // a repeat part shows no label
+    if (part.type === 'single_choice') out.push(...visibleOptions(part, lookup).map((o) => o.text));
+    if (part.type === 'multi_choice' || part.type === 'pick_n') out.push(...part.options.map((o) => o.text));
+  }
+  return out;
+}
 
 /**
  * Drafts for the parts of one question. Changes show at once and are written after a short pause
@@ -131,9 +142,13 @@ export function FormQuestionScreen({ level, question, index, total, readOnly, on
         </p>
       )}
       <div>
-        <h1 className="prompt content-col" id={promptId}>
-          <RichText text={question.prompt} />
-        </h1>
+        {/* 🔊 beside the question: the progress row is full on a small phone. */}
+        <div className="prompt-row">
+          <h1 className="prompt content-col" id={promptId}>
+            <RichText text={question.prompt} />
+          </h1>
+          <ReadAloud id={question.id} text={spokenQuestion(question, lookup)} compact />
+        </div>
         {question.hint && <p className="hint">{question.hint}</p>}
       </div>
       {readOnly && <p className="notice lock">{t('formLocked')}</p>}
