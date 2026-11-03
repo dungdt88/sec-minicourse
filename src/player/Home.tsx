@@ -8,6 +8,7 @@ import { FINISHED, friendsByLevel, recentNews, teamCandyGoal, type FriendProgres
 import { AvatarRow, useTeamProgress } from './team';
 import { useSkin } from '../art/skin';
 import { sortedLevels } from '../content/types';
+import { TEAM_VOTE_LEVEL_ID, TEAM_VOTE_TITLE } from '../content/teamVote';
 import { levelStatuses, todayLevel } from '../domain/progress';
 import { switchProfile } from './Entry';
 import { usePlayer } from './session';
@@ -103,6 +104,14 @@ export function Home() {
           ))}
         </section>
       )}
+
+      {/* The vote and team reflection: a page of its own, beside the levels. */}
+      <div className="center">
+        <button className={`side-quest${levelState(TEAM_VOTE_LEVEL_ID)?.submittedAt ? '' : ' highlight'}`} onClick={() => navigate(`${base}/team-vote`)}>
+          <span aria-hidden="true">🗳️</span> {TEAM_VOTE_TITLE}
+          {levelState(TEAM_VOTE_LEVEL_ID)?.submittedAt && <span aria-label="đã gửi"> ✓</span>}
+        </button>
+      </div>
 
       {today && (
         <div className="center">

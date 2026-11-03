@@ -1,6 +1,6 @@
 // Profile picker, PIN entry and the session gate around the player screens (FR-P-01, FR-P-02).
 import { useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { playerApi } from '../api';
 import { WriteQueue } from '../api/queue';
 import { ApiError, mentorLabelOf, type ActiveContent, type PlayerApi, type PlayerState, type PublicProfile } from '../api/types';
@@ -11,6 +11,27 @@ import { deviceType } from '../domain/progress';
 import { PlayerSessionProvider, deviceTokens, loadContent } from './session';
 
 const CURRENT_KEY = 'tvt.currentProfile';
+const NEXT_KEY = 'tvt.next';
+
+/** A link to a page in the player (e.g. /play/team-vote) opens that page once the child is in. */
+function rememberNext(path: string) {
+  try {
+    sessionStorage.setItem(NEXT_KEY, path);
+  } catch {
+    // storage blocked: the child lands on the map
+  }
+}
+
+function afterEntry(): string {
+  try {
+    const next = sessionStorage.getItem(NEXT_KEY);
+    sessionStorage.removeItem(NEXT_KEY);
+    if (next?.startsWith('/play/')) return next;
+  } catch {
+    // storage blocked
+  }
+  return '/play/home';
+}
 
 function useBoot() {
   const setSkin = useSetSkin();
@@ -83,7 +104,7 @@ export function ProfilePicker() {
   const pick = (p: PublicProfile) => {
     if (deviceTokens.get(p.id)) {
       localStorage.setItem(CURRENT_KEY, p.id);
-      navigate('/play/home');
+      navigate(afterEntry());
     } else if (boot.requirePin) navigate(`/pin/${p.id}`);
     else enterWithoutCode(boot.api, p.id, navigate);
   };
@@ -123,7 +144,7 @@ function enterWithoutCode(api: PlayerApi, profileId: string, navigate: (to: stri
     (token) => {
       deviceTokens.set(profileId, token);
       localStorage.setItem(CURRENT_KEY, profileId);
-      navigate('/play/home', { replace: true });
+      navigate(afterEntry(), { replace: true });
     },
     () => navigate(`/pin/${profileId}`),
   );
@@ -156,7 +177,7 @@ export function PinEntry() {
       .then((token) => {
         deviceTokens.set(profileId, token);
         localStorage.setItem(CURRENT_KEY, profileId);
-        navigate('/play/home', { replace: true });
+        navigate(afterEntry(), { replace: true });
       })
       .catch((e: unknown) => {
         const err = e instanceof ApiError ? e : new ApiError('unknown');
@@ -241,6 +262,7 @@ export function PinEntry() {
 export function SessionGate() {
   const { boot, error, retry } = useBoot();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const profileId = localStorage.getItem(CURRENT_KEY);
   const token = profileId ? deviceTokens.get(profileId) : null;
   const [state, setState] = useState<PlayerState | null>(null);
@@ -249,6 +271,7 @@ export function SessionGate() {
 
   useEffect(() => {
     if (!token || !profileId) {
+      if (pathname !== '/play/home') rememberNext(pathname);
       navigate('/', { replace: true });
       return;
     }
@@ -272,7 +295,9 @@ export function SessionGate() {
   );
 }
 
-export function switchProfile(navigate: (to: string) => void) {
+/** Back to the pictures; `next`: the page to return to once the right child is in. */
+export function switchProfile(navigate: (to: string) => void, next?: string) {
+  if (next) rememberNext(next);
   localStorage.removeItem(CURRENT_KEY);
   navigate('/');
 }

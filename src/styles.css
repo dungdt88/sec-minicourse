@@ -1779,3 +1779,31 @@ html[data-skin='halloween'] .today-tag {
 .prompt-row .read-failed {
   flex-basis: 100%;
 }
+
+/* "Chia tiền lời & Đội mình" (TeamVote.tsx) */
+.vote-who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 19px;
+}
+.vote-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.vote-section h2 {
+  margin: 12px 0 0;
+  font-size: 22px;
+}
+.vote-part {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.vote-who .link-btn {
+  margin: 0;
+}
