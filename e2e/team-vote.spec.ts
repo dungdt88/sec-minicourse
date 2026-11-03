@@ -1,14 +1,19 @@
 // "Chia tiền lời & Đội mình" end to end on the real database functions: a direct link opens it once
-// the child is in, answers save while typing and after "Gửi", a friend never sees them, and the
-// console tallies the vote and copies everything word for word.
+// the child is in; one question per screen, saved as the screen changes and on reload; "Xem lại
+// phiếu" and "Gửi", still editable after; a friend never sees the answers; the console tallies the
+// vote and copies everything word for word.
 import { expect, test, type Page } from '@playwright/test';
-import { KIDS, kidPage, mentorPage, waitSaved } from './helpers';
+import { KIDS, kidPage, mentorPage, next, waitSaved } from './helpers';
 
-const question = (page: Page, prompt: string) => page.locator('.vote-question', { hasText: prompt });
-const choose = (page: Page, prompt: string, option: string) => question(page, prompt).getByRole('radio', { name: option, exact: true }).click();
+const at = async (page: Page, n: number, prompt: string) => {
+  await expect(page.getByText(`Câu ${n}/9`).first()).toBeVisible();
+  await expect(page.locator('h1.prompt')).toHaveText(prompt);
+};
+const choose = (page: Page, option: string) => page.getByRole('radio', { name: option, exact: true }).click();
+const reviewItem = (page: Page, n: number) => page.locator('.review-item').nth(n - 1);
 
-test('vote and reflection: saved, sent, still editable, secret from friends, tallied and copied for the mentor', async ({ browser }) => {
-  // A direct link: no one is in yet, so the pictures first, then straight to the form.
+test('vote and reflection: one question per screen, saved, sent, still editable, secret from friends, tallied and copied', async ({ browser }) => {
+  // A direct link: no one is in yet, so the pictures first, then straight to the section's intro.
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await page.goto('/play/team-vote');
@@ -19,39 +24,80 @@ test('vote and reflection: saved, sent, still editable, secret from friends, tal
   await expect(page).toHaveURL(/\/play\/team-vote$/);
   await expect(page.locator('.vote-who')).toContainText('An');
   await expect(page.getByText('Bố mẹ đọc câu hỏi cho con nghe. Con tự trả lời.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Bắt đầu' }).click();
 
-  await choose(page, 'đội mình chia thế nào?', 'D. Ý khác của con:');
-  await question(page, 'đội mình chia thế nào?').getByRole('textbox').fill('chia đều cho cả đội');
-  await choose(page, 'con muốn giúp ai?', 'B. Động vật bị bỏ rơi');
-  await choose(page, 'Khi nào đội chia tiền lời?', 'C. Chưa biết');
-  await choose(page, 'làm theo ý của nhiều bạn không?', 'Có');
-  await question(page, 'con thích nhất điều gì?').getByRole('textbox').fill('Con thích vẽ.\nVà tô màu nữa.');
+  await at(page, 1, 'Khi bán trò chơi có tiền lời, đội mình chia thế nào?');
+  await expect(page.getByText('Phần 1 – Chia tiền lời')).toBeVisible();
+  await choose(page, 'D. Ý khác của con:');
+  await page.getByRole('textbox').fill('chia đều cho cả đội');
+  await next(page);
+  await at(page, 2, 'Phần cho từ thiện, con muốn giúp ai?');
+  await choose(page, 'B. Động vật bị bỏ rơi');
+  // Back keeps what was chosen and written.
+  await page.getByRole('button', { name: 'Quay lại' }).click();
+  await at(page, 1, 'Khi bán trò chơi có tiền lời, đội mình chia thế nào?');
+  await expect(page.getByRole('textbox')).toHaveValue('chia đều cho cả đội');
+  await next(page);
+  await expect(page.getByRole('radio', { name: 'B. Động vật bị bỏ rơi' })).toHaveAttribute('aria-checked', 'true');
+  await next(page);
+  await at(page, 3, 'Khi nào đội chia tiền lời?');
+  await choose(page, 'C. Chưa biết');
+  await next(page);
+  await choose(page, 'Có');
+  await next(page);
+  await at(page, 5, 'Lúc cả đội chọn ý tưởng trò chơi, con thích nhất điều gì?');
+  await expect(page.getByText('Phần 2 – Đội mình làm việc cùng nhau')).toBeVisible();
+  // Typed and moved on at once: the text is saved as the screen changes.
+  await page.getByRole('textbox').fill('Con thích vẽ.\nVà tô màu nữa.');
+  await next(page);
+  await at(page, 6, 'Có lúc nào con và các bạn không cùng ý với nhau không? Đó là chuyện gì?');
+  // A reload stays on the question.
+  await waitSaved(page);
+  await page.reload();
+  await at(page, 6, 'Có lúc nào con và các bạn không cùng ý với nhau không? Đó là chuyện gì?');
+  await next(page);
+  await next(page);
+  await at(page, 8, 'Con học được gì khi làm việc cùng các bạn?');
+  await next(page);
+  await at(page, 9, 'Lần sau, con muốn đội mình làm tốt hơn điều gì?');
+  await page.getByRole('button', { name: 'Xem lại phiếu' }).click();
 
-  // "Gửi" with questions still open says which; a second tap sends anyway.
+  // The review: every answer word for word; "Gửi" with questions open says which, then sends.
+  await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
+  await expect(reviewItem(page, 1).locator('.a')).toHaveText('D. Ý khác của con: chia đều cho cả đội');
+  await expect(reviewItem(page, 5).locator('.a')).toHaveText('Con thích vẽ.\nVà tô màu nữa.');
+  await expect(reviewItem(page, 6).locator('.a')).toHaveText('(chưa trả lời)');
   await page.getByRole('button', { name: 'Gửi', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Còn câu 6, 7, 8, 9 chưa có câu trả lời.');
   await page.getByRole('button', { name: 'Gửi', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã gửi' })).toContainText('Con vẫn sửa được');
+  await expect(page.getByRole('button', { name: 'Về bản đồ' }).last()).toBeVisible();
   await waitSaved(page);
 
-  // Saved on the server: reload and everything is there; still editable after sending.
+  // Still editable after sending: "Sửa" opens the question, and "Xem lại phiếu" comes back.
   await page.reload();
-  await expect(question(page, 'Khi nào đội chia tiền lời?').getByRole('radio', { name: 'C. Chưa biết' })).toHaveAttribute('aria-checked', 'true');
-  await expect(question(page, 'đội mình chia thế nào?').getByRole('textbox')).toHaveValue('chia đều cho cả đội');
-  await expect(question(page, 'con thích nhất điều gì?').getByRole('textbox')).toHaveValue('Con thích vẽ.\nVà tô màu nữa.');
-  await question(page, 'Con học được gì').getByRole('textbox').fill('Con học được lắng nghe bạn.');
+  await expect(page.getByRole('heading', { name: 'Xem lại phiếu' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sửa 8' }).click();
+  await at(page, 8, 'Con học được gì khi làm việc cùng các bạn?');
+  await page.getByRole('textbox').fill('Con học được lắng nghe bạn.');
+  await page.getByRole('button', { name: 'Xem lại phiếu' }).click();
+  await expect(reviewItem(page, 8).locator('.a')).toHaveText('Con học được lắng nghe bạn.');
   await waitSaved(page);
-  await page.getByRole('button', { name: 'Về bản đồ' }).click();
+  await page.locator('.bottom-actions').getByRole('button', { name: 'Về bản đồ' }).click();
   await expect(page.locator('.side-quest', { hasText: 'Chia tiền lời & Đội mình' })).toContainText('✓');
 
   // A friend opens it from the map: nothing of An's, no counts.
   const friend = await kidPage(browser, 'Bình');
   await friend.page.locator('.side-quest', { hasText: 'Chia tiền lời & Đội mình' }).click();
-  await expect(friend.page.getByRole('heading', { name: 'Chia tiền lời & Đội mình' })).toBeVisible();
+  await friend.page.getByRole('button', { name: 'Bắt đầu' }).click();
+  await at(friend.page, 1, 'Khi bán trò chơi có tiền lời, đội mình chia thế nào?');
   await expect(friend.page.locator('[aria-checked="true"]')).toHaveCount(0);
-  for (const box of await friend.page.getByRole('textbox').all()) await expect(box).toHaveValue('');
+  await choose(friend.page, 'B. Một nửa giữ lại, một nửa cho từ thiện');
+  await next(friend.page);
+  await friend.page.goto('/play/team-vote?q=review');
+  await expect(reviewItem(friend.page, 1).locator('.a')).toHaveText('B. Một nửa giữ lại, một nửa cho từ thiện');
+  for (const n of [2, 5, 8]) await expect(reviewItem(friend.page, n).locator('.a')).toHaveText('(chưa trả lời)');
   await expect(friend.page.getByText('chia đều cho cả đội')).toHaveCount(0);
-  await choose(friend.page, 'đội mình chia thế nào?', 'B. Một nửa giữ lại, một nửa cho từ thiện');
   await waitSaved(friend.page);
 
   // The console: who has sent, the tally, side by side, and the copy.
