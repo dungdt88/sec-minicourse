@@ -5,6 +5,7 @@ import { PinEntry, ProfilePicker, SessionGate } from './player/Entry';
 import { Home } from './player/Home';
 import { Homework } from './player/Homework';
 import { LevelPlayer } from './player/LevelPlayer';
+import { TeamVote } from './player/TeamVote';
 
 // The mentor console (and the PDF library it loads) is a separate bundle children never download.
 const MentorApp = lazy(() => import('./mentor/MentorApp'));
@@ -26,6 +27,7 @@ export function App() {
               <Route path="home" element={<Home />} />
               <Route path="level/:levelId" element={<LevelPlayer />} />
               <Route path="homework" element={<Homework />} />
+              <Route path="team-vote" element={<TeamVote />} />
               <Route index element={<Navigate to="home" replace />} />
             </Route>
             <Route path="/mentor/*" element={<MentorApp />} />

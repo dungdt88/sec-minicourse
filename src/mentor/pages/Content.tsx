@@ -10,6 +10,7 @@ import { Home } from '../../player/Home';
 import { Homework } from '../../player/Homework';
 import { LevelPlayer } from '../../player/LevelPlayer';
 import { PlayerSessionProvider } from '../../player/session';
+import { TeamVote } from '../../player/TeamVote';
 import { fmtTime } from '../derive';
 import { useMentor } from '../context';
 
@@ -179,6 +180,7 @@ export function PreviewPage() {
           <Route path="home" element={<Home />} />
           <Route path="level/:levelId" element={<LevelPlayer />} />
           <Route path="homework" element={<Homework />} />
+          <Route path="team-vote" element={<TeamVote />} />
           <Route path="*" element={<Navigate to={`${base}/home`} replace />} />
         </Routes>
       </PlayerSessionProvider>

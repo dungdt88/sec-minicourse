@@ -336,6 +336,15 @@ supabase/migrations/   tables, RLS, server functions
   keyboard-microphone tip stays under the first text box everywhere, as the way that always works.
   No key, no server and no AI service: the browser may use Apple's or Google's speech service, as
   the keyboard does.
+- **Chia tiền lời & Đội mình** (`src/content/teamVote.ts`, `/play/team-vote`). Each child's own
+  vote on the profit split (questions 1–4) and their words for the teamwork reflection (5–9), on
+  one page reached from a button on the map. A link to `/play/team-vote` opens it once the child
+  has tapped their picture. The questions live in code, not in course-content.json, so they need
+  no content upload. Answers are stored like form answers under level id `TV` and "Gửi" is that
+  level's submit, so no database change was needed. It saves while typing, and the child can
+  still edit after "Gửi". Children see only their own answers, never a count. The console page
+  "Chia tiền lời" shows who has sent, the tally of 1–4, the answers side by side and "Sao chép
+  tất cả" (plain text, word for word). The answers also appear in answers.csv.
 - **What the children call the mentor.** `teams.settings.mentorLabel` (Cài đặt → "Các con gọi
   người hướng dẫn là", e.g. "bố Trí"; default "người hướng dẫn") fills `{mentor}` in kid-facing
   text, such as "Bố mẹ nhờ bố Trí đặt mã cho con nhé." The mentor console still says "người hướng dẫn".

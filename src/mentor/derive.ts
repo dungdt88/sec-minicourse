@@ -2,6 +2,7 @@
 import type { AnswerVersion, Profile, QuizAttempt, Section, TeamData } from '../api/types';
 import type { CourseContent, FormQuestion, Level, Part } from '../content/types';
 import { HOMEWORK_LEVEL_ID, byOrder } from '../content/types';
+import { TEAM_VOTE_LEVEL_ID, TEAM_VOTE_QUESTIONS } from '../content/teamVote';
 import { compareKey, formatPart, isComparable, type PartAnswer } from '../domain/answers';
 import type { Translate } from '../content/strings';
 
@@ -142,6 +143,10 @@ export function questionText(contents: Map<string, CourseContent>, fallback: Cou
     const part = c.homework.capture?.[a.questionId]?.find((p) => p.id === a.partId);
     const item = c.homework.items.find((i) => i.id === a.questionId);
     return { question: item ? { id: item.id, prompt: item.text, parts: part ? [part] : [], allowDontKnow: false } : undefined, part };
+  }
+  if (a.levelId === TEAM_VOTE_LEVEL_ID) {
+    const question = TEAM_VOTE_QUESTIONS.find((q) => q.id === a.questionId);
+    return { question, part: question?.parts.find((p) => p.id === a.partId) };
   }
   for (const l of c.levels) {
     const question = l.form.questions.find((q) => q.id === a.questionId);
